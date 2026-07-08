@@ -10,6 +10,12 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: products
+    description: Product catalog operations
+  - name: admin
+    description: Admin authentication operations
+  - name: storage
+    description: Object storage operations
 paths:
   /healthz:
     get:
@@ -24,6 +30,236 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List products
+      description: Returns all products, optionally filtered by category or availability
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ProductCategory"
+        - name: availableOnly
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a product
+      description: Creates a new product (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /products/categories/summary:
+    get:
+      operationId: getCategorySummary
+      tags: [products]
+      summary: Category summary
+      description: Returns product counts per category, for a quick catalog overview
+      responses:
+        "200":
+          description: Category summary
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategorySummary"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a product
+      description: Updates a product (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a product
+      description: Deletes a product (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      description: Logs in with the shared admin password, starting a session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Invalid password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/logout:
+    post:
+      operationId: adminLogout
+      tags: [admin]
+      summary: Admin logout
+      description: Ends the current admin session
+      responses:
+        "204":
+          description: Logged out
+
+  /admin/session:
+    get:
+      operationId: getAdminSession
+      tags: [admin]
+      summary: Get current admin session status
+      responses:
+        "200":
+          description: Session status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [storage]
+      summary: Request a presigned upload URL
+      description: Returns a presigned URL for uploading a product image directly to storage (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadRequestInput"
+      responses:
+        "200":
+          description: Presigned upload info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresignedUpload"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +270,161 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    ProductCategory:
+      type: string
+      enum:
+        - tropicals
+        - flowering
+        - planters
+        - easter
+        - mothers_day
+        - cut_flowers
+
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - category
+        - imageUrl
+        - sku
+        - size
+        - description
+        - available
+        - sortOrder
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          $ref: "#/components/schemas/ProductCategory"
+        imageUrl:
+          type: ["string", "null"]
+        sku:
+          type: ["string", "null"]
+        size:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        available:
+          type: boolean
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProductInput:
+      type: object
+      required:
+        - name
+        - category
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          $ref: "#/components/schemas/ProductCategory"
+        imageUrl:
+          type: ["string", "null"]
+        sku:
+          type: ["string", "null"]
+        size:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        available:
+          type: boolean
+        sortOrder:
+          type: integer
+
+    ProductUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          $ref: "#/components/schemas/ProductCategory"
+        imageUrl:
+          type: ["string", "null"]
+        sku:
+          type: ["string", "null"]
+        size:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        available:
+          type: boolean
+        sortOrder:
+          type: integer
+
+    CategorySummary:
+      type: object
+      required:
+        - category
+        - total
+        - availableCount
+      properties:
+        category:
+          $ref: "#/components/schemas/ProductCategory"
+        total:
+          type: integer
+        availableCount:
+          type: integer
+
+    AdminLoginInput:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          minLength: 1
+
+    AdminSession:
+      type: object
+      required:
+        - authenticated
+      properties:
+        authenticated:
+          type: boolean
+
+    UploadRequestInput:
+      type: object
+      required:
+        - name
+        - size
+        - contentType
+      properties:
+        name:
+          type: string
+        size:
+          type: integer
+        contentType:
+          type: string
+
+    PresignedUpload:
+      type: object
+      required:
+        - uploadURL
+        - objectPath
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string

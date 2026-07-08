@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Burnaby Lake Greenhouses"
+version = "1.0.0"
+id = "artifacts/burlake-web"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24230
+
+[services.development]
+run = "pnpm --filter @workspace/burlake-web run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/burlake-web", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/burlake-web/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24230"
+BASE_PATH = "/"
