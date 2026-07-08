@@ -145,7 +145,7 @@ export default function AdminImport() {
   const [collectionMappings, setCollectionMappings] = useState<CollectionMapping[]>([]);
   const [parseError, setParseError] = useState<string | null>(null);
 
-  const [importResult, setImportResult] = useState<{ created: number; failed: number; errors: string[] } | null>(null);
+  const [importResult, setImportResult] = useState<{ created: number; duplicates: number; failed: number; errors: string[] } | null>(null);
 
   const bulkCreate = useBulkCreateProducts();
 
@@ -239,6 +239,7 @@ export default function AdminImport() {
     setStep('done');
     const CHUNK = 200;
     let created = 0;
+    let duplicates = 0;
     let failed = 0;
     const errors: string[] = [];
 
@@ -247,6 +248,7 @@ export default function AdminImport() {
       try {
         const result = await bulkCreate.mutateAsync({ data: { products: chunk } });
         created += result.created;
+        duplicates += result.duplicates;
         failed += result.failed;
         if (result.errors) errors.push(...result.errors);
       } catch (err: any) {
@@ -255,7 +257,7 @@ export default function AdminImport() {
       }
     }
 
-    setImportResult({ created, failed, errors });
+    setImportResult({ created, duplicates, failed, errors });
   };
 
   // ─── Render ─────────────────────────────────────────────────────────────────
@@ -481,12 +483,17 @@ export default function AdminImport() {
                 ) : (
                   <AlertCircle className="w-6 h-6 text-yellow-500 shrink-0 mt-0.5" />
                 )}
-                <div>
+                <div className="space-y-1">
                   <p className="font-medium text-foreground text-lg">
                     {importResult.created} product{importResult.created !== 1 ? 's' : ''} imported successfully
                   </p>
+                  {importResult.duplicates > 0 && (
+                    <p className="text-muted-foreground text-sm">
+                      {importResult.duplicates} skipped — already in your catalog (matched by SKU or name).
+                    </p>
+                  )}
                   {importResult.failed > 0 && (
-                    <p className="text-muted-foreground text-sm mt-1">
+                    <p className="text-sm text-destructive">
                       {importResult.failed} rows failed to insert.
                     </p>
                   )}

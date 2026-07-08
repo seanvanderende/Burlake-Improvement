@@ -445,9 +445,12 @@ components:
       type: object
       required:
         - created
+        - duplicates
         - failed
       properties:
         created:
+          type: integer
+        duplicates:
           type: integer
         failed:
           type: integer

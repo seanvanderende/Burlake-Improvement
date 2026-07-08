@@ -181,6 +181,7 @@ export const BulkCreateProductsBody = zod.object({
 
 export const BulkCreateProductsResponse = zod.object({
   "created": zod.number(),
+  "duplicates": zod.number(),
   "failed": zod.number(),
   "errors": zod.array(zod.string()).optional()
 })

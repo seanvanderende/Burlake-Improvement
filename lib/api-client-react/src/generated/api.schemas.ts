@@ -97,6 +97,7 @@ export interface BulkCreateProductsInput {
 
 export interface BulkCreateProductsResult {
   created: number;
+  duplicates: number;
   failed: number;
   errors?: string[];
 }

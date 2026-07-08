@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { db, productsTable, type ProductCategory } from "@workspace/db";
 import {
   ListProductsQueryParams,
@@ -177,13 +177,51 @@ router.post(
 
     const { products } = parsed.data;
     let created = 0;
+    let duplicates = 0;
     let failed = 0;
     const errors: string[] = [];
 
+    // Deduplicate by SKU: fetch all existing SKUs in one query, then filter
+    // incoming rows so we never insert a product whose SKU is already present.
+    // Rows without a SKU fall back to name-based dedup.
+    const incomingSkus = products
+      .map((p) => p.sku)
+      .filter((s): s is string => Boolean(s));
+    const incomingNames = products
+      .filter((p) => !p.sku)
+      .map((p) => p.name);
+
+    const [existingBySku, existingByName] = await Promise.all([
+      incomingSkus.length > 0
+        ? db
+            .select({ sku: productsTable.sku })
+            .from(productsTable)
+            .where(inArray(productsTable.sku, incomingSkus))
+        : Promise.resolve([]),
+      incomingNames.length > 0
+        ? db
+            .select({ name: productsTable.name })
+            .from(productsTable)
+            .where(inArray(productsTable.name, incomingNames))
+        : Promise.resolve([]),
+    ]);
+
+    const existingSkuSet = new Set(existingBySku.map((r) => r.sku));
+    const existingNameSet = new Set(existingByName.map((r) => r.name));
+
+    const toInsert = products.filter((p) => {
+      if (p.sku) {
+        if (existingSkuSet.has(p.sku)) { duplicates++; return false; }
+      } else {
+        if (existingNameSet.has(p.name)) { duplicates++; return false; }
+      }
+      return true;
+    });
+
     // Insert in batches of 50 to avoid hitting DB parameter limits
     const BATCH = 50;
-    for (let i = 0; i < products.length; i += BATCH) {
-      const chunk = products.slice(i, i + BATCH);
+    for (let i = 0; i < toInsert.length; i += BATCH) {
+      const chunk = toInsert.slice(i, i + BATCH);
       try {
         const rows = await db
           .insert(productsTable)
@@ -196,7 +234,7 @@ router.post(
       }
     }
 
-    res.json(BulkCreateProductsResponse.parse({ created, failed, errors }));
+    res.json(BulkCreateProductsResponse.parse({ created, duplicates, failed, errors }));
   },
 );
 
