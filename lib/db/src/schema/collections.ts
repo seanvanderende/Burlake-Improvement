@@ -5,6 +5,8 @@ export const collectionsTable = pgTable("collections", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   slug: text("slug").notNull().unique(),
+  /** Organises collections into filter-panel sections: 'category' | 'collection' | 'holiday' | null */
+  grp: text("grp"),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

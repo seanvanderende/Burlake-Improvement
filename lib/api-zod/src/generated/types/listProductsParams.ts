@@ -8,5 +8,9 @@
 
 export type ListProductsParams = {
 collectionId?: number;
+/**
+ * Filter by exact size value
+ */
+size?: string;
 availableOnly?: boolean;
 };

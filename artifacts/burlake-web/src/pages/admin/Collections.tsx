@@ -12,19 +12,39 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Edit2, Trash2, Check, X, Loader2 } from 'lucide-react';
 
+const GROUP_OPTIONS = [
+  { value: '', label: '— None —' },
+  { value: 'category', label: 'Category' },
+  { value: 'collection', label: 'Collection' },
+  { value: 'holiday', label: 'Holiday' },
+];
+
+function grpLabel(grp: string | null | undefined) {
+  const found = GROUP_OPTIONS.find((o) => o.value === (grp ?? ''));
+  return found?.label ?? '—';
+}
+
 export default function AdminCollections() {
   const queryClient = useQueryClient();
   const { data: collections, isLoading } = useListCollections();
 
   const [newName, setNewName] = useState('');
+  const [newGrp, setNewGrp] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [editingGrp, setEditingGrp] = useState('');
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: getListCollectionsQueryKey() });
 
   const createMutation = useCreateCollection({
-    mutation: { onSuccess: () => { setNewName(''); invalidate(); } },
+    mutation: {
+      onSuccess: () => {
+        setNewName('');
+        setNewGrp('');
+        invalidate();
+      },
+    },
   });
 
   const updateMutation = useUpdateCollection({
@@ -32,6 +52,7 @@ export default function AdminCollections() {
       onSuccess: () => {
         setEditingId(null);
         setEditingName('');
+        setEditingGrp('');
         invalidate();
       },
     },
@@ -44,28 +65,35 @@ export default function AdminCollections() {
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
-    createMutation.mutate({ data: { name: newName.trim() } });
+    createMutation.mutate({
+      data: { name: newName.trim(), grp: newGrp || null },
+    });
   };
 
-  const startEdit = (id: number, name: string) => {
+  const startEdit = (id: number, name: string, grp: string | null | undefined) => {
     setEditingId(id);
     setEditingName(name);
+    setEditingGrp(grp ?? '');
   };
 
   const cancelEdit = () => {
     setEditingId(null);
     setEditingName('');
+    setEditingGrp('');
   };
 
   const handleUpdate = (id: number) => {
     if (!editingName.trim()) return;
-    updateMutation.mutate({ id, data: { name: editingName.trim() } });
+    updateMutation.mutate({
+      id,
+      data: { name: editingName.trim(), grp: editingGrp || null },
+    });
   };
 
   const handleDelete = (id: number, name: string, count: number) => {
     const msg =
       count > 0
-        ? `Delete "${name}"? It is currently assigned to ${count} product${count !== 1 ? 's' : ''}. Products will not be deleted, but this collection tag will be removed from them.`
+        ? `Delete "${name}"? It is currently assigned to ${count} product${count !== 1 ? 's' : ''}. Products will not be deleted, but this tag will be removed from them.`
         : `Delete "${name}"? This cannot be undone.`;
     if (window.confirm(msg)) {
       deleteMutation.mutate({ id });
@@ -77,23 +105,36 @@ export default function AdminCollections() {
       <div>
         <h1 className="font-serif text-3xl text-foreground">Collections</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Manage the collection tags used to organise your catalog.
+          Manage collection tags. The <strong>Group</strong> controls which filter section the
+          collection appears in on the public catalog.
         </p>
       </div>
 
-      {/* Add new collection */}
-      <form onSubmit={handleCreate} className="bg-card border border-border p-4">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground mb-3 block">
+      {/* Add new */}
+      <form onSubmit={handleCreate} className="bg-card border border-border p-4 space-y-3">
+        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
           Add New Collection
         </Label>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Input
             placeholder="Collection name…"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            className="flex-1"
+            className="flex-1 min-w-40"
             disabled={createMutation.isPending}
           />
+          <select
+            value={newGrp}
+            onChange={(e) => setNewGrp(e.target.value)}
+            disabled={createMutation.isPending}
+            className="border border-input bg-background px-3 py-2 text-sm focus:outline-none cursor-pointer min-w-36"
+          >
+            {GROUP_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
           <Button type="submit" disabled={!newName.trim() || createMutation.isPending}>
             {createMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -104,12 +145,13 @@ export default function AdminCollections() {
         </div>
       </form>
 
-      {/* Collection list */}
+      {/* Table */}
       <div className="bg-card border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
             <tr>
               <th className="px-6 py-4 text-left font-medium">Collection</th>
+              <th className="px-6 py-4 text-left font-medium">Group</th>
               <th className="px-6 py-4 text-left font-medium">Slug</th>
               <th className="px-6 py-4 text-left font-medium">Products</th>
               <th className="px-6 py-4 text-right font-medium">Actions</th>
@@ -118,13 +160,13 @@ export default function AdminCollections() {
           <tbody className="divide-y divide-border">
             {isLoading ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
                   Loading…
                 </td>
               </tr>
             ) : collections?.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
                   No collections yet. Add one above.
                 </td>
               </tr>
@@ -147,15 +189,42 @@ export default function AdminCollections() {
                       <span className="font-medium text-foreground">{col.name}</span>
                     )}
                   </td>
+                  <td className="px-6 py-4">
+                    {editingId === col.id ? (
+                      <select
+                        value={editingGrp}
+                        onChange={(e) => setEditingGrp(e.target.value)}
+                        className="border border-input bg-background px-2 py-1 text-sm focus:outline-none cursor-pointer h-8"
+                      >
+                        {GROUP_OPTIONS.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span
+                        className={`text-xs px-2 py-0.5 font-medium ${
+                          col.grp === 'category'
+                            ? 'bg-blue-100 text-blue-700'
+                            : col.grp === 'holiday'
+                            ? 'bg-rose-100 text-rose-700'
+                            : col.grp === 'collection'
+                            ? 'bg-green-100 text-green-700'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {grpLabel(col.grp)}
+                      </span>
+                    )}
+                  </td>
                   <td className="px-6 py-4 text-muted-foreground font-mono text-xs">
                     {col.slug}
                   </td>
                   <td className="px-6 py-4 text-muted-foreground">
                     {col.productCount}
                     {col.availableCount < col.productCount && (
-                      <span className="text-xs ml-1">
-                        ({col.availableCount} in stock)
-                      </span>
+                      <span className="text-xs ml-1">({col.availableCount} in stock)</span>
                     )}
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -189,7 +258,7 @@ export default function AdminCollections() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-primary"
-                          onClick={() => startEdit(col.id, col.name)}
+                          onClick={() => startEdit(col.id, col.name, col.grp)}
                         >
                           <Edit2 className="w-4 h-4" />
                         </Button>

@@ -447,6 +447,84 @@ export const useDeleteCollection = <TError = ErrorType<ErrorResponse>,
       return useMutation(getDeleteCollectionMutationOptions(options));
     }
 
+export const getListProductSizesUrl = () => {
+
+
+
+
+  return `/api/products/sizes`
+}
+
+/**
+ * Returns all distinct non-null size strings from products
+ * @summary List distinct product sizes
+ */
+export const listProductSizes = async ( options?: RequestInit): Promise<string[]> => {
+
+  return customFetch<string[]>(getListProductSizesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListProductSizesQueryKey = () => {
+    return [
+    `/api/products/sizes`
+    ] as const;
+    }
+
+
+export const getListProductSizesQueryOptions = <TData = Awaited<ReturnType<typeof listProductSizes>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listProductSizes>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListProductSizesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listProductSizes>>> = ({ signal }) => listProductSizes({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listProductSizes>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListProductSizesQueryResult = NonNullable<Awaited<ReturnType<typeof listProductSizes>>>
+export type ListProductSizesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List distinct product sizes
+ */
+
+export function useListProductSizes<TData = Awaited<ReturnType<typeof listProductSizes>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listProductSizes>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListProductSizesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getListProductsUrl = (params?: ListProductsParams,) => {
   const normalizedParams = new URLSearchParams();
 

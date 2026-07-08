@@ -10,6 +10,8 @@ export interface Collection {
   id: number;
   name: string;
   slug: string;
+  /** Filter-panel section: 'category' | 'collection' | 'holiday' | null */
+  grp?: string | null;
   sortOrder: number;
   productCount: number;
   availableCount: number;

@@ -30,6 +30,7 @@ async function fetchCollectionsWithCounts(availableOnly?: boolean) {
       id: collectionsTable.id,
       name: collectionsTable.name,
       slug: collectionsTable.slug,
+      grp: collectionsTable.grp,
       sortOrder: collectionsTable.sortOrder,
       createdAt: collectionsTable.createdAt,
       updatedAt: collectionsTable.updatedAt,
@@ -49,6 +50,7 @@ async function fetchCollectionsWithCounts(availableOnly?: boolean) {
       collectionsTable.id,
       collectionsTable.name,
       collectionsTable.slug,
+      collectionsTable.grp,
       collectionsTable.sortOrder,
       collectionsTable.createdAt,
       collectionsTable.updatedAt,
@@ -83,12 +85,12 @@ router.post(
       return;
     }
 
-    const { name, slug: rawSlug, sortOrder } = parsed.data;
+    const { name, slug: rawSlug, grp, sortOrder } = parsed.data;
     const slug = rawSlug?.trim() || slugify(name);
 
     const [collection] = await db
       .insert(collectionsTable)
-      .values({ name, slug, sortOrder: sortOrder ?? 0 })
+      .values({ name, slug, grp: grp ?? null, sortOrder: sortOrder ?? 0 })
       .returning();
 
     const withCounts = { ...collection, productCount: 0, availableCount: 0 };
@@ -122,6 +124,7 @@ router.patch(
       }
     }
     if (parsed.data.slug !== undefined) updates.slug = parsed.data.slug;
+    if (parsed.data.grp !== undefined) updates.grp = parsed.data.grp ?? null;
     if (parsed.data.sortOrder !== undefined) updates.sortOrder = parsed.data.sortOrder;
 
     const [collection] = await db

@@ -29,6 +29,7 @@ export const ListCollectionsResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "slug": zod.string(),
+  "grp": zod.string().nullish().describe('Filter-panel section: \'category\' | \'collection\' | \'holiday\' | null'),
   "sortOrder": zod.number(),
   "productCount": zod.number(),
   "availableCount": zod.number(),
@@ -48,6 +49,7 @@ export const ListCollectionsResponse = zod.array(ListCollectionsResponseItem)
 export const CreateCollectionBody = zod.object({
   "name": zod.string().min(1),
   "slug": zod.string().optional(),
+  "grp": zod.string().nullish(),
   "sortOrder": zod.number().optional()
 })
 
@@ -55,6 +57,7 @@ export const CreateCollectionResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "slug": zod.string(),
+  "grp": zod.string().nullish().describe('Filter-panel section: \'category\' | \'collection\' | \'holiday\' | null'),
   "sortOrder": zod.number(),
   "productCount": zod.number(),
   "availableCount": zod.number(),
@@ -77,6 +80,7 @@ export const UpdateCollectionParams = zod.object({
 export const UpdateCollectionBody = zod.object({
   "name": zod.string().min(1).optional(),
   "slug": zod.string().optional(),
+  "grp": zod.string().nullish(),
   "sortOrder": zod.number().optional()
 })
 
@@ -84,6 +88,7 @@ export const UpdateCollectionResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "slug": zod.string(),
+  "grp": zod.string().nullish().describe('Filter-panel section: \'category\' | \'collection\' | \'holiday\' | null'),
   "sortOrder": zod.number(),
   "productCount": zod.number(),
   "availableCount": zod.number(),
@@ -104,11 +109,20 @@ export const DeleteCollectionResponse = zod.void()
 
 
 /**
+ * Returns all distinct non-null size strings from products
+ * @summary List distinct product sizes
+ */
+export const ListProductSizesResponseItem = zod.string()
+export const ListProductSizesResponse = zod.array(ListProductSizesResponseItem)
+
+
+/**
  * Returns all products, optionally filtered by collection or availability
  * @summary List products
  */
 export const ListProductsQueryParams = zod.object({
   "collectionId": zod.coerce.number().optional(),
+  "size": zod.coerce.string().optional().describe('Filter by exact size value'),
   "availableOnly": zod.coerce.boolean().optional()
 })
 

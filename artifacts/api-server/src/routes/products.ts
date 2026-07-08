@@ -9,6 +9,7 @@ import {
 import {
   ListProductsQueryParams,
   ListProductsResponse,
+  ListProductSizesResponse,
   CreateProductBody,
   CreateProductResponse,
   GetProductParams,
@@ -138,6 +139,20 @@ async function markImagePublicIfOwned(imageUrl?: string | null): Promise<void> {
 
 // ─── Public routes ────────────────────────────────────────────────────────────
 
+// Must be registered before /products/:id to avoid "sizes" being parsed as an id
+router.get("/products/sizes", async (_req: Request, res: Response): Promise<void> => {
+  const rows = await db
+    .selectDistinct({ size: productsTable.size })
+    .from(productsTable)
+    .orderBy(asc(productsTable.size));
+
+  const sizes = rows
+    .map((r) => r.size)
+    .filter((s): s is string => s !== null && s.trim() !== "");
+
+  res.json(ListProductSizesResponse.parse(sizes));
+});
+
 router.get("/products", async (req: Request, res: Response): Promise<void> => {
   const query = ListProductsQueryParams.safeParse(req.query);
   if (!query.success) {
@@ -145,7 +160,7 @@ router.get("/products", async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const { collectionId, availableOnly } = query.data;
+  const { collectionId, size, availableOnly } = query.data;
 
   let productIds: number[] | null = null;
 
@@ -166,6 +181,7 @@ router.get("/products", async (req: Request, res: Response): Promise<void> => {
   const conditions = [];
   if (productIds) conditions.push(inArray(productsTable.id, productIds));
   if (availableOnly) conditions.push(eq(productsTable.available, true));
+  if (size) conditions.push(eq(productsTable.size, size));
 
   const products = await db
     .select()

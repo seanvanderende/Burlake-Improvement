@@ -26,6 +26,8 @@ export interface Collection {
   id: number;
   name: string;
   slug: string;
+  /** Filter-panel section: 'category' | 'collection' | 'holiday' | null */
+  grp?: string | null;
   sortOrder: number;
   productCount: number;
   availableCount: number;
@@ -37,6 +39,7 @@ export interface CollectionInput {
   /** @minLength 1 */
   name: string;
   slug?: string;
+  grp?: string | null;
   sortOrder?: number;
 }
 
@@ -44,6 +47,7 @@ export interface CollectionUpdate {
   /** @minLength 1 */
   name?: string;
   slug?: string;
+  grp?: string | null;
   sortOrder?: number;
 }
 
@@ -166,6 +170,10 @@ availableOnly?: boolean;
 
 export type ListProductsParams = {
 collectionId?: number;
+/**
+ * Filter by exact size value
+ */
+size?: string;
 availableOnly?: boolean;
 };
 

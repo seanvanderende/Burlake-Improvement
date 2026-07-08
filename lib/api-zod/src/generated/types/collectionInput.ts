@@ -10,5 +10,6 @@ export interface CollectionInput {
   /** @minLength 1 */
   name: string;
   slug?: string;
+  grp?: string | null;
   sortOrder?: number;
 }
