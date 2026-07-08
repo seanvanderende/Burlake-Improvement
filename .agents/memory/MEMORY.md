@@ -1,4 +1,7 @@
 - [Wouter catch-all root route bug](wouter-catchall-root-bug.md) — a wildcard wrapper route can silently fail to match `/`, blanking the homepage with zero console errors.
+- [Drizzle-kit non-interactive push](drizzle-noninteractive-push.md) — `drizzle-kit push` needs a TTY for destructive changes; use a raw pg.Pool migration script instead.
+- [Orval query key import](orval-query-key-import.md) — always import `getXxxQueryKey()` from `@workspace/api-client-react`; hardcoded key arrays won't match and break cache invalidation.
+- [INSERT ON CONFLICT re-query pattern](insert-on-conflict-requery.md) — after `onConflictDoNothing()`, re-query all names; RETURNING only covers newly inserted rows, not concurrent conflicts.
 - [Object storage private-object ACL](object-storage-private-acl.md) — uploaded files default to private; anything meant for public display (e.g. product photos) must be explicitly marked public via ACL policy once attached to its record.
 - [Presigned PUT upload response has no body](object-storage-presign-response.md) — don't read server-issued metadata (like objectPath) from the PUT response; capture it at request time keyed by file id instead.
 - [React peer deps in new workspace packages](workspace-react-peer-deps.md) — new packages with a React peer dep need `"react": "catalog:"` in devDependencies or `tsc --build` project-reference typecheck fails, even though it works at runtime via hoisting.

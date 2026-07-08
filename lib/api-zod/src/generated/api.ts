@@ -18,18 +18,108 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * Returns all products, optionally filtered by category or availability
+ * Returns all collections sorted by sortOrder then name, with product counts
+ * @summary List collections
+ */
+export const ListCollectionsQueryParams = zod.object({
+  "availableOnly": zod.coerce.boolean().optional()
+})
+
+export const ListCollectionsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "sortOrder": zod.number(),
+  "productCount": zod.number(),
+  "availableCount": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListCollectionsResponse = zod.array(ListCollectionsResponseItem)
+
+
+/**
+ * Creates a new collection (admin only)
+ * @summary Create a collection
+ */
+
+
+
+export const CreateCollectionBody = zod.object({
+  "name": zod.string().min(1),
+  "slug": zod.string().optional(),
+  "sortOrder": zod.number().optional()
+})
+
+export const CreateCollectionResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "sortOrder": zod.number(),
+  "productCount": zod.number(),
+  "availableCount": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * Updates a collection's name, slug, or sort order (admin only)
+ * @summary Update a collection
+ */
+export const UpdateCollectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+export const UpdateCollectionBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "slug": zod.string().optional(),
+  "sortOrder": zod.number().optional()
+})
+
+export const UpdateCollectionResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "sortOrder": zod.number(),
+  "productCount": zod.number(),
+  "availableCount": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * Deletes a collection and all its product links (admin only)
+ * @summary Delete a collection
+ */
+export const DeleteCollectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteCollectionResponse = zod.void()
+
+
+/**
+ * Returns all products, optionally filtered by collection or availability
  * @summary List products
  */
 export const ListProductsQueryParams = zod.object({
-  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']).optional(),
+  "collectionId": zod.coerce.number().optional(),
   "availableOnly": zod.coerce.boolean().optional()
 })
 
 export const ListProductsResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']),
+  "collections": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).describe('A slim collection reference embedded in product responses')),
   "imageUrl": zod.string().nullable(),
   "sku": zod.string().nullable(),
   "size": zod.string().nullable(),
@@ -49,9 +139,10 @@ export const ListProductsResponse = zod.array(ListProductsResponseItem)
 
 
 
+
 export const CreateProductBody = zod.object({
   "name": zod.string().min(1),
-  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']),
+  "collectionIds": zod.array(zod.number()).min(1),
   "imageUrl": zod.string().nullish(),
   "sku": zod.string().nullish(),
   "size": zod.string().nullish(),
@@ -63,7 +154,11 @@ export const CreateProductBody = zod.object({
 export const CreateProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']),
+  "collections": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).describe('A slim collection reference embedded in product responses')),
   "imageUrl": zod.string().nullable(),
   "sku": zod.string().nullable(),
   "size": zod.string().nullable(),
@@ -76,18 +171,6 @@ export const CreateProductResponse = zod.object({
 
 
 /**
- * Returns product counts per category, for a quick catalog overview
- * @summary Category summary
- */
-export const GetCategorySummaryResponseItem = zod.object({
-  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']),
-  "total": zod.number(),
-  "availableCount": zod.number()
-})
-export const GetCategorySummaryResponse = zod.array(GetCategorySummaryResponseItem)
-
-
-/**
  * @summary Get a product
  */
 export const GetProductParams = zod.object({
@@ -97,7 +180,11 @@ export const GetProductParams = zod.object({
 export const GetProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']),
+  "collections": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).describe('A slim collection reference embedded in product responses')),
   "imageUrl": zod.string().nullable(),
   "sku": zod.string().nullable(),
   "size": zod.string().nullable(),
@@ -120,9 +207,10 @@ export const UpdateProductParams = zod.object({
 
 
 
+
 export const UpdateProductBody = zod.object({
   "name": zod.string().min(1).optional(),
-  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']).optional(),
+  "collectionIds": zod.array(zod.number()).min(1).optional(),
   "imageUrl": zod.string().nullish(),
   "sku": zod.string().nullish(),
   "size": zod.string().nullish(),
@@ -134,7 +222,11 @@ export const UpdateProductBody = zod.object({
 export const UpdateProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']),
+  "collections": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).describe('A slim collection reference embedded in product responses')),
   "imageUrl": zod.string().nullable(),
   "sku": zod.string().nullable(),
   "size": zod.string().nullable(),
@@ -158,9 +250,10 @@ export const DeleteProductResponse = zod.void()
 
 
 /**
- * Creates multiple products in a single request (admin only). Returns counts of created and failed rows.
+ * Creates multiple products in a single request (admin only). Collections are matched by name and created automatically if they do not exist. Returns counts of created and failed rows.
  * @summary Bulk create products
  */
+
 
 export const bulkCreateProductsBodyProductsMax = 2000;
 
@@ -169,14 +262,14 @@ export const bulkCreateProductsBodyProductsMax = 2000;
 export const BulkCreateProductsBody = zod.object({
   "products": zod.array(zod.object({
   "name": zod.string().min(1),
-  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']),
+  "collectionNames": zod.array(zod.string()).min(1),
   "imageUrl": zod.string().nullish(),
   "sku": zod.string().nullish(),
   "size": zod.string().nullish(),
   "description": zod.string().nullish(),
   "available": zod.boolean().optional(),
   "sortOrder": zod.number().optional()
-})).max(bulkCreateProductsBodyProductsMax)
+}).describe('A single product row for bulk import. Collections are matched by name and auto-created if new.')).max(bulkCreateProductsBodyProductsMax)
 })
 
 export const BulkCreateProductsResponse = zod.object({

@@ -156,7 +156,7 @@ export default function Homepage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Card 1 */}
-            <Link href="/catalog?category=tropicals" className="reveal delay-100 group relative aspect-[4/5] overflow-hidden bg-accent border border-white/5 block">
+            <Link href="/catalog" className="reveal delay-100 group relative aspect-[4/5] overflow-hidden bg-accent border border-white/5 block">
               <img 
                 src="/images/tropical-foliage.jpg" 
                 alt="Tropical Foliage" 
@@ -176,7 +176,7 @@ export default function Homepage() {
             </Link>
 
             {/* Card 2 */}
-            <Link href="/catalog?category=flowering" className="reveal delay-200 group relative aspect-[4/5] overflow-hidden bg-accent border border-white/5 block">
+            <Link href="/catalog" className="reveal delay-200 group relative aspect-[4/5] overflow-hidden bg-accent border border-white/5 block">
               <img 
                 src="/images/flowering.jpg" 
                 alt="Flowering Plants" 
@@ -196,7 +196,7 @@ export default function Homepage() {
             </Link>
 
             {/* Card 3 */}
-            <Link href="/catalog?category=planters" className="reveal delay-300 group relative aspect-[4/5] overflow-hidden bg-accent border border-white/5 block">
+            <Link href="/catalog" className="reveal delay-300 group relative aspect-[4/5] overflow-hidden bg-accent border border-white/5 block">
               <img 
                 src="/images/planters.jpg" 
                 alt="Planters & Upgrades" 

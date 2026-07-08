@@ -5,12 +5,12 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { ProductCategory } from './productCategory';
+import type { ProductCollection } from './productCollection';
 
 export interface Product {
   id: number;
   name: string;
-  category: ProductCategory;
+  collections: ProductCollection[];
   /** @nullable */
   imageUrl: string | null;
   /** @nullable */

@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: products
     description: Product catalog operations
+  - name: collections
+    description: Collection management operations
   - name: admin
     description: Admin authentication operations
   - name: storage
@@ -31,18 +33,130 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
 
+  /collections:
+    get:
+      operationId: listCollections
+      tags: [collections]
+      summary: List collections
+      description: Returns all collections sorted by sortOrder then name, with product counts
+      parameters:
+        - name: availableOnly
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of collections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Collection"
+
+  /admin/collections:
+    post:
+      operationId: createCollection
+      tags: [collections]
+      summary: Create a collection
+      description: Creates a new collection (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Collection"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/collections/{id}:
+    patch:
+      operationId: updateCollection
+      tags: [collections]
+      summary: Update a collection
+      description: Updates a collection's name, slug, or sort order (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollectionUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Collection"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteCollection
+      tags: [collections]
+      summary: Delete a collection
+      description: Deletes a collection and all its product links (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /products:
     get:
       operationId: listProducts
       tags: [products]
       summary: List products
-      description: Returns all products, optionally filtered by category or availability
+      description: Returns all products, optionally filtered by collection or availability
       parameters:
-        - name: category
+        - name: collectionId
           in: query
           required: false
           schema:
-            $ref: "#/components/schemas/ProductCategory"
+            type: integer
         - name: availableOnly
           in: query
           required: false
@@ -81,22 +195,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
-  /products/categories/summary:
-    get:
-      operationId: getCategorySummary
-      tags: [products]
-      summary: Category summary
-      description: Returns product counts per category, for a quick catalog overview
-      responses:
-        "200":
-          description: Category summary
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CategorySummary"
 
   /products/{id}:
     get:
@@ -190,7 +288,7 @@ paths:
       operationId: bulkCreateProducts
       tags: [products]
       summary: Bulk create products
-      description: Creates multiple products in a single request (admin only). Returns counts of created and failed rows.
+      description: Creates multiple products in a single request (admin only). Collections are matched by name and created automatically if they do not exist. Returns counts of created and failed rows.
       requestBody:
         required: true
         content:
@@ -330,22 +428,82 @@ components:
       required:
         - error
 
-    ProductCategory:
-      type: string
-      enum:
-        - tropicals
-        - flowering
-        - planters
-        - easter
-        - mothers_day
-        - cut_flowers
+    ProductCollection:
+      type: object
+      description: A slim collection reference embedded in product responses
+      required:
+        - id
+        - name
+        - slug
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+
+    Collection:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - sortOrder
+        - productCount
+        - availableCount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        sortOrder:
+          type: integer
+        productCount:
+          type: integer
+        availableCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CollectionInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+        slug:
+          type: string
+        sortOrder:
+          type: integer
+
+    CollectionUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        slug:
+          type: string
+        sortOrder:
+          type: integer
 
     Product:
       type: object
       required:
         - id
         - name
-        - category
+        - collections
         - imageUrl
         - sku
         - size
@@ -359,8 +517,10 @@ components:
           type: integer
         name:
           type: string
-        category:
-          $ref: "#/components/schemas/ProductCategory"
+        collections:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductCollection"
         imageUrl:
           type: ["string", "null"]
         sku:
@@ -384,13 +544,16 @@ components:
       type: object
       required:
         - name
-        - category
+        - collectionIds
       properties:
         name:
           type: string
           minLength: 1
-        category:
-          $ref: "#/components/schemas/ProductCategory"
+        collectionIds:
+          type: array
+          items:
+            type: integer
+          minItems: 1
         imageUrl:
           type: ["string", "null"]
         sku:
@@ -410,8 +573,11 @@ components:
         name:
           type: string
           minLength: 1
-        category:
-          $ref: "#/components/schemas/ProductCategory"
+        collectionIds:
+          type: array
+          items:
+            type: integer
+          minItems: 1
         imageUrl:
           type: ["string", "null"]
         sku:
@@ -425,36 +591,33 @@ components:
         sortOrder:
           type: integer
 
-    CategorySummary:
+    BulkProductInput:
       type: object
+      description: A single product row for bulk import. Collections are matched by name and auto-created if new.
       required:
-        - category
-        - total
-        - availableCount
+        - name
+        - collectionNames
       properties:
-        category:
-          $ref: "#/components/schemas/ProductCategory"
-        total:
-          type: integer
-        availableCount:
-          type: integer
-
-    AdminLoginInput:
-      type: object
-      required:
-        - password
-      properties:
-        password:
+        name:
           type: string
           minLength: 1
-
-    AdminSession:
-      type: object
-      required:
-        - authenticated
-      properties:
-        authenticated:
+        collectionNames:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        imageUrl:
+          type: ["string", "null"]
+        sku:
+          type: ["string", "null"]
+        size:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        available:
           type: boolean
+        sortOrder:
+          type: integer
 
     BulkCreateProductsInput:
       type: object
@@ -464,7 +627,7 @@ components:
         products:
           type: array
           items:
-            $ref: "#/components/schemas/ProductInput"
+            $ref: "#/components/schemas/BulkProductInput"
           maxItems: 2000
 
     BulkCreateProductsResult:
@@ -503,6 +666,23 @@ components:
       properties:
         deleted:
           type: integer
+
+    AdminLoginInput:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          minLength: 1
+
+    AdminSession:
+      type: object
+      required:
+        - authenticated
+      properties:
+        authenticated:
+          type: boolean
 
     UploadRequestInput:
       type: object

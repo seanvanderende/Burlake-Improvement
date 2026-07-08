@@ -6,11 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface ProductInput {
+/**
+ * A single product row for bulk import. Collections are matched by name and auto-created if new.
+ */
+export interface BulkProductInput {
   /** @minLength 1 */
   name: string;
   /** @minItems 1 */
-  collectionIds: number[];
+  collectionNames: string[];
   /** @nullable */
   imageUrl?: string | null;
   /** @nullable */

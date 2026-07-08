@@ -13,22 +13,44 @@ export interface ErrorResponse {
   error: string;
 }
 
-export type ProductCategory = typeof ProductCategory[keyof typeof ProductCategory];
+/**
+ * A slim collection reference embedded in product responses
+ */
+export interface ProductCollection {
+  id: number;
+  name: string;
+  slug: string;
+}
 
+export interface Collection {
+  id: number;
+  name: string;
+  slug: string;
+  sortOrder: number;
+  productCount: number;
+  availableCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
-export const ProductCategory = {
-  tropicals: 'tropicals',
-  flowering: 'flowering',
-  planters: 'planters',
-  easter: 'easter',
-  mothers_day: 'mothers_day',
-  cut_flowers: 'cut_flowers',
-} as const;
+export interface CollectionInput {
+  /** @minLength 1 */
+  name: string;
+  slug?: string;
+  sortOrder?: number;
+}
+
+export interface CollectionUpdate {
+  /** @minLength 1 */
+  name?: string;
+  slug?: string;
+  sortOrder?: number;
+}
 
 export interface Product {
   id: number;
   name: string;
-  category: ProductCategory;
+  collections: ProductCollection[];
   /** @nullable */
   imageUrl: string | null;
   /** @nullable */
@@ -46,7 +68,8 @@ export interface Product {
 export interface ProductInput {
   /** @minLength 1 */
   name: string;
-  category: ProductCategory;
+  /** @minItems 1 */
+  collectionIds: number[];
   /** @nullable */
   imageUrl?: string | null;
   /** @nullable */
@@ -62,7 +85,8 @@ export interface ProductInput {
 export interface ProductUpdate {
   /** @minLength 1 */
   name?: string;
-  category?: ProductCategory;
+  /** @minItems 1 */
+  collectionIds?: number[];
   /** @nullable */
   imageUrl?: string | null;
   /** @nullable */
@@ -75,24 +99,29 @@ export interface ProductUpdate {
   sortOrder?: number;
 }
 
-export interface CategorySummary {
-  category: ProductCategory;
-  total: number;
-  availableCount: number;
-}
-
-export interface AdminLoginInput {
+/**
+ * A single product row for bulk import. Collections are matched by name and auto-created if new.
+ */
+export interface BulkProductInput {
   /** @minLength 1 */
-  password: string;
-}
-
-export interface AdminSession {
-  authenticated: boolean;
+  name: string;
+  /** @minItems 1 */
+  collectionNames: string[];
+  /** @nullable */
+  imageUrl?: string | null;
+  /** @nullable */
+  sku?: string | null;
+  /** @nullable */
+  size?: string | null;
+  /** @nullable */
+  description?: string | null;
+  available?: boolean;
+  sortOrder?: number;
 }
 
 export interface BulkCreateProductsInput {
   /** @maxItems 2000 */
-  products: ProductInput[];
+  products: BulkProductInput[];
 }
 
 export interface BulkCreateProductsResult {
@@ -111,6 +140,15 @@ export interface BulkDeleteProductsResult {
   deleted: number;
 }
 
+export interface AdminLoginInput {
+  /** @minLength 1 */
+  password: string;
+}
+
+export interface AdminSession {
+  authenticated: boolean;
+}
+
 export interface UploadRequestInput {
   name: string;
   size: number;
@@ -122,8 +160,12 @@ export interface PresignedUpload {
   objectPath: string;
 }
 
+export type ListCollectionsParams = {
+availableOnly?: boolean;
+};
+
 export type ListProductsParams = {
-category?: ProductCategory;
+collectionId?: number;
 availableOnly?: boolean;
 };
 

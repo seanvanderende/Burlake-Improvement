@@ -1,12 +1,16 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { and, asc, eq, inArray } from "drizzle-orm";
-import { db, productsTable, type ProductCategory } from "@workspace/db";
+import {
+  db,
+  productsTable,
+  collectionsTable,
+  productCollectionsTable,
+} from "@workspace/db";
 import {
   ListProductsQueryParams,
   ListProductsResponse,
   CreateProductBody,
   CreateProductResponse,
-  GetCategorySummaryResponse,
   GetProductParams,
   GetProductResponse,
   UpdateProductParams,
@@ -21,24 +25,118 @@ import {
 
 import { requireAdmin } from "../lib/adminAuth";
 import { objectStorageService } from "./storage";
+import { slugify } from "./collections";
 
 const router: IRouter = Router();
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 /**
- * Product photos are uploaded to the private object namespace, then marked
- * public here once actually attached to a product — the catalog is public,
- * so any image a product references must be publicly readable.
+ * Fetch the collection rows for a set of product IDs, returned as a Map
+ * keyed by productId. One DB round-trip for any number of products.
+ */
+async function getCollectionsByProduct(
+  productIds: number[],
+): Promise<Map<number, { id: number; name: string; slug: string }[]>> {
+  const map = new Map<number, { id: number; name: string; slug: string }[]>();
+  if (productIds.length === 0) return map;
+
+  const links = await db
+    .select({
+      productId: productCollectionsTable.productId,
+      id: collectionsTable.id,
+      name: collectionsTable.name,
+      slug: collectionsTable.slug,
+    })
+    .from(productCollectionsTable)
+    .innerJoin(
+      collectionsTable,
+      eq(productCollectionsTable.collectionId, collectionsTable.id),
+    )
+    .where(inArray(productCollectionsTable.productId, productIds));
+
+  for (const link of links) {
+    if (!map.has(link.productId)) map.set(link.productId, []);
+    map.get(link.productId)!.push({ id: link.id, name: link.name, slug: link.slug });
+  }
+
+  return map;
+}
+
+/**
+ * Replace a product's collection memberships in a single transaction.
+ */
+async function setProductCollections(
+  productId: number,
+  collectionIds: number[],
+): Promise<void> {
+  await db
+    .delete(productCollectionsTable)
+    .where(eq(productCollectionsTable.productId, productId));
+
+  if (collectionIds.length > 0) {
+    await db
+      .insert(productCollectionsTable)
+      .values(collectionIds.map((collectionId) => ({ productId, collectionId })));
+  }
+}
+
+/**
+ * Ensure all named collections exist, creating any that are new.
+ * Returns a Map from name → id.
+ *
+ * Concurrency-safe: after the INSERT … ON CONFLICT DO NOTHING we re-query
+ * any names that were not returned (i.e. a concurrent request created them)
+ * so every requested name always resolves to an ID.
+ */
+async function ensureCollectionsByName(
+  names: string[],
+): Promise<Map<string, number>> {
+  const unique = [...new Set(names.filter(Boolean))];
+  if (unique.length === 0) return new Map();
+
+  const existing = await db
+    .select({ id: collectionsTable.id, name: collectionsTable.name })
+    .from(collectionsTable)
+    .where(inArray(collectionsTable.name, unique));
+
+  const byName = new Map(existing.map((c) => [c.name, c.id]));
+
+  const toCreate = unique.filter((n) => !byName.has(n));
+  if (toCreate.length > 0) {
+    // Insert new collections — concurrent requests may have already created
+    // some, so we use ON CONFLICT DO NOTHING and then re-query all.
+    await db
+      .insert(collectionsTable)
+      .values(toCreate.map((name) => ({ name, slug: slugify(name) })))
+      .onConflictDoNothing();
+
+    // Re-read all names that were not already in the map (covers both newly
+    // inserted rows and any that were concurrently inserted and thus skipped).
+    const afterInsert = await db
+      .select({ id: collectionsTable.id, name: collectionsTable.name })
+      .from(collectionsTable)
+      .where(inArray(collectionsTable.name, toCreate));
+
+    for (const c of afterInsert) byName.set(c.name, c.id);
+  }
+
+  return byName;
+}
+
+/**
+ * Mark a product image as publicly readable once it's attached to a product.
  */
 async function markImagePublicIfOwned(imageUrl?: string | null): Promise<void> {
-  if (!imageUrl || !imageUrl.startsWith("/api/storage/objects/")) {
-    return;
-  }
+  if (!imageUrl || !imageUrl.startsWith("/api/storage/objects/")) return;
   const rawPath = imageUrl.replace("/api/storage", "");
   await objectStorageService.trySetObjectEntityAclPolicy(rawPath, {
     owner: "admin",
     visibility: "public",
   });
 }
+
+// ─── Public routes ────────────────────────────────────────────────────────────
 
 router.get("/products", async (req: Request, res: Response): Promise<void> => {
   const query = ListProductsQueryParams.safeParse(req.query);
@@ -47,15 +145,27 @@ router.get("/products", async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const { category, availableOnly } = query.data;
+  const { collectionId, availableOnly } = query.data;
+
+  let productIds: number[] | null = null;
+
+  // Filter by collection: get IDs of products in that collection first
+  if (collectionId) {
+    const rows = await db
+      .select({ productId: productCollectionsTable.productId })
+      .from(productCollectionsTable)
+      .where(eq(productCollectionsTable.collectionId, collectionId));
+
+    productIds = rows.map((r) => r.productId);
+    if (productIds.length === 0) {
+      res.json([]);
+      return;
+    }
+  }
 
   const conditions = [];
-  if (category) {
-    conditions.push(eq(productsTable.category, category));
-  }
-  if (availableOnly) {
-    conditions.push(eq(productsTable.available, true));
-  }
+  if (productIds) conditions.push(inArray(productsTable.id, productIds));
+  if (availableOnly) conditions.push(eq(productsTable.available, true));
 
   const products = await db
     .select()
@@ -63,35 +173,43 @@ router.get("/products", async (req: Request, res: Response): Promise<void> => {
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(asc(productsTable.sortOrder), asc(productsTable.name));
 
-  res.json(ListProductsResponse.parse(products));
+  const collectionMap = await getCollectionsByProduct(products.map((p) => p.id));
+
+  const result = products.map((p) => ({
+    ...p,
+    collections: collectionMap.get(p.id) ?? [],
+  }));
+
+  res.json(ListProductsResponse.parse(result));
 });
 
 router.get(
-  "/products/categories/summary",
-  async (_req: Request, res: Response): Promise<void> => {
-    const products = await db.select().from(productsTable);
+  "/products/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const params = GetProductParams.safeParse(req.params);
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
 
-    const CATEGORIES: ProductCategory[] = [
-      "tropicals",
-      "flowering",
-      "planters",
-      "easter",
-      "mothers_day",
-      "cut_flowers",
-    ];
+    const [product] = await db
+      .select()
+      .from(productsTable)
+      .where(eq(productsTable.id, params.data.id));
 
-    const summary = CATEGORIES.map((category) => {
-      const inCategory = products.filter((p) => p.category === category);
-      return {
-        category,
-        total: inCategory.length,
-        availableCount: inCategory.filter((p) => p.available).length,
-      };
-    });
+    if (!product) {
+      res.status(404).json({ error: "Product not found" });
+      return;
+    }
 
-    res.json(GetCategorySummaryResponse.parse(summary));
+    const collectionMap = await getCollectionsByProduct([product.id]);
+    res.json(
+      GetProductResponse.parse({ ...product, collections: collectionMap.get(product.id) ?? [] }),
+    );
   },
 );
+
+// ─── Admin routes ─────────────────────────────────────────────────────────────
 
 router.post(
   "/products",
@@ -103,36 +221,22 @@ router.post(
       return;
     }
 
-    await markImagePublicIfOwned(parsed.data.imageUrl);
+    const { collectionIds, ...productData } = parsed.data;
+    await markImagePublicIfOwned(productData.imageUrl);
 
     const [product] = await db
       .insert(productsTable)
-      .values(parsed.data)
+      .values(productData)
       .returning();
 
-    res.status(201).json(CreateProductResponse.parse(product));
+    await setProductCollections(product.id, collectionIds);
+
+    const collectionMap = await getCollectionsByProduct([product.id]);
+    res.status(201).json(
+      CreateProductResponse.parse({ ...product, collections: collectionMap.get(product.id) ?? [] }),
+    );
   },
 );
-
-router.get("/products/:id", async (req: Request, res: Response): Promise<void> => {
-  const params = GetProductParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const [product] = await db
-    .select()
-    .from(productsTable)
-    .where(eq(productsTable.id, params.data.id));
-
-  if (!product) {
-    res.status(404).json({ error: "Product not found" });
-    return;
-  }
-
-  res.json(GetProductResponse.parse(product));
-});
 
 router.patch(
   "/products/:id",
@@ -150,11 +254,12 @@ router.patch(
       return;
     }
 
-    await markImagePublicIfOwned(parsed.data.imageUrl);
+    const { collectionIds, ...productData } = parsed.data;
+    await markImagePublicIfOwned(productData.imageUrl);
 
     const [product] = await db
       .update(productsTable)
-      .set({ ...parsed.data, updatedAt: new Date() })
+      .set({ ...productData, updatedAt: new Date() })
       .where(eq(productsTable.id, params.data.id))
       .returning();
 
@@ -163,7 +268,14 @@ router.patch(
       return;
     }
 
-    res.json(UpdateProductResponse.parse(product));
+    if (collectionIds !== undefined) {
+      await setProductCollections(product.id, collectionIds);
+    }
+
+    const collectionMap = await getCollectionsByProduct([product.id]);
+    res.json(
+      UpdateProductResponse.parse({ ...product, collections: collectionMap.get(product.id) ?? [] }),
+    );
   },
 );
 
@@ -178,20 +290,14 @@ router.post(
     }
 
     const { products } = parsed.data;
-    let created = 0;
-    let duplicates = 0;
-    let failed = 0;
-    const errors: string[] = [];
 
-    // Deduplicate by SKU: fetch all existing SKUs in one query, then filter
-    // incoming rows so we never insert a product whose SKU is already present.
-    // Rows without a SKU fall back to name-based dedup.
-    const incomingSkus = products
-      .map((p) => p.sku)
-      .filter((s): s is string => Boolean(s));
-    const incomingNames = products
-      .filter((p) => !p.sku)
-      .map((p) => p.name);
+    // Pre-load / auto-create all named collections in one pass
+    const allNames = [...new Set(products.flatMap((p) => p.collectionNames))];
+    const collectionByName = await ensureCollectionsByName(allNames);
+
+    // Deduplicate by SKU (has SKU) or name (no SKU)
+    const incomingSkus = products.map((p) => p.sku).filter((s): s is string => Boolean(s));
+    const incomingNames = products.filter((p) => !p.sku).map((p) => p.name);
 
     const [existingBySku, existingByName] = await Promise.all([
       incomingSkus.length > 0
@@ -211,6 +317,11 @@ router.post(
     const existingSkuSet = new Set(existingBySku.map((r) => r.sku));
     const existingNameSet = new Set(existingByName.map((r) => r.name));
 
+    let duplicates = 0;
+    let failed = 0;
+    let created = 0;
+    const errors: string[] = [];
+
     const toInsert = products.filter((p) => {
       if (p.sku) {
         if (existingSkuSet.has(p.sku)) { duplicates++; return false; }
@@ -220,16 +331,37 @@ router.post(
       return true;
     });
 
-    // Insert in batches of 50 to avoid hitting DB parameter limits
     const BATCH = 50;
     for (let i = 0; i < toInsert.length; i += BATCH) {
       const chunk = toInsert.slice(i, i + BATCH);
       try {
-        const rows = await db
+        const { collectionNames: _, ...rest } = chunk[0]; // destructure to get shape
+        void rest;
+
+        const inserted = await db
           .insert(productsTable)
-          .values(chunk.map((p) => ({ ...p, available: p.available ?? true })))
+          .values(
+            chunk.map(({ collectionNames: __, ...p }) => ({
+              ...p,
+              available: p.available ?? true,
+            })),
+          )
           .returning({ id: productsTable.id });
-        created += rows.length;
+
+        // Link each inserted product to its collections
+        const junctionRows = inserted.flatMap((row, idx) => {
+          const names = chunk[idx].collectionNames;
+          return names
+            .map((name) => collectionByName.get(name))
+            .filter((id): id is number => id !== undefined)
+            .map((collectionId) => ({ productId: row.id, collectionId }));
+        });
+
+        if (junctionRows.length > 0) {
+          await db.insert(productCollectionsTable).values(junctionRows);
+        }
+
+        created += inserted.length;
       } catch (err: any) {
         failed += chunk.length;
         errors.push(err?.message ?? "Unknown error");

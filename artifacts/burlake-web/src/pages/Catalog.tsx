@@ -1,45 +1,39 @@
 import React from 'react';
-import { useLocation } from 'wouter';
-import { useListProducts, useGetCategorySummary } from '@workspace/api-client-react';
-import { ProductCategory } from '@workspace/api-client-react';
+import { useListProducts, useListCollections } from '@workspace/api-client-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 
-const categoryLabels: Record<string, string> = {
-  tropicals: "Tropical Foliage",
-  flowering: "Flowering Plants",
-  planters: "Planters & Upgrades",
-  easter: "Easter",
-  mothers_day: "Mother's Day",
-  cut_flowers: "Cut Flowers & Bouquets"
-};
-
 export default function Catalog() {
-  const [location] = useLocation();
   const searchParams = new URLSearchParams(window.location.search);
-  const initialCategory = searchParams.get('category') || 'all';
-  
-  const [activeCategory, setActiveCategory] = React.useState<string>(initialCategory);
+  const [activeCollectionId, setActiveCollectionId] = React.useState<string>(
+    searchParams.get('collection') || 'all',
+  );
   const [inStockOnly, setInStockOnly] = React.useState(false);
 
-  const { data: summary } = useGetCategorySummary();
-  const { data: products, isLoading } = useListProducts({ 
-    category: activeCategory !== 'all' ? activeCategory as ProductCategory : undefined,
-    availableOnly: inStockOnly || undefined
+  const { data: collections } = useListCollections({ availableOnly: undefined });
+
+  const collectionId =
+    activeCollectionId !== 'all' ? parseInt(activeCollectionId, 10) : undefined;
+
+  const { data: products, isLoading } = useListProducts({
+    collectionId,
+    availableOnly: inStockOnly || undefined,
   });
 
-  const getCount = (cat: string) => {
-    if (!summary) return 0;
-    if (cat === 'all') {
-      return summary.reduce((acc, curr) => acc + (inStockOnly ? curr.availableCount : curr.total), 0);
+  const getCount = (id: string) => {
+    if (!collections) return 0;
+    if (id === 'all') {
+      return collections.reduce(
+        (acc, c) => acc + (inStockOnly ? c.availableCount : c.productCount),
+        0,
+      );
     }
-    const catSummary = summary.find(s => s.category === cat);
-    if (!catSummary) return 0;
-    return inStockOnly ? catSummary.availableCount : catSummary.total;
+    const col = collections.find((c) => String(c.id) === id);
+    if (!col) return 0;
+    return inStockOnly ? col.availableCount : col.productCount;
   };
 
   return (
@@ -54,11 +48,10 @@ export default function Catalog() {
             <h1 className="font-serif text-4xl md:text-5xl text-foreground leading-[1.1]">
               Available to the Trade
             </h1>
-            
             <div className="flex items-center space-x-2 bg-muted/50 p-2 border border-border">
-              <Switch 
-                id="in-stock" 
-                checked={inStockOnly} 
+              <Switch
+                id="in-stock"
+                checked={inStockOnly}
                 onCheckedChange={setInStockOnly}
                 className="data-[state=checked]:bg-primary"
               />
@@ -69,21 +62,25 @@ export default function Catalog() {
           </div>
         </div>
 
-        <Tabs defaultValue={activeCategory} onValueChange={setActiveCategory} className="w-full">
+        <Tabs value={activeCollectionId} onValueChange={setActiveCollectionId} className="w-full">
           <div className="overflow-x-auto pb-4 mb-8 scrollbar-hide border-b border-border">
             <TabsList className="h-auto p-0 bg-transparent flex justify-start min-w-max">
               <TabsTrigger value="all" className="pb-4">
-                All Products <span className="ml-2 text-muted-foreground text-xs">({getCount('all')})</span>
+                All Products{' '}
+                <span className="ml-2 text-muted-foreground text-xs">({getCount('all')})</span>
               </TabsTrigger>
-              {Object.entries(categoryLabels).map(([key, label]) => (
-                <TabsTrigger key={key} value={key} className="pb-4">
-                  {label} <span className="ml-2 text-muted-foreground text-xs">({getCount(key)})</span>
+              {(collections ?? []).map((col) => (
+                <TabsTrigger key={col.id} value={String(col.id)} className="pb-4">
+                  {col.name}{' '}
+                  <span className="ml-2 text-muted-foreground text-xs">
+                    ({getCount(String(col.id))})
+                  </span>
                 </TabsTrigger>
               ))}
             </TabsList>
           </div>
 
-          <div className="min-h-[400px]">
+          <TabsContent value={activeCollectionId} className="min-h-[400px]">
             {isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, i) => (
@@ -96,12 +93,14 @@ export default function Catalog() {
               </div>
             ) : products?.length === 0 ? (
               <div className="py-24 text-center border border-dashed border-border bg-muted/20">
-                <p className="text-muted-foreground font-light text-lg">No products found for these filters.</p>
-                <Button 
-                  variant="outline" 
+                <p className="text-muted-foreground font-light text-lg">
+                  No products found for these filters.
+                </p>
+                <Button
+                  variant="outline"
                   className="mt-6"
                   onClick={() => {
-                    setActiveCategory('all');
+                    setActiveCollectionId('all');
                     setInStockOnly(false);
                   }}
                 >
@@ -110,12 +109,12 @@ export default function Catalog() {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-                {products?.map((product, index) => (
+                {products?.map((product) => (
                   <Link key={product.id} href={`/product/${product.id}`} className="group block">
                     <div className="relative aspect-[4/5] overflow-hidden bg-muted mb-4 border border-border transition-all duration-300 group-hover:border-primary/50">
                       {product.imageUrl ? (
-                        <img 
-                          src={product.imageUrl} 
+                        <img
+                          src={product.imageUrl}
                           alt={product.name}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           loading="lazy"
@@ -125,7 +124,6 @@ export default function Catalog() {
                           No Photo
                         </div>
                       )}
-                      
                       {!product.available && (
                         <div className="absolute top-3 left-3 bg-destructive text-destructive-foreground text-[0.65rem] font-bold uppercase tracking-widest px-2 py-1">
                           Out of Stock
@@ -134,7 +132,8 @@ export default function Catalog() {
                     </div>
                     <div>
                       <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                        {categoryLabels[product.category]} {product.size ? `· ${product.size}` : ''}
+                        {product.collections.map((c) => c.name).join(' · ')}
+                        {product.size ? ` · ${product.size}` : ''}
                       </div>
                       <h3 className="font-serif text-lg leading-tight text-foreground group-hover:text-primary transition-colors">
                         {product.name}
@@ -147,7 +146,7 @@ export default function Catalog() {
                 ))}
               </div>
             )}
-          </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { useGetAdminSession, useAdminLogout, getGetAdminSessionQueryKey } from '@workspace/api-client-react';
-import { LogOut, Leaf } from 'lucide-react';
+import { LogOut, Leaf, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -47,6 +47,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </div>
             <Link href="/admin">
               <span className="font-serif text-lg font-medium cursor-pointer">Burlake Admin</span>
+            </Link>
+            <Link href="/admin/collections">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-sm text-secondary-foreground/70 hover:text-secondary-foreground transition-colors cursor-pointer">
+                <Layers size={14} /> Collections
+              </span>
             </Link>
           </div>
           

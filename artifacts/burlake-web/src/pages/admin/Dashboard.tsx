@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useListProducts, useDeleteProduct, useUpdateProduct, useBulkDeleteProducts, getListProductsQueryKey } from '@workspace/api-client-react';
-import { ProductCategory } from '@workspace/api-client-react';
+import {
+  useListProducts,
+  useDeleteProduct,
+  useUpdateProduct,
+  useBulkDeleteProducts,
+  useListCollections,
+  getListProductsQueryKey,
+} from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -9,52 +15,45 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Upload, Edit, Trash2, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-const categoryLabels: Record<string, string> = {
-  tropicals: "Tropical Foliage",
-  flowering: "Flowering Plants",
-  planters: "Planters & Upgrades",
-  easter: "Easter",
-  mothers_day: "Mother's Day",
-  cut_flowers: "Cut Flowers & Bouquets"
-};
-
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  
-  const [filterCategory, setFilterCategory] = useState<string>('all');
+
+  const [filterCollectionId, setFilterCollectionId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
-  // Clear selection whenever the filter or search changes to avoid
-  // accidentally bulk-deleting products that are no longer visible.
+  // Clear selection when filters change to avoid hidden selections
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [filterCategory, searchQuery]);
+  }, [filterCollectionId, searchQuery]);
 
-  const { data: products, isLoading } = useListProducts({
-    category: filterCategory !== 'all' ? filterCategory as ProductCategory : undefined
-  });
+  const { data: collections } = useListCollections();
+
+  const collectionId =
+    filterCollectionId !== 'all' ? parseInt(filterCollectionId, 10) : undefined;
+
+  const { data: products, isLoading } = useListProducts({ collectionId });
 
   const updateProduct = useUpdateProduct({
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
-      }
-    }
+      },
+    },
   });
 
   const deleteProduct = useDeleteProduct({
     mutation: {
       onSuccess: (_data, variables) => {
-        setSelectedIds(prev => {
+        setSelectedIds((prev) => {
           const next = new Set(prev);
           next.delete(variables.id);
           return next;
         });
         queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
-      }
-    }
+      },
+    },
   });
 
   const bulkDelete = useBulkDeleteProducts({
@@ -62,8 +61,8 @@ export default function AdminDashboard() {
       onSuccess: () => {
         setSelectedIds(new Set());
         queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
-      }
-    }
+      },
+    },
   });
 
   const handleToggleAvailable = (id: number, currentStatus: boolean) => {
@@ -83,33 +82,34 @@ export default function AdminDashboard() {
     }
   };
 
-  const filteredProducts = products?.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredProducts = products?.filter(
+    (p) =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
-  const allVisibleIds = filteredProducts?.map(p => p.id) ?? [];
-  const allSelected = allVisibleIds.length > 0 && allVisibleIds.every(id => selectedIds.has(id));
-  const someSelected = allVisibleIds.some(id => selectedIds.has(id));
+  const allVisibleIds = filteredProducts?.map((p) => p.id) ?? [];
+  const allSelected = allVisibleIds.length > 0 && allVisibleIds.every((id) => selectedIds.has(id));
+  const someSelected = allVisibleIds.some((id) => selectedIds.has(id));
 
   const toggleSelectAll = () => {
     if (allSelected) {
-      setSelectedIds(prev => {
+      setSelectedIds((prev) => {
         const next = new Set(prev);
-        allVisibleIds.forEach(id => next.delete(id));
+        allVisibleIds.forEach((id) => next.delete(id));
         return next;
       });
     } else {
-      setSelectedIds(prev => {
+      setSelectedIds((prev) => {
         const next = new Set(prev);
-        allVisibleIds.forEach(id => next.add(id));
+        allVisibleIds.forEach((id) => next.add(id));
         return next;
       });
     }
   };
 
   const toggleSelectOne = (id: number) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
@@ -133,6 +133,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Search + filter bar */}
       <div className="bg-card border border-border flex flex-col md:flex-row items-center gap-4 p-4">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -146,19 +147,21 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-2 w-full md:w-auto">
           <Filter className="w-4 h-4 text-muted-foreground" />
           <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="bg-transparent border-b border-input py-2 text-sm focus:outline-none cursor-pointer w-full md:w-48"
+            value={filterCollectionId}
+            onChange={(e) => setFilterCollectionId(e.target.value)}
+            className="bg-transparent border-b border-input py-2 text-sm focus:outline-none cursor-pointer w-full md:w-56"
           >
-            <option value="all">All Categories</option>
-            {Object.entries(categoryLabels).map(([val, label]) => (
-              <option key={val} value={val}>{label}</option>
+            <option value="all">All Collections</option>
+            {(collections ?? []).map((col) => (
+              <option key={col.id} value={String(col.id)}>
+                {col.name} ({col.productCount})
+              </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Bulk action bar — only shown when something is selected */}
+      {/* Bulk action bar */}
       {selectedIds.size > 0 && (
         <div className="flex items-center justify-between bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm">
           <span className="text-destructive font-medium">
@@ -189,7 +192,7 @@ export default function AdminDashboard() {
                   />
                 </th>
                 <th className="px-6 py-4 font-medium">Product</th>
-                <th className="px-6 py-4 font-medium">Category</th>
+                <th className="px-6 py-4 font-medium">Collections</th>
                 <th className="px-6 py-4 font-medium">SKU / Size</th>
                 <th className="px-6 py-4 font-medium">In Stock</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
@@ -198,11 +201,15 @@ export default function AdminDashboard() {
             <tbody className="divide-y divide-border">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">Loading products...</td>
+                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+                    Loading products...
+                  </td>
                 </tr>
               ) : filteredProducts?.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">No products found matching your filters.</td>
+                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+                    No products found matching your filters.
+                  </td>
                 </tr>
               ) : (
                 filteredProducts?.map((product) => {
@@ -223,16 +230,36 @@ export default function AdminDashboard() {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-muted shrink-0 border border-border overflow-hidden">
                             {product.imageUrl ? (
-                              <img src={product.imageUrl} alt="" className="w-full h-full object-cover" />
+                              <img
+                                src={product.imageUrl}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-[10px] font-serif bg-secondary/5">No img</div>
+                              <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-[10px] font-serif bg-secondary/5">
+                                No img
+                              </div>
                             )}
                           </div>
                           <span className="font-medium text-foreground">{product.name}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-muted-foreground">
-                        {categoryLabels[product.category]}
+                        <div className="flex flex-wrap gap-1">
+                          {product.collections.map((c) => (
+                            <span
+                              key={c.id}
+                              className="inline-block text-[10px] uppercase tracking-wide bg-muted px-1.5 py-0.5 border border-border"
+                            >
+                              {c.name}
+                            </span>
+                          ))}
+                          {product.collections.length === 0 && (
+                            <span className="text-muted-foreground/50 text-xs italic">
+                              No collection
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-muted-foreground">
                         {product.sku && <div className="text-xs">SKU: {product.sku}</div>}
@@ -241,7 +268,9 @@ export default function AdminDashboard() {
                       <td className="px-6 py-4">
                         <Switch
                           checked={product.available}
-                          onCheckedChange={() => handleToggleAvailable(product.id, product.available)}
+                          onCheckedChange={() =>
+                            handleToggleAvailable(product.id, product.available)
+                          }
                           disabled={updateProduct.isPending}
                         />
                       </td>

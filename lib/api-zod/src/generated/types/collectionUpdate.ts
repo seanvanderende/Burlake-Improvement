@@ -6,7 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListProductsParams = {
-collectionId?: number;
-availableOnly?: boolean;
-};
+export interface CollectionUpdate {
+  /** @minLength 1 */
+  name?: string;
+  slug?: string;
+  sortOrder?: number;
+}

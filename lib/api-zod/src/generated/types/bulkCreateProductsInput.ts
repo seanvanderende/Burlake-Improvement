@@ -5,9 +5,9 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { ProductInput } from './productInput';
+import type { BulkProductInput } from './bulkProductInput';
 
 export interface BulkCreateProductsInput {
   /** @maxItems 2000 */
-  products: ProductInput[];
+  products: BulkProductInput[];
 }

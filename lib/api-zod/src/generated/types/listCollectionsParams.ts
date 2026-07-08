@@ -6,7 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListProductsParams = {
-collectionId?: number;
+export type ListCollectionsParams = {
 availableOnly?: boolean;
 };

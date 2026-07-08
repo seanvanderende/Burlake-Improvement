@@ -12,6 +12,7 @@ import ProductDetail from '@/pages/ProductDetail';
 import Contact from '@/pages/Contact';
 import AdminLogin from '@/pages/admin/Login';
 import AdminDashboard from '@/pages/admin/Dashboard';
+import AdminCollections from '@/pages/admin/Collections';
 import ProductForm from '@/pages/admin/ProductForm';
 import AdminImport from '@/pages/admin/AdminImport';
 import NotFound from '@/pages/not-found';
@@ -33,6 +34,13 @@ function Router() {
         {() => (
           <AdminLayout>
             <AdminImport />
+          </AdminLayout>
+        )}
+      </Route>
+      <Route path="/admin/collections">
+        {() => (
+          <AdminLayout>
+            <AdminCollections />
           </AdminLayout>
         )}
       </Route>

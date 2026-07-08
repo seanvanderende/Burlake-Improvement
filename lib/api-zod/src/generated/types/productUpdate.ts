@@ -5,12 +5,12 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { ProductCategory } from './productCategory';
 
 export interface ProductUpdate {
   /** @minLength 1 */
   name?: string;
-  category?: ProductCategory;
+  /** @minItems 1 */
+  collectionIds?: number[];
   /** @nullable */
   imageUrl?: string | null;
   /** @nullable */

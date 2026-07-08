@@ -4,21 +4,12 @@ import { useGetProduct } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
 
-const categoryLabels: Record<string, string> = {
-  tropicals: "Tropical Foliage",
-  flowering: "Flowering Plants",
-  planters: "Planters & Upgrades",
-  easter: "Easter",
-  mothers_day: "Mother's Day",
-  cut_flowers: "Cut Flowers & Bouquets"
-};
-
 export default function ProductDetail() {
   const params = useParams();
   const id = parseInt(params.id || '0', 10);
-  
+
   const { data: product, isLoading, error } = useGetProduct(id, {
-    query: { enabled: !!id, queryKey: ['product', id] }
+    query: { enabled: !!id, queryKey: ['product', id] },
   });
 
   if (isLoading) {
@@ -40,7 +31,9 @@ export default function ProductDetail() {
     return (
       <div className="bg-background pt-32 pb-24 min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
         <h1 className="font-serif text-3xl mb-4">Product Not Found</h1>
-        <p className="text-muted-foreground mb-8">The product you're looking for doesn't exist or has been removed.</p>
+        <p className="text-muted-foreground mb-8">
+          The product you're looking for doesn't exist or has been removed.
+        </p>
         <Link href="/catalog">
           <Button variant="outline">Return to Catalog</Button>
         </Link>
@@ -51,7 +44,10 @@ export default function ProductDetail() {
   return (
     <div className="bg-background pt-24 pb-24 min-h-screen">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        <Link href="/catalog" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors mb-8 uppercase tracking-wider">
+        <Link
+          href="/catalog"
+          className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors mb-8 uppercase tracking-wider"
+        >
           <ArrowLeft className="mr-2 w-4 h-4" /> Back to Catalog
         </Link>
 
@@ -59,8 +55,8 @@ export default function ProductDetail() {
           <div className="md:col-span-6 lg:col-span-7">
             <div className="aspect-[4/5] bg-muted border border-border overflow-hidden relative">
               {product.imageUrl ? (
-                <img 
-                  src={product.imageUrl} 
+                <img
+                  src={product.imageUrl}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -73,14 +69,16 @@ export default function ProductDetail() {
           </div>
 
           <div className="md:col-span-6 lg:col-span-5 flex flex-col pt-4 md:pt-12">
-            <div className="text-sm text-primary uppercase tracking-[0.2em] font-semibold mb-4">
-              {categoryLabels[product.category]}
-            </div>
-            
+            {product.collections.length > 0 && (
+              <div className="text-sm text-primary uppercase tracking-[0.2em] font-semibold mb-4">
+                {product.collections.map((c) => c.name).join(' · ')}
+              </div>
+            )}
+
             <h1 className="font-serif text-4xl lg:text-5xl text-foreground leading-[1.1] mb-6">
               {product.name}
             </h1>
-            
+
             <div className="flex items-center gap-2 mb-8">
               {product.available ? (
                 <span className="inline-flex items-center gap-1.5 text-sm font-medium text-green-700 bg-green-100 px-3 py-1 uppercase tracking-wider">
@@ -121,10 +119,13 @@ export default function ProductDetail() {
               <div className="bg-secondary/5 p-6 border border-border">
                 <h4 className="font-serif text-lg mb-2">Wholesale Pricing</h4>
                 <p className="text-sm text-muted-foreground font-light mb-4">
-                  Pricing is available exclusively to approved retail partners. Contact your sales representative to place an order.
+                  Pricing is available exclusively to approved retail partners. Contact your sales
+                  representative to place an order.
                 </p>
                 <Link href="/contact" className="w-full">
-                  <Button variant="outline" className="w-full">Partner With Us</Button>
+                  <Button variant="outline" className="w-full">
+                    Partner With Us
+                  </Button>
                 </Link>
               </div>
             </div>
