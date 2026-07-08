@@ -16,8 +16,25 @@ import {
 } from "@workspace/api-zod";
 
 import { requireAdmin } from "../lib/adminAuth";
+import { objectStorageService } from "./storage";
 
 const router: IRouter = Router();
+
+/**
+ * Product photos are uploaded to the private object namespace, then marked
+ * public here once actually attached to a product — the catalog is public,
+ * so any image a product references must be publicly readable.
+ */
+async function markImagePublicIfOwned(imageUrl?: string | null): Promise<void> {
+  if (!imageUrl || !imageUrl.startsWith("/api/storage/objects/")) {
+    return;
+  }
+  const rawPath = imageUrl.replace("/api/storage", "");
+  await objectStorageService.trySetObjectEntityAclPolicy(rawPath, {
+    owner: "admin",
+    visibility: "public",
+  });
+}
 
 router.get("/products", async (req: Request, res: Response): Promise<void> => {
   const query = ListProductsQueryParams.safeParse(req.query);
@@ -82,6 +99,8 @@ router.post(
       return;
     }
 
+    await markImagePublicIfOwned(parsed.data.imageUrl);
+
     const [product] = await db
       .insert(productsTable)
       .values(parsed.data)
@@ -126,6 +145,8 @@ router.patch(
       res.status(400).json({ error: parsed.error.message });
       return;
     }
+
+    await markImagePublicIfOwned(parsed.data.imageUrl);
 
     const [product] = await db
       .update(productsTable)

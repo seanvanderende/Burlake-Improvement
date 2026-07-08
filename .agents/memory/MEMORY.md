@@ -1,0 +1,4 @@
+- [Wouter catch-all root route bug](wouter-catchall-root-bug.md) — a wildcard wrapper route can silently fail to match `/`, blanking the homepage with zero console errors.
+- [Object storage private-object ACL](object-storage-private-acl.md) — uploaded files default to private; anything meant for public display (e.g. product photos) must be explicitly marked public via ACL policy once attached to its record.
+- [Presigned PUT upload response has no body](object-storage-presign-response.md) — don't read server-issued metadata (like objectPath) from the PUT response; capture it at request time keyed by file id instead.
+- [React peer deps in new workspace packages](workspace-react-peer-deps.md) — new packages with a React peer dep need `"react": "catalog:"` in devDependencies or `tsc --build` project-reference typecheck fails, even though it works at runtime via hoisting.

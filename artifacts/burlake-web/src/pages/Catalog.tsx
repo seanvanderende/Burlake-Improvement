@@ -1,11 +1,12 @@
 import React from 'react';
 import { useLocation } from 'wouter';
 import { useListProducts, useGetCategorySummary } from '@workspace/api-client-react';
-import { ProductCategory } from '@workspace/api-client-react/src/generated/api.schemas';
+import { ProductCategory } from '@workspace/api-client-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 
 const categoryLabels: Record<string, string> = {

@@ -49,7 +49,7 @@ function Router() {
           </AdminLayout>
         )}
       </Route>
-      <Route path="/:rest*">
+      <Route>
         {() => (
           <Shell>
             <Switch>

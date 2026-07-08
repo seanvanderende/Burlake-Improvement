@@ -7,9 +7,10 @@ import { Router, type IRouter, type Request, type Response } from 'express';
 
 import { requireAdmin } from '../lib/adminAuth';
 import { ObjectStorageService, ObjectNotFoundError } from '../lib/objectStorage';
+import { getObjectAclPolicy } from '../lib/objectAcl';
 
 const router: IRouter = Router();
-const objectStorageService = new ObjectStorageService();
+export const objectStorageService = new ObjectStorageService();
 
 /**
  * POST /storage/uploads/request-url
@@ -108,20 +109,16 @@ router.get('/storage/objects/*path', async (req: Request, res: Response) => {
     const objectFile =
       await objectStorageService.getObjectEntityFile(objectPath);
 
-    // --- Protected route example (uncomment when using replit-auth) ---
-    // if (!req.isAuthenticated()) {
-    //   res.status(401).json({ error: "Unauthorized" });
-    //   return;
-    // }
-    // const canAccess = await objectStorageService.canAccessObjectEntity({
-    //   userId: req.user.id,
-    //   objectFile,
-    //   requestedPermission: ObjectPermission.READ,
-    // });
-    // if (!canAccess) {
-    //   res.status(403).json({ error: "Forbidden" });
-    //   return;
-    // }
+    // Product photos are marked public (see products.ts) once attached to a
+    // product, since they need to render on the public catalog. Anything not
+    // yet marked public (freshly uploaded, not yet saved to a product) is
+    // only visible to logged-in staff.
+    const aclPolicy = await getObjectAclPolicy(objectFile);
+    const isPublic = aclPolicy?.visibility === 'public';
+    if (!isPublic && !req.session.isAdmin) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
 
     const response = await objectStorageService.downloadObject(objectFile);
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
-import { useGetAdminSession, useAdminLogout } from '@workspace/api-client-react';
+import { useGetAdminSession, useAdminLogout, getGetAdminSessionQueryKey } from '@workspace/api-client-react';
 import { LogOut, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -9,6 +9,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { data: session, isLoading } = useGetAdminSession({
     query: {
       retry: false,
+      queryKey: getGetAdminSessionQueryKey()
     }
   });
 

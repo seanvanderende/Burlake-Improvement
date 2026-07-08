@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useListProducts, useDeleteProduct, useUpdateProduct, getListProductsQueryKey } from '@workspace/api-client-react';
-import { ProductCategory } from '@workspace/api-client-react/src/generated/api.schemas';
+import { ProductCategory } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
