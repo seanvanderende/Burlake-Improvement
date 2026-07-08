@@ -266,8 +266,8 @@ export default function Catalog() {
         {/* Layout: sidebar always visible */}
         <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
 
-          {/* Sidebar — always visible, no responsive hiding */}
-          <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 112 }}>
+          {/* Sidebar — always visible */}
+          <aside style={{ width: 210, minWidth: 210, flexShrink: 0, position: 'sticky', top: 112, background: '#f5f5f0', padding: '16px', borderRight: '1px solid #e5e7eb' }}>
             {filterPanel}
           </aside>
 
