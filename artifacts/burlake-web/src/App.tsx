@@ -29,13 +29,6 @@ function Router() {
   return (
     <Switch>
       <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin">
-        {() => (
-          <AdminLayout>
-            <AdminDashboard />
-          </AdminLayout>
-        )}
-      </Route>
       <Route path="/admin/import">
         {() => (
           <AdminLayout>
@@ -54,6 +47,13 @@ function Router() {
         {() => (
           <AdminLayout>
             <ProductForm />
+          </AdminLayout>
+        )}
+      </Route>
+      <Route path="/admin">
+        {() => (
+          <AdminLayout>
+            <AdminDashboard />
           </AdminLayout>
         )}
       </Route>
