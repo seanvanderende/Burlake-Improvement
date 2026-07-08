@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { useListProducts, useListCollections, useListProductSizes } from '@workspace/api-client-react';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 import { ChevronDown, ChevronUp, SlidersHorizontal, X } from 'lucide-react';
@@ -50,19 +49,34 @@ function FilterOption({
   onChange: () => void;
 }) {
   return (
-    <label className="flex items-center gap-2.5 cursor-pointer group">
-      <Checkbox
-        checked={checked}
-        onCheckedChange={onChange}
-        className="shrink-0"
-      />
+    <button
+      type="button"
+      onClick={onChange}
+      className="flex items-center gap-2.5 w-full text-left group select-none cursor-pointer"
+    >
+      {/* Checked state */}
+      {checked ? (
+        <span className="shrink-0 h-[18px] w-[18px] border-2 border-primary bg-primary flex items-center justify-center transition-colors">
+          <svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none">
+            <path
+              d="M2 6l3 3 5-5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      ) : (
+        <span className="shrink-0 h-[18px] w-[18px] border-2 border-gray-400 bg-white flex items-center justify-center transition-colors group-hover:border-primary" />
+      )}
       <span className="text-sm text-foreground group-hover:text-primary transition-colors flex-1 leading-tight">
         {label}
       </span>
       {count !== undefined && (
         <span className="text-xs text-muted-foreground">{count}</span>
       )}
-    </label>
+    </button>
   );
 }
 
@@ -216,11 +230,11 @@ export default function Catalog() {
               <span className="text-sm text-muted-foreground">
                 {isLoading ? '…' : `${filtered.length} product${filtered.length !== 1 ? 's' : ''}`}
               </span>
-              {/* Mobile filter toggle */}
+              {/* Mobile filter toggle — only below sm where sidebar is hidden */}
               <Button
                 variant="outline"
                 size="sm"
-                className="lg:hidden"
+                className="sm:hidden"
                 onClick={() => setMobilePanelOpen((v) => !v)}
               >
                 <SlidersHorizontal className="w-4 h-4 mr-2" />
@@ -262,15 +276,15 @@ export default function Catalog() {
           </div>
         )}
 
-        <div className="flex gap-8 lg:gap-10 items-start">
-          {/* ── Desktop sidebar ───────────────────────────────────────────── */}
-          <aside className="hidden lg:block w-52 xl:w-60 shrink-0 sticky top-28">
+        <div className="flex gap-6 sm:gap-8 lg:gap-10 items-start">
+          {/* ── Sidebar — visible from sm (640px) upward ─────────────────── */}
+          <aside className="hidden sm:block w-44 md:w-52 xl:w-60 shrink-0 sticky top-28">
             {filterPanel}
           </aside>
 
-          {/* ── Mobile filter drawer ──────────────────────────────────────── */}
+          {/* ── Mobile filter drawer — only below sm ─────────────────────── */}
           {mobilePanelOpen && (
-            <div className="lg:hidden fixed inset-0 z-50 flex">
+            <div className="sm:hidden fixed inset-0 z-50 flex">
               <div
                 className="absolute inset-0 bg-foreground/30 backdrop-blur-sm"
                 onClick={() => setMobilePanelOpen(false)}
