@@ -1,0 +1,74 @@
+import React from 'react';
+import { Link, useLocation } from 'wouter';
+import { useGetAdminSession, useAdminLogout } from '@workspace/api-client-react';
+import { LogOut, Leaf } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+export function AdminLayout({ children }: { children: React.ReactNode }) {
+  const [location, setLocation] = useLocation();
+  const { data: session, isLoading } = useGetAdminSession({
+    query: {
+      retry: false,
+    }
+  });
+
+  const logoutMutation = useAdminLogout({
+    mutation: {
+      onSuccess: () => {
+        setLocation('/admin/login');
+      }
+    }
+  });
+
+  React.useEffect(() => {
+    if (!isLoading && (!session || !session.authenticated)) {
+      if (location !== '/admin/login') {
+        setLocation('/admin/login');
+      }
+    }
+  }, [session, isLoading, location, setLocation]);
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>;
+  }
+
+  if (!session?.authenticated) {
+    return null; // Will redirect in useEffect
+  }
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="bg-secondary text-secondary-foreground border-b border-border sticky top-0 z-40">
+        <div className="px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary">
+              <Leaf size={16} />
+            </div>
+            <Link href="/admin">
+              <span className="font-serif text-lg font-medium cursor-pointer">Burlake Admin</span>
+            </Link>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-secondary-foreground/60 hidden sm:inline-block">Staff Session</span>
+            <Button 
+              variant="outline-light" 
+              size="sm" 
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 overflow-auto bg-muted/30">
+        <div className="max-w-7xl mx-auto p-6">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+}
