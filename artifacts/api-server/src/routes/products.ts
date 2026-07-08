@@ -13,6 +13,8 @@ import {
   UpdateProductBody,
   UpdateProductResponse,
   DeleteProductParams,
+  BulkCreateProductsBody,
+  BulkCreateProductsResponse,
 } from "@workspace/api-zod";
 
 import { requireAdmin } from "../lib/adminAuth";
@@ -160,6 +162,41 @@ router.patch(
     }
 
     res.json(UpdateProductResponse.parse(product));
+  },
+);
+
+router.post(
+  "/admin/products/bulk",
+  requireAdmin,
+  async (req: Request, res: Response): Promise<void> => {
+    const parsed = BulkCreateProductsBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+
+    const { products } = parsed.data;
+    let created = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    // Insert in batches of 50 to avoid hitting DB parameter limits
+    const BATCH = 50;
+    for (let i = 0; i < products.length; i += BATCH) {
+      const chunk = products.slice(i, i + BATCH);
+      try {
+        const rows = await db
+          .insert(productsTable)
+          .values(chunk.map((p) => ({ ...p, available: p.available ?? true })))
+          .returning({ id: productsTable.id });
+        created += rows.length;
+      } catch (err: any) {
+        failed += chunk.length;
+        errors.push(err?.message ?? "Unknown error");
+      }
+    }
+
+    res.json(BulkCreateProductsResponse.parse({ created, failed, errors }));
   },
 );
 

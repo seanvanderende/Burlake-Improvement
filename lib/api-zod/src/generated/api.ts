@@ -158,6 +158,35 @@ export const DeleteProductResponse = zod.void()
 
 
 /**
+ * Creates multiple products in a single request (admin only). Returns counts of created and failed rows.
+ * @summary Bulk create products
+ */
+
+export const bulkCreateProductsBodyProductsMax = 2000;
+
+
+
+export const BulkCreateProductsBody = zod.object({
+  "products": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "category": zod.enum(['tropicals', 'flowering', 'planters', 'easter', 'mothers_day', 'cut_flowers']),
+  "imageUrl": zod.string().nullish(),
+  "sku": zod.string().nullish(),
+  "size": zod.string().nullish(),
+  "description": zod.string().nullish(),
+  "available": zod.boolean().optional(),
+  "sortOrder": zod.number().optional()
+})).max(bulkCreateProductsBodyProductsMax)
+})
+
+export const BulkCreateProductsResponse = zod.object({
+  "created": zod.number(),
+  "failed": zod.number(),
+  "errors": zod.array(zod.string()).optional()
+})
+
+
+/**
  * Logs in with the shared admin password, starting a session
  * @summary Admin login
  */

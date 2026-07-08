@@ -13,6 +13,7 @@ import Contact from '@/pages/Contact';
 import AdminLogin from '@/pages/admin/Login';
 import AdminDashboard from '@/pages/admin/Dashboard';
 import ProductForm from '@/pages/admin/ProductForm';
+import AdminImport from '@/pages/admin/AdminImport';
 import NotFound from '@/pages/not-found';
 
 const queryClient = new QueryClient({
@@ -32,6 +33,13 @@ function Router() {
         {() => (
           <AdminLayout>
             <AdminDashboard />
+          </AdminLayout>
+        )}
+      </Route>
+      <Route path="/admin/import">
+        {() => (
+          <AdminLayout>
+            <AdminImport />
           </AdminLayout>
         )}
       </Route>

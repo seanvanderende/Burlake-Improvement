@@ -8,6 +8,8 @@
 
 export * from './adminLoginInput';
 export * from './adminSession';
+export * from './bulkCreateProductsInput';
+export * from './bulkCreateProductsResult';
 export * from './categorySummary';
 export * from './errorResponse';
 export * from './healthStatus';

@@ -5,7 +5,7 @@ import { ProductCategory } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { Plus, Upload, Edit, Trash2, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const categoryLabels: Record<string, string> = {
@@ -69,9 +69,14 @@ export default function AdminDashboard() {
           <h1 className="font-serif text-3xl text-foreground">Products Dashboard</h1>
           <p className="text-muted-foreground text-sm mt-1">Manage catalog and weekly availability</p>
         </div>
-        <Button onClick={() => setLocation('/admin/products/new')}>
-          <Plus className="w-4 h-4 mr-2" /> New Product
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setLocation('/admin/import')}>
+            <Upload className="w-4 h-4 mr-2" /> Import CSV
+          </Button>
+          <Button onClick={() => setLocation('/admin/products/new')}>
+            <Plus className="w-4 h-4 mr-2" /> New Product
+          </Button>
+        </div>
       </div>
 
       <div className="bg-card border border-border flex flex-col md:flex-row items-center gap-4 p-4">

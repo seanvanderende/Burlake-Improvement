@@ -90,6 +90,17 @@ export interface AdminSession {
   authenticated: boolean;
 }
 
+export interface BulkCreateProductsInput {
+  /** @maxItems 2000 */
+  products: ProductInput[];
+}
+
+export interface BulkCreateProductsResult {
+  created: number;
+  failed: number;
+  errors?: string[];
+}
+
 export interface UploadRequestInput {
   name: string;
   size: number;
