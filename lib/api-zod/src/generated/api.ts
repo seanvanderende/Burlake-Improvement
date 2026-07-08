@@ -188,6 +188,22 @@ export const BulkCreateProductsResponse = zod.object({
 
 
 /**
+ * Deletes multiple products by ID (admin only)
+ * @summary Bulk delete products
+ */
+
+
+
+export const BulkDeleteProductsBody = zod.object({
+  "ids": zod.array(zod.number()).min(1)
+})
+
+export const BulkDeleteProductsResponse = zod.object({
+  "deleted": zod.number()
+})
+
+
+/**
  * Logs in with the shared admin password, starting a session
  * @summary Admin login
  */

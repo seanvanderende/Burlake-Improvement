@@ -15,6 +15,8 @@ import {
   DeleteProductParams,
   BulkCreateProductsBody,
   BulkCreateProductsResponse,
+  BulkDeleteProductsBody,
+  BulkDeleteProductsResponse,
 } from "@workspace/api-zod";
 
 import { requireAdmin } from "../lib/adminAuth";
@@ -235,6 +237,26 @@ router.post(
     }
 
     res.json(BulkCreateProductsResponse.parse({ created, duplicates, failed, errors }));
+  },
+);
+
+router.post(
+  "/admin/products/bulk-delete",
+  requireAdmin,
+  async (req: Request, res: Response): Promise<void> => {
+    const parsed = BulkDeleteProductsBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+
+    const { ids } = parsed.data;
+    const deleted = await db
+      .delete(productsTable)
+      .where(inArray(productsTable.id, ids))
+      .returning({ id: productsTable.id });
+
+    res.json(BulkDeleteProductsResponse.parse({ deleted: deleted.length }));
   },
 );
 

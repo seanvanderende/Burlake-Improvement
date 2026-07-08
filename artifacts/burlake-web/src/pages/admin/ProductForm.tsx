@@ -150,11 +150,12 @@ export default function ProductForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="sku">SKU (Optional)</Label>
+              <Label htmlFor="sku">SKU *</Label>
               <Input 
                 id="sku" 
                 value={formData.sku}
                 onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
+                required
               />
             </div>
 

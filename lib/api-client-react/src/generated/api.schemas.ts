@@ -102,6 +102,15 @@ export interface BulkCreateProductsResult {
   errors?: string[];
 }
 
+export interface BulkDeleteProductsInput {
+  /** @minItems 1 */
+  ids: number[];
+}
+
+export interface BulkDeleteProductsResult {
+  deleted: number;
+}
+
 export interface UploadRequestInput {
   name: string;
   size: number;

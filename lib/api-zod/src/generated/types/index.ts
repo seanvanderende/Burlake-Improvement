@@ -10,6 +10,8 @@ export * from './adminLoginInput';
 export * from './adminSession';
 export * from './bulkCreateProductsInput';
 export * from './bulkCreateProductsResult';
+export * from './bulkDeleteProductsInput';
+export * from './bulkDeleteProductsResult';
 export * from './categorySummary';
 export * from './errorResponse';
 export * from './healthStatus';

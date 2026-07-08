@@ -24,6 +24,8 @@ import type {
   AdminSession,
   BulkCreateProductsInput,
   BulkCreateProductsResult,
+  BulkDeleteProductsInput,
+  BulkDeleteProductsResult,
   CategorySummary,
   ErrorResponse,
   HealthStatus,
@@ -667,6 +669,78 @@ export const useBulkCreateProducts = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getBulkCreateProductsMutationOptions(options));
+    }
+
+export const getBulkDeleteProductsUrl = () => {
+
+
+
+
+  return `/api/admin/products/bulk-delete`
+}
+
+/**
+ * Deletes multiple products by ID (admin only)
+ * @summary Bulk delete products
+ */
+export const bulkDeleteProducts = async (bulkDeleteProductsInput: BulkDeleteProductsInput, options?: RequestInit): Promise<BulkDeleteProductsResult> => {
+
+  return customFetch<BulkDeleteProductsResult>(getBulkDeleteProductsUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(bulkDeleteProductsInput)
+  }
+);}
+
+
+
+
+
+export const getBulkDeleteProductsMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteProducts>>, TError,{data: BodyType<BulkDeleteProductsInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteProducts>>, TError,{data: BodyType<BulkDeleteProductsInput>}, TContext> => {
+
+const mutationKey = ['bulkDeleteProducts'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkDeleteProducts>>, {data: BodyType<BulkDeleteProductsInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkDeleteProducts(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkDeleteProductsMutationResult = NonNullable<Awaited<ReturnType<typeof bulkDeleteProducts>>>
+    export type BulkDeleteProductsMutationBody = BodyType<BulkDeleteProductsInput>
+    export type BulkDeleteProductsMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Bulk delete products
+ */
+export const useBulkDeleteProducts = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteProducts>>, TError,{data: BodyType<BulkDeleteProductsInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof bulkDeleteProducts>>,
+        TError,
+        {data: BodyType<BulkDeleteProductsInput>},
+        TContext
+      > => {
+      return useMutation(getBulkDeleteProductsMutationOptions(options));
     }
 
 export const getAdminLoginUrl = () => {
