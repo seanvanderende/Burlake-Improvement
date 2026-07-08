@@ -1,8 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useListProducts, useListCollections, useListProductSizes } from '@workspace/api-client-react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 import { ChevronDown, ChevronUp, SlidersHorizontal, X } from 'lucide-react';
@@ -71,15 +69,14 @@ function FilterOption({
 // ── Catalog page ──────────────────────────────────────────────────────────────
 
 export default function Catalog() {
-  // ── Data fetching ────────────────────────────────────────────────────────────
-  const { data: allProducts = [], isLoading } = useListProducts({});
+  // Always fetch available-only products — out-of-stock items are not shown
+  const { data: allProducts = [], isLoading } = useListProducts({ availableOnly: true });
   const { data: collections = [] } = useListCollections();
   const { data: sizes = [] } = useListProductSizes();
 
   // ── Filter state ─────────────────────────────────────────────────────────────
   const [selectedCollectionIds, setSelectedCollectionIds] = useState<Set<number>>(new Set());
   const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
-  const [inStockOnly, setInStockOnly] = useState(false);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
 
   const toggleCollection = (id: number) =>
@@ -99,35 +96,24 @@ export default function Catalog() {
   const clearAll = () => {
     setSelectedCollectionIds(new Set());
     setSelectedSizes(new Set());
-    setInStockOnly(false);
   };
 
-  const hasFilters =
-    selectedCollectionIds.size > 0 || selectedSizes.size > 0 || inStockOnly;
+  const hasFilters = selectedCollectionIds.size > 0 || selectedSizes.size > 0;
 
   // ── Group collections into filter sections ────────────────────────────────
   const byGroup = useMemo(() => {
     const map: Record<string, typeof collections> = {};
     for (const c of collections) {
-      const key = c.grp ?? 'collection';
+      const key = c.grp ?? '__ungrouped__';
       if (!map[key]) map[key] = [];
       map[key].push(c);
     }
     return map;
   }, [collections]);
 
-  // Display order + labels for groups
-  const groupOrder: { key: string; label: string }[] = [
-    { key: 'category', label: 'Category' },
-    { key: 'collection', label: 'Collection' },
-    { key: 'holiday', label: 'Holiday' },
-  ];
-
   // ── Client-side filtering ────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     return allProducts.filter((p) => {
-      if (inStockOnly && !p.available) return false;
-
       if (selectedCollectionIds.size > 0) {
         const productCollectionIds = new Set(p.collections.map((c) => c.id));
         const hasAny = [...selectedCollectionIds].some((id) => productCollectionIds.has(id));
@@ -140,12 +126,11 @@ export default function Catalog() {
 
       return true;
     });
-  }, [allProducts, selectedCollectionIds, selectedSizes, inStockOnly]);
+  }, [allProducts, selectedCollectionIds, selectedSizes]);
 
-  // ── Sorted sizes (put common pot sizes first) ─────────────────────────────
+  // ── Sorted sizes: natural numeric sort ────────────────────────────────────
   const sortedSizes = useMemo(() => {
     return [...sizes].sort((a, b) => {
-      // Extract leading number for natural sort
       const numA = parseFloat(a);
       const numB = parseFloat(b);
       if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
@@ -156,57 +141,22 @@ export default function Catalog() {
   // ── Filter panel (shared between desktop sidebar and mobile drawer) ──────────
   const filterPanel = (
     <div className="space-y-0">
-      {/* In-stock toggle */}
-      <div className="border-b border-border pb-4 mb-4">
-        <label className="flex items-center gap-3 cursor-pointer">
-          <Switch
-            checked={inStockOnly}
-            onCheckedChange={setInStockOnly}
-            className="data-[state=checked]:bg-primary"
-          />
-          <span className="text-xs font-semibold uppercase tracking-[0.15em] text-foreground">
-            In Stock Only
-          </span>
-        </label>
-      </div>
+      {/* Category */}
+      {byGroup['category'] && byGroup['category'].length > 0 && (
+        <FilterSection title="Category">
+          {byGroup['category'].map((col) => (
+            <FilterOption
+              key={col.id}
+              label={col.name}
+              count={col.availableCount}
+              checked={selectedCollectionIds.has(col.id)}
+              onChange={() => toggleCollection(col.id)}
+            />
+          ))}
+        </FilterSection>
+      )}
 
-      {/* Collection group sections */}
-      {groupOrder.map(({ key, label }) => {
-        const cols = byGroup[key];
-        if (!cols || cols.length === 0) return null;
-        return (
-          <FilterSection key={key} title={label}>
-            {cols.map((col) => (
-              <FilterOption
-                key={col.id}
-                label={col.name}
-                count={inStockOnly ? col.availableCount : col.productCount}
-                checked={selectedCollectionIds.has(col.id)}
-                onChange={() => toggleCollection(col.id)}
-              />
-            ))}
-          </FilterSection>
-        );
-      })}
-
-      {/* Any leftover groups not in groupOrder */}
-      {Object.keys(byGroup)
-        .filter((k) => !groupOrder.find((g) => g.key === k))
-        .map((key) => (
-          <FilterSection key={key} title={key.charAt(0).toUpperCase() + key.slice(1)}>
-            {byGroup[key].map((col) => (
-              <FilterOption
-                key={col.id}
-                label={col.name}
-                count={inStockOnly ? col.availableCount : col.productCount}
-                checked={selectedCollectionIds.has(col.id)}
-                onChange={() => toggleCollection(col.id)}
-              />
-            ))}
-          </FilterSection>
-        ))}
-
-      {/* Pot Size section */}
+      {/* Pot Size */}
       {sortedSizes.length > 0 && (
         <FilterSection title="Pot Size">
           {sortedSizes.map((s) => (
@@ -219,8 +169,25 @@ export default function Catalog() {
           ))}
         </FilterSection>
       )}
+
+      {/* Holiday */}
+      {byGroup['holiday'] && byGroup['holiday'].length > 0 && (
+        <FilterSection title="Holiday">
+          {byGroup['holiday'].map((col) => (
+            <FilterOption
+              key={col.id}
+              label={col.name}
+              count={col.availableCount}
+              checked={selectedCollectionIds.has(col.id)}
+              onChange={() => toggleCollection(col.id)}
+            />
+          ))}
+        </FilterSection>
+      )}
     </div>
   );
+
+  const activeFilterCount = selectedCollectionIds.size + selectedSizes.size;
 
   return (
     <div className="bg-background pt-28 pb-24 min-h-screen">
@@ -260,7 +227,7 @@ export default function Catalog() {
                 Filters
                 {hasFilters && (
                   <span className="ml-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                    {selectedCollectionIds.size + selectedSizes.size + (inStockOnly ? 1 : 0)}
+                    {activeFilterCount}
                   </span>
                 )}
               </Button>
@@ -271,14 +238,6 @@ export default function Catalog() {
         {/* Active filter chips */}
         {hasFilters && (
           <div className="flex flex-wrap gap-2 mb-6">
-            {inStockOnly && (
-              <span
-                className="inline-flex items-center gap-1.5 text-xs bg-primary/10 text-primary border border-primary/20 px-2.5 py-1 cursor-pointer hover:bg-primary/20 transition-colors"
-                onClick={() => setInStockOnly(false)}
-              >
-                In Stock Only <X className="w-3 h-3" />
-              </span>
-            )}
             {[...selectedCollectionIds].map((id) => {
               const col = collections.find((c) => c.id === id);
               return col ? (
@@ -384,11 +343,6 @@ export default function Catalog() {
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 font-serif text-base bg-secondary/5">
                           No Photo
-                        </div>
-                      )}
-                      {!product.available && (
-                        <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[0.6rem] font-bold uppercase tracking-widest px-2 py-0.5">
-                          Out of Stock
                         </div>
                       )}
                     </div>
