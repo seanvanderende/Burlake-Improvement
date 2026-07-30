@@ -30,6 +30,8 @@ export * from './healthStatus';
 export * from './listCollectionsParams';
 export * from './listProductsParams';
 export * from './presignedUpload';
+export * from './priceList';
+export * from './priceListInput';
 export * from './product';
 export * from './productCollection';
 export * from './productInput';

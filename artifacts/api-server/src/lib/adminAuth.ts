@@ -24,3 +24,19 @@ export function requireAdmin(
 
   next();
 }
+
+/**
+ * Middleware guarding Customer Portal routes (brochures, price lists, etc.).
+ * Passes if the session has either portal access or admin access.
+ */
+export function requirePortalAccess(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
+  if (req.session.hasBrochureAccess || req.session.isAdmin) {
+    next();
+    return;
+  }
+  res.status(401).json({ error: "Unauthorized" });
+}

@@ -5,28 +5,10 @@ import { Link, useLocation } from 'wouter';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-const SEASON_ORDER = [
-  "Valentine's Day",
-  "Easter",
-  "Mother's Day",
-  "Spring",
-  "Fall",
-  "Christmas",
-];
-
-const SEASON_COLORS: Record<string, string> = {
-  "Valentine's Day": "#b5103c",
-  "Easter": "#8b5ea8",
-  "Mother's Day": "#c0446b",
-  "Spring": "#4a7c4e",
-  "Fall": "#c26a1e",
-  "Christmas": "#2e6b3e",
-};
-
-interface Brochure {
+interface PriceList {
   id: number;
   title: string;
-  season: string;
+  period: string;
   objectPath: string;
   fileName: string;
   createdAt: string;
@@ -42,31 +24,28 @@ async function fetchAuthStatus(): Promise<AuthStatus> {
   return res.json();
 }
 
-async function fetchBrochures(): Promise<Brochure[]> {
-  const res = await fetch(`${BASE}/api/brochures`);
-  if (!res.ok) throw new Error('Failed to fetch brochures');
+async function fetchPriceLists(): Promise<PriceList[]> {
+  const res = await fetch(`${BASE}/api/price-lists`);
+  if (!res.ok) throw new Error('Failed to fetch price lists');
   return res.json();
 }
 
-function groupBySeasonOrdered(brochures: Brochure[]): [string, Brochure[]][] {
-  const map = new Map<string, Brochure[]>();
-  for (const b of brochures) {
-    if (!map.has(b.season)) map.set(b.season, []);
-    map.get(b.season)!.push(b);
+function groupByPeriod(items: PriceList[]): [string, PriceList[]][] {
+  const map = new Map<string, PriceList[]>();
+  for (const item of items) {
+    if (!map.has(item.period)) map.set(item.period, []);
+    map.get(item.period)!.push(item);
   }
-  const known = SEASON_ORDER.filter((s) => map.has(s));
-  const extra = [...map.keys()].filter((s) => !SEASON_ORDER.includes(s)).sort();
-  return [...known, ...extra].map((s) => [s, map.get(s)!]);
+  return [...map.entries()];
 }
 
-function BrochureCard({ brochure }: { brochure: Brochure }) {
-  const color = SEASON_COLORS[brochure.season] ?? '#5a7c5e';
-  const downloadUrl = `${BASE}/api/brochures/${brochure.id}/download`;
+function PriceListCard({ item }: { item: PriceList }) {
+  const downloadUrl = `${BASE}/api/price-lists/${item.id}/download`;
 
   return (
     <a
       href={downloadUrl}
-      download={brochure.fileName}
+      download={item.fileName}
       target="_blank"
       rel="noopener noreferrer"
       style={{
@@ -84,7 +63,7 @@ function BrochureCard({ brochure }: { brochure: Brochure }) {
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
-        (e.currentTarget as HTMLAnchorElement).style.borderColor = color;
+        (e.currentTarget as HTMLAnchorElement).style.borderColor = '#5a7c5e';
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLAnchorElement).style.boxShadow = 'none';
@@ -96,21 +75,21 @@ function BrochureCard({ brochure }: { brochure: Brochure }) {
           width: '44px',
           height: '44px',
           borderRadius: '8px',
-          background: `${color}18`,
+          background: '#f0f7f1',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
         }}
       >
-        <FileText size={20} style={{ color }} />
+        <FileText size={20} style={{ color: '#5a7c5e' }} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 600, fontSize: '0.95rem', color: '#2c2c2c', marginBottom: '0.15rem' }}>
-          {brochure.title}
+          {item.title}
         </div>
         <div style={{ fontSize: '0.8rem', color: '#888' }}>
-          {new Date(brochure.createdAt).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {new Date(item.createdAt).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
           {' · '}PDF
         </div>
       </div>
@@ -119,7 +98,7 @@ function BrochureCard({ brochure }: { brochure: Brochure }) {
   );
 }
 
-export default function Brochures() {
+export default function PriceLists() {
   const [, setLocation] = useLocation();
 
   const { data: auth, isLoading: authLoading } = useQuery({
@@ -128,14 +107,13 @@ export default function Brochures() {
     retry: false,
   });
 
-  const { data: brochures, isLoading: brochuresLoading } = useQuery({
-    queryKey: ['brochures'],
-    queryFn: fetchBrochures,
+  const { data: priceLists, isLoading: listLoading } = useQuery({
+    queryKey: ['price-lists'],
+    queryFn: fetchPriceLists,
     enabled: !!auth?.authenticated,
     retry: false,
   });
 
-  // Redirect to portal if not authenticated
   useEffect(() => {
     if (!authLoading && !auth?.authenticated) {
       setLocation('/portal');
@@ -150,7 +128,7 @@ export default function Brochures() {
     );
   }
 
-  const grouped = brochures ? groupBySeasonOrdered(brochures) : [];
+  const grouped = priceLists ? groupByPeriod(priceLists) : [];
 
   return (
     <div style={{ minHeight: '100vh', background: '#faf8f4' }}>
@@ -168,7 +146,7 @@ export default function Brochures() {
             </span>
           </Link>
           <ChevronRight size={14} style={{ color: '#bbb' }} />
-          <span style={{ fontSize: '0.9rem', color: '#666' }}>Brochures</span>
+          <span style={{ fontSize: '0.9rem', color: '#666' }}>Price Lists</span>
         </div>
       </div>
 
@@ -196,16 +174,16 @@ export default function Brochures() {
           </Link>
           <div>
             <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', color: '#2c2c2c', margin: '0 0 0.5rem' }}>
-              Brochures
+              Price Lists
             </h1>
             <p style={{ color: '#666', margin: 0 }}>
-              Download our latest wholesale brochures for each season.
+              Download our current wholesale price lists.
             </p>
           </div>
         </div>
 
-        {brochuresLoading ? (
-          <p style={{ color: '#aaa' }}>Loading brochures…</p>
+        {listLoading ? (
+          <p style={{ color: '#aaa' }}>Loading price lists…</p>
         ) : grouped.length === 0 ? (
           <div
             style={{
@@ -217,19 +195,19 @@ export default function Brochures() {
               color: '#888',
             }}
           >
-            No brochures available yet.
+            No price lists available yet.
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-            {grouped.map(([season, items]) => (
-              <div key={season}>
+            {grouped.map(([period, items]) => (
+              <div key={period}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.85rem' }}>
                   <div
                     style={{
                       width: '10px',
                       height: '10px',
                       borderRadius: '50%',
-                      background: SEASON_COLORS[season] ?? '#5a7c5e',
+                      background: '#5a7c5e',
                       flexShrink: 0,
                     }}
                   />
@@ -242,12 +220,12 @@ export default function Brochures() {
                       margin: 0,
                     }}
                   >
-                    {season}
+                    {period}
                   </h2>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  {items.map((b) => (
-                    <BrochureCard key={b.id} brochure={b} />
+                  {items.map((item) => (
+                    <PriceListCard key={item.id} item={item} />
                   ))}
                 </div>
               </div>

@@ -379,6 +379,16 @@ export const ListBrochuresResponse = zod.array(ListBrochuresResponseItem)
 
 
 /**
+ * @summary Stream a brochure PDF (requires portal or admin session)
+ */
+export const DownloadBrochureParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DownloadBrochureResponse = zod.unknown()
+
+
+/**
  * @summary Register a brochure record after client-side upload (admin only)
  */
 
@@ -412,6 +422,66 @@ export const DeleteBrochureParams = zod.object({
 })
 
 export const DeleteBrochureResponse = zod.void()
+
+
+/**
+ * @summary List all price lists (requires portal or admin session)
+ */
+export const ListPriceListsResponseItem = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "period": zod.string(),
+  "objectPath": zod.string(),
+  "fileName": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListPriceListsResponse = zod.array(ListPriceListsResponseItem)
+
+
+/**
+ * @summary Stream a price list PDF (requires portal or admin session)
+ */
+export const DownloadPriceListParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DownloadPriceListResponse = zod.unknown()
+
+
+/**
+ * @summary Register a price list record after client-side upload (admin only)
+ */
+
+
+
+
+
+
+export const CreatePriceListBody = zod.object({
+  "title": zod.string().min(1),
+  "period": zod.string().min(1),
+  "objectPath": zod.string().min(1),
+  "fileName": zod.string().min(1)
+})
+
+export const CreatePriceListResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "period": zod.string(),
+  "objectPath": zod.string(),
+  "fileName": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a price list record (admin only)
+ */
+export const DeletePriceListParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeletePriceListResponse = zod.void()
 
 
 /**

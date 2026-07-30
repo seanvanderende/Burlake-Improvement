@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { db, brochuresTable } from "@workspace/db";
-import { requireAdmin } from "../lib/adminAuth";
+import { Readable } from "stream";
+import { db, brochuresTable, priceListsTable } from "@workspace/db";
+import { requireAdmin, requirePortalAccess } from "../lib/adminAuth";
 import { desc, eq } from "drizzle-orm";
 import { objectStorageService } from "./storage";
 
@@ -8,13 +9,13 @@ const router = Router();
 
 // ── Customer auth ─────────────────────────────────────────────────────────────
 
-/** POST /brochures/auth — customer enters password to unlock brochure access */
+/** POST /brochures/auth — customer enters password to unlock portal access */
 router.post("/brochures/auth", (req, res) => {
   const { password } = req.body ?? {};
   const expected = process.env.BROCHURE_PASSWORD;
 
   if (!expected) {
-    res.status(503).json({ error: "Brochure access not configured" });
+    res.status(503).json({ error: "Portal access not configured" });
     return;
   }
 
@@ -33,29 +34,15 @@ router.post("/brochures/auth", (req, res) => {
   });
 });
 
-/** GET /brochures/auth — check whether current session has brochure access */
+/** GET /brochures/auth — check whether current session has portal access */
 router.get("/brochures/auth", (req, res) => {
   res.json({ authenticated: !!(req.session.hasBrochureAccess || req.session.isAdmin) });
 });
 
-// ── Middleware: brochure access or admin ──────────────────────────────────────
+// ── Portal-gated routes ───────────────────────────────────────────────────────
 
-function requireBrochureAccess(
-  req: Parameters<typeof requireAdmin>[0],
-  res: Parameters<typeof requireAdmin>[1],
-  next: Parameters<typeof requireAdmin>[2],
-) {
-  if (req.session.hasBrochureAccess || req.session.isAdmin) {
-    next();
-    return;
-  }
-  res.status(401).json({ error: "Unauthorized" });
-}
-
-// ── Public (brochure-access-gated) routes ─────────────────────────────────────
-
-/** GET /brochures — list all brochures (requires brochure or admin session) */
-router.get("/brochures", requireBrochureAccess, async (_req, res) => {
+/** GET /brochures — list all brochures (requires portal or admin session) */
+router.get("/brochures", requirePortalAccess, async (_req, res) => {
   try {
     const rows = await db
       .select()
@@ -69,6 +56,76 @@ router.get("/brochures", requireBrochureAccess, async (_req, res) => {
 
 // ── Admin routes ──────────────────────────────────────────────────────────────
 
+/**
+ * POST /admin/portal/backfill-acl — one-time admin utility.
+ * Sets every existing brochure and price-list object to private ACL so they
+ * cannot be fetched directly from /api/storage without portal authentication.
+ * Idempotent; safe to call more than once.
+ */
+router.post("/admin/portal/backfill-acl", requireAdmin, async (_req, res) => {
+  const brochureRows = await db.select({ id: brochuresTable.id, objectPath: brochuresTable.objectPath }).from(brochuresTable);
+  const priceRows = await db.select({ id: priceListsTable.id, objectPath: priceListsTable.objectPath }).from(priceListsTable);
+  const rows = [...brochureRows, ...priceRows];
+  let updated = 0;
+  let skipped = 0;
+  const errors: string[] = [];
+
+  for (const row of rows) {
+    try {
+      await objectStorageService.trySetObjectEntityAclPolicy(row.objectPath, {
+        owner: "admin",
+        visibility: "private",
+      });
+      updated++;
+    } catch (err: any) {
+      if (err?.name === "ObjectNotFoundError") {
+        skipped++;
+      } else {
+        errors.push(`id=${row.id}: ${err?.message}`);
+      }
+    }
+  }
+
+  res.json({ total: rows.length, updated, skipped, errors });
+});
+
+/** GET /brochures/:id/download — stream a brochure PDF (requires portal or admin session) */
+router.get("/brochures/:id/download", requirePortalAccess, async (req, res) => {
+  const id = parseInt(String(req.params.id), 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+
+  try {
+    const [brochure] = await db
+      .select()
+      .from(brochuresTable)
+      .where(eq(brochuresTable.id, id));
+
+    if (!brochure) {
+      res.status(404).json({ error: "Brochure not found" });
+      return;
+    }
+
+    const objectFile = await objectStorageService.getObjectEntityFile(brochure.objectPath);
+    const response = await objectStorageService.downloadObject(objectFile);
+
+    res.status(response.status);
+    response.headers.forEach((value, key) => res.setHeader(key, value));
+    res.setHeader("Content-Disposition", `attachment; filename="${brochure.fileName}"`);
+
+    if (response.body) {
+      const nodeStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
+      nodeStream.pipe(res);
+    } else {
+      res.end();
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Failed to download brochure" });
+  }
+});
+
 /** POST /admin/brochures — register a brochure after client-side upload */
 router.post("/admin/brochures", requireAdmin, async (req, res) => {
   const { title, season, objectPath, fileName } = req.body ?? {};
@@ -79,12 +136,7 @@ router.post("/admin/brochures", requireAdmin, async (req, res) => {
   }
 
   try {
-    // Make the uploaded PDF publicly accessible
-    await objectStorageService.trySetObjectEntityAclPolicy(objectPath, {
-      owner: "admin",
-      visibility: "public",
-    });
-
+    // Documents stay private — downloaded only through the portal-gated /brochures/:id/download route
     const [brochure] = await db
       .insert(brochuresTable)
       .values({ title, season, objectPath, fileName })
@@ -98,7 +150,7 @@ router.post("/admin/brochures", requireAdmin, async (req, res) => {
 
 /** DELETE /admin/brochures/:id — remove a brochure record */
 router.delete("/admin/brochures/:id", requireAdmin, async (req, res) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) {
     res.status(400).json({ error: "Invalid id" });
     return;

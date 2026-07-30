@@ -41,6 +41,8 @@ import type {
   ListCollectionsParams,
   ListProductsParams,
   PresignedUpload,
+  PriceList,
+  PriceListInput,
   Product,
   ProductInput,
   ProductUpdate,
@@ -1501,6 +1503,83 @@ export function useListBrochures<TData = Awaited<ReturnType<typeof listBrochures
 
 
 
+export const getDownloadBrochureUrl = (id: number,) => {
+
+
+
+
+  return `/api/brochures/${id}/download`
+}
+
+/**
+ * @summary Stream a brochure PDF (requires portal or admin session)
+ */
+export const downloadBrochure = async (id: number, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadBrochureUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadBrochureQueryKey = (id: number,) => {
+    return [
+    `/api/brochures/${id}/download`
+    ] as const;
+    }
+
+
+export const getDownloadBrochureQueryOptions = <TData = Awaited<ReturnType<typeof downloadBrochure>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadBrochure>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadBrochureQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadBrochure>>> = ({ signal }) => downloadBrochure(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadBrochure>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DownloadBrochureQueryResult = NonNullable<Awaited<ReturnType<typeof downloadBrochure>>>
+export type DownloadBrochureQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Stream a brochure PDF (requires portal or admin session)
+ */
+
+export function useDownloadBrochure<TData = Awaited<ReturnType<typeof downloadBrochure>>, TError = ErrorType<ErrorResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadBrochure>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDownloadBrochureQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getCreateBrochureUrl = () => {
 
 
@@ -1641,6 +1720,302 @@ export const useDeleteBrochure = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getDeleteBrochureMutationOptions(options));
+    }
+
+export const getListPriceListsUrl = () => {
+
+
+
+
+  return `/api/price-lists`
+}
+
+/**
+ * @summary List all price lists (requires portal or admin session)
+ */
+export const listPriceLists = async ( options?: RequestInit): Promise<PriceList[]> => {
+
+  return customFetch<PriceList[]>(getListPriceListsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPriceListsQueryKey = () => {
+    return [
+    `/api/price-lists`
+    ] as const;
+    }
+
+
+export const getListPriceListsQueryOptions = <TData = Awaited<ReturnType<typeof listPriceLists>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPriceLists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPriceListsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPriceLists>>> = ({ signal }) => listPriceLists({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPriceLists>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPriceListsQueryResult = NonNullable<Awaited<ReturnType<typeof listPriceLists>>>
+export type ListPriceListsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List all price lists (requires portal or admin session)
+ */
+
+export function useListPriceLists<TData = Awaited<ReturnType<typeof listPriceLists>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPriceLists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPriceListsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDownloadPriceListUrl = (id: number,) => {
+
+
+
+
+  return `/api/price-lists/${id}/download`
+}
+
+/**
+ * @summary Stream a price list PDF (requires portal or admin session)
+ */
+export const downloadPriceList = async (id: number, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadPriceListUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadPriceListQueryKey = (id: number,) => {
+    return [
+    `/api/price-lists/${id}/download`
+    ] as const;
+    }
+
+
+export const getDownloadPriceListQueryOptions = <TData = Awaited<ReturnType<typeof downloadPriceList>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadPriceList>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadPriceListQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadPriceList>>> = ({ signal }) => downloadPriceList(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadPriceList>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DownloadPriceListQueryResult = NonNullable<Awaited<ReturnType<typeof downloadPriceList>>>
+export type DownloadPriceListQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Stream a price list PDF (requires portal or admin session)
+ */
+
+export function useDownloadPriceList<TData = Awaited<ReturnType<typeof downloadPriceList>>, TError = ErrorType<ErrorResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadPriceList>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDownloadPriceListQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreatePriceListUrl = () => {
+
+
+
+
+  return `/api/admin/price-lists`
+}
+
+/**
+ * @summary Register a price list record after client-side upload (admin only)
+ */
+export const createPriceList = async (priceListInput: PriceListInput, options?: RequestInit): Promise<PriceList> => {
+
+  return customFetch<PriceList>(getCreatePriceListUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(priceListInput)
+  }
+);}
+
+
+
+
+
+export const getCreatePriceListMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPriceList>>, TError,{data: BodyType<PriceListInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createPriceList>>, TError,{data: BodyType<PriceListInput>}, TContext> => {
+
+const mutationKey = ['createPriceList'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createPriceList>>, {data: BodyType<PriceListInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createPriceList(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePriceListMutationResult = NonNullable<Awaited<ReturnType<typeof createPriceList>>>
+    export type CreatePriceListMutationBody = BodyType<PriceListInput>
+    export type CreatePriceListMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Register a price list record after client-side upload (admin only)
+ */
+export const useCreatePriceList = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPriceList>>, TError,{data: BodyType<PriceListInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createPriceList>>,
+        TError,
+        {data: BodyType<PriceListInput>},
+        TContext
+      > => {
+      return useMutation(getCreatePriceListMutationOptions(options));
+    }
+
+export const getDeletePriceListUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/price-lists/${id}`
+}
+
+/**
+ * @summary Delete a price list record (admin only)
+ */
+export const deletePriceList = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeletePriceListUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeletePriceListMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePriceList>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deletePriceList>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deletePriceList'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deletePriceList>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deletePriceList(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeletePriceListMutationResult = NonNullable<Awaited<ReturnType<typeof deletePriceList>>>
+
+    export type DeletePriceListMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Delete a price list record (admin only)
+ */
+export const useDeletePriceList = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePriceList>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deletePriceList>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeletePriceListMutationOptions(options));
     }
 
 export const getSubmitApplicationUrl = () => {

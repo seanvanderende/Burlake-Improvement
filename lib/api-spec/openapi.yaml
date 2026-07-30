@@ -20,6 +20,8 @@ tags:
     description: Object storage operations
   - name: brochures
     description: Seasonal brochure operations
+  - name: priceLists
+    description: Wholesale price list operations
   - name: applications
     description: Wholesale account application operations
 paths:
@@ -467,6 +469,38 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /brochures/{id}/download:
+    get:
+      operationId: downloadBrochure
+      tags: [brochures]
+      summary: Stream a brochure PDF (requires portal or admin session)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: PDF file stream
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /admin/brochures:
     post:
       operationId: createBrochure
@@ -497,6 +531,111 @@ paths:
       operationId: deleteBrochure
       tags: [brochures]
       summary: Delete a brochure record (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /price-lists:
+    get:
+      operationId: listPriceLists
+      tags: [priceLists]
+      summary: List all price lists (requires portal or admin session)
+      responses:
+        "200":
+          description: List of price lists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PriceList"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /price-lists/{id}/download:
+    get:
+      operationId: downloadPriceList
+      tags: [priceLists]
+      summary: Stream a price list PDF (requires portal or admin session)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: PDF file stream
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/price-lists:
+    post:
+      operationId: createPriceList
+      tags: [priceLists]
+      summary: Register a price list record after client-side upload (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PriceListInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceList"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/price-lists/{id}:
+    delete:
+      operationId: deletePriceList
+      tags: [priceLists]
+      summary: Delete a price list record (admin only)
       parameters:
         - name: id
           in: path
@@ -1075,6 +1214,51 @@ components:
           type: string
           minLength: 1
         season:
+          type: string
+          minLength: 1
+        objectPath:
+          type: string
+          minLength: 1
+        fileName:
+          type: string
+          minLength: 1
+
+    PriceList:
+      type: object
+      required:
+        - id
+        - title
+        - period
+        - objectPath
+        - fileName
+        - createdAt
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        period:
+          type: string
+        objectPath:
+          type: string
+        fileName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    PriceListInput:
+      type: object
+      required:
+        - title
+        - period
+        - objectPath
+        - fileName
+      properties:
+        title:
+          type: string
+          minLength: 1
+        period:
           type: string
           minLength: 1
         objectPath:

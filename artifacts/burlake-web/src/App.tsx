@@ -16,8 +16,10 @@ import AdminCollections from '@/pages/admin/Collections';
 import ProductForm from '@/pages/admin/ProductForm';
 import AdminImport from '@/pages/admin/AdminImport';
 import AdminBrochures from '@/pages/admin/AdminBrochures';
+import AdminPriceLists from '@/pages/admin/AdminPriceLists';
 import Portal from '@/pages/Portal';
 import Brochures from '@/pages/Brochures';
+import PriceLists from '@/pages/PriceLists';
 import NotFound from '@/pages/not-found';
 import AdminApplications from '@/pages/admin/Applications';
 
@@ -38,6 +40,13 @@ function Router() {
         {() => (
           <AdminLayout>
             <AdminBrochures />
+          </AdminLayout>
+        )}
+      </Route>
+      <Route path="/admin/price-lists">
+        {() => (
+          <AdminLayout>
+            <AdminPriceLists />
           </AdminLayout>
         )}
       </Route>
@@ -92,6 +101,7 @@ function Router() {
               <Route path="/product/:id" component={ProductDetail} />
               <Route path="/portal" component={Portal} />
               <Route path="/portal/brochures" component={Brochures} />
+              <Route path="/portal/price-lists" component={PriceLists} />
               <Route path="/contact" component={Contact} />
               <Route component={NotFound} />
             </Switch>

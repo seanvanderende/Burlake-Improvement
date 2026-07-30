@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Lock, FileText, ChevronRight, Leaf } from 'lucide-react';
+import { Lock, FileText, List, ChevronRight, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link } from 'wouter';
@@ -113,6 +113,65 @@ function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
+// ── Portal card ───────────────────────────────────────────────────────────────
+
+function PortalCard({
+  href,
+  icon,
+  title,
+  description,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Link href={href}>
+      <div
+        style={{
+          background: '#fff',
+          border: '1px solid #e4ddd4',
+          borderRadius: '12px',
+          padding: '1.75rem',
+          cursor: 'pointer',
+          transition: 'box-shadow 0.15s, border-color 0.15s',
+          height: '100%',
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
+          (e.currentTarget as HTMLDivElement).style.borderColor = '#5a7c5e';
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
+          (e.currentTarget as HTMLDivElement).style.borderColor = '#e4ddd4';
+        }}
+      >
+        <div
+          style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '10px',
+            background: '#f0f7f1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '1rem',
+          }}
+        >
+          {icon}
+        </div>
+        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#2c2c2c', marginBottom: '0.3rem' }}>
+          {title}
+        </div>
+        <div style={{ fontSize: '0.82rem', color: '#888', lineHeight: 1.4 }}>
+          {description}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 // ── Portal home ───────────────────────────────────────────────────────────────
 
 function PortalHome() {
@@ -143,48 +202,19 @@ function PortalHome() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
           {/* Brochures card */}
-          <Link href="/portal/brochures">
-            <div
-              style={{
-                background: '#fff',
-                border: '1px solid #e4ddd4',
-                borderRadius: '12px',
-                padding: '1.75rem',
-                cursor: 'pointer',
-                transition: 'box-shadow 0.15s, border-color 0.15s',
-                textDecoration: 'none',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
-                (e.currentTarget as HTMLDivElement).style.borderColor = '#5a7c5e';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
-                (e.currentTarget as HTMLDivElement).style.borderColor = '#e4ddd4';
-              }}
-            >
-              <div
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '10px',
-                  background: '#f0f7f1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '1rem',
-                }}
-              >
-                <FileText size={22} style={{ color: '#5a7c5e' }} />
-              </div>
-              <div style={{ fontWeight: 600, fontSize: '1rem', color: '#2c2c2c', marginBottom: '0.3rem' }}>
-                Brochures
-              </div>
-              <div style={{ fontSize: '0.82rem', color: '#888', lineHeight: 1.4 }}>
-                Download our seasonal wholesale brochures.
-              </div>
-            </div>
-          </Link>
+          <PortalCard
+            href="/portal/brochures"
+            icon={<FileText size={22} style={{ color: '#5a7c5e' }} />}
+            title="Brochures"
+            description="Download our seasonal wholesale brochures."
+          />
+          {/* Price Lists card */}
+          <PortalCard
+            href="/portal/price-lists"
+            icon={<List size={22} style={{ color: '#5a7c5e' }} />}
+            title="Price Lists"
+            description="View and download our current wholesale price lists."
+          />
         </div>
       </div>
     </div>

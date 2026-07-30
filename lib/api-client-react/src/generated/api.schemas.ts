@@ -247,6 +247,26 @@ export interface BrochureInput {
   fileName: string;
 }
 
+export interface PriceList {
+  id: number;
+  title: string;
+  period: string;
+  objectPath: string;
+  fileName: string;
+  createdAt: string;
+}
+
+export interface PriceListInput {
+  /** @minLength 1 */
+  title: string;
+  /** @minLength 1 */
+  period: string;
+  /** @minLength 1 */
+  objectPath: string;
+  /** @minLength 1 */
+  fileName: string;
+}
+
 export type ListCollectionsParams = {
 availableOnly?: boolean;
 };
