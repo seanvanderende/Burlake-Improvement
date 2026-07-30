@@ -246,7 +246,7 @@ export default function Homepage() {
             <span className="italic font-light text-primary">The Western Canada Quality Standard.</span>
           </h2>
           <p className="reveal delay-100 text-lg md:text-xl text-white/80 font-light leading-relaxed mb-10">
-            We do not sell to the public. Our entire 1.3 million square foot operation exists for one purpose: producing the highest-quality plants in Western Canada and delivering them reliably to your floor. From meticulous crop programming to our climate-controlled delivery fleet, we are the quality benchmark your retail reputation is built on.
+            Our entire 1.3 million square foot operation exists for one purpose: producing the highest-quality plants in Western Canada and delivering them reliably to your floor. From meticulous crop programming to our climate-controlled delivery fleet, we are the quality benchmark your retail reputation is built on.
           </p>
           <div className="reveal delay-200">
             <Link href="/contact">
