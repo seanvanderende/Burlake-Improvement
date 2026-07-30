@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { db } from "../lib/db";
-import { brochuresTable } from "@workspace/db/schema";
+import { db, brochuresTable } from "@workspace/db";
 import { requireAdmin } from "../lib/adminAuth";
 import { desc, eq } from "drizzle-orm";
 import { objectStorageService } from "./storage";
