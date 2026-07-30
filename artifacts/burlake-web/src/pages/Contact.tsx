@@ -50,13 +50,14 @@ export default function Contact() {
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
             <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
               <div className="w-8 h-px bg-primary" />
-              Work With Us
+              Since 1955
             </span>
             <h1 className="font-serif text-4xl md:text-5xl text-foreground leading-[1.1] mb-6">
-              Open a Wholesale Account
+              Grown at Scale.<br/>
+              <span className="italic font-light">Built for Trade.</span>
             </h1>
             <p className="text-muted-foreground text-lg font-light leading-relaxed mb-12">
-              Burnaby Lake Greenhouses restricts new accounts to established brick-and-mortar businesses in the floral, grocery, and garden industry. Complete the application to access our wholesale pricing and weekly availability lists.
+              For over 65 years, Western Canada's top florists, grocers, and garden centers have sourced from Burnaby Lake Greenhouses. With more than 1.3 million square feet under glass, we grow at the volume your business demands — and hold every variety to the same uncompromising standard. Applications are open to established brick-and-mortar businesses in the floral, grocery, and garden trade.
             </p>
 
             <div className="space-y-8">
@@ -95,7 +96,7 @@ export default function Contact() {
             <div className="bg-secondary p-8 md:p-12 relative overflow-hidden h-full">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
               
-              <h3 className="font-serif text-3xl text-secondary-foreground mb-8">Contact Us</h3>
+              <h3 className="font-serif text-3xl text-secondary-foreground mb-8">Apply for a Trade Account</h3>
 
               {formState === 'success' ? (
                 <div className="py-16 text-center flex flex-col items-center animate-in zoom-in duration-500">
@@ -104,7 +105,7 @@ export default function Contact() {
                   </div>
                   <h4 className="font-serif text-2xl text-secondary-foreground mb-4">Application Received</h4>
                   <p className="text-secondary-foreground/70 font-light max-w-md mx-auto">
-                    Thank you for your interest in Burnaby Lake Greenhouses. Our sales team will review your business credentials and contact you within 2–3 business days.
+                    Thank you for reaching out. Our sales team will review your credentials and be in touch within 2–3 business days — we look forward to growing together.
                   </p>
                   <Button 
                     variant="link"
@@ -177,7 +178,7 @@ export default function Contact() {
                   <div>
                     <textarea
                       name="notes"
-                      placeholder="Tell us about your business and purchasing needs..."
+                      placeholder="Tell us about your business, locations, and peak buying seasons..."
                       rows={3}
                       className="flex w-full border-b border-secondary-foreground/20 bg-transparent px-0 py-2 text-base text-secondary-foreground placeholder:text-secondary-foreground/40 focus-visible:outline-none focus-visible:border-primary transition-colors resize-none"
                     />
