@@ -43,6 +43,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-10">
             <Link href="/catalog" className={cn("text-sm font-medium tracking-wide transition-colors hover:text-primary", textColor, "opacity-90")}>Product Catalog</Link>
+            <Link href="/brochures" className={cn("text-sm font-medium tracking-wide transition-colors hover:text-primary", textColor, "opacity-90")}>Brochures</Link>
             <Link href="/contact" className="text-sm font-semibold tracking-wider uppercase text-primary hover:text-primary/80 transition-colors border-b border-primary/30 hover:border-primary pb-1">Wholesale Application</Link>
           </div>
 
@@ -63,6 +64,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         )}>
           <Link href="/" className="text-2xl font-serif text-secondary-foreground hover:text-primary transition-colors">Home</Link>
           <Link href="/catalog" className="text-2xl font-serif text-secondary-foreground hover:text-primary transition-colors">Product Catalog</Link>
+          <Link href="/brochures" className="text-2xl font-serif text-secondary-foreground hover:text-primary transition-colors">Brochures</Link>
           <Link href="/contact" className="text-2xl font-serif text-primary mt-4">Wholesale Application</Link>
         </div>
       </nav>
@@ -87,6 +89,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <div className="flex flex-col gap-3">
               <Link href="/" className="text-sm text-secondary-foreground/70 hover:text-primary transition-colors">Home</Link>
               <Link href="/catalog" className="text-sm text-secondary-foreground/70 hover:text-primary transition-colors">Product Catalog</Link>
+              <Link href="/brochures" className="text-sm text-secondary-foreground/70 hover:text-primary transition-colors">Brochures</Link>
               <Link href="/contact" className="text-sm text-secondary-foreground/70 hover:text-primary transition-colors">Apply for Account</Link>
             </div>
           </div>
