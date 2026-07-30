@@ -8,6 +8,10 @@
 
 export * from './adminLoginInput';
 export * from './adminSession';
+export * from './brochure';
+export * from './brochureAuthInput';
+export * from './brochureInput';
+export * from './brochureSession';
 export * from './bulkCreateProductsInput';
 export * from './bulkCreateProductsResult';
 export * from './bulkDeleteProductsInput';

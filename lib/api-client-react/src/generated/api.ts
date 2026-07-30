@@ -22,6 +22,10 @@ import type {
 import type {
   AdminLoginInput,
   AdminSession,
+  Brochure,
+  BrochureAuthInput,
+  BrochureInput,
+  BrochureSession,
   BulkCreateProductsInput,
   BulkCreateProductsResult,
   BulkDeleteProductsInput,
@@ -1268,6 +1272,373 @@ export function useGetAdminSession<TData = Awaited<ReturnType<typeof getAdminSes
 
 
 
+
+export const getBrochureAuthUrl = () => {
+
+
+
+
+  return `/api/brochures/auth`
+}
+
+/**
+ * @summary Authenticate as a wholesale buyer to access brochures
+ */
+export const brochureAuth = async (brochureAuthInput: BrochureAuthInput, options?: RequestInit): Promise<BrochureSession> => {
+
+  return customFetch<BrochureSession>(getBrochureAuthUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(brochureAuthInput)
+  }
+);}
+
+
+
+
+
+export const getBrochureAuthMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof brochureAuth>>, TError,{data: BodyType<BrochureAuthInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof brochureAuth>>, TError,{data: BodyType<BrochureAuthInput>}, TContext> => {
+
+const mutationKey = ['brochureAuth'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof brochureAuth>>, {data: BodyType<BrochureAuthInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  brochureAuth(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BrochureAuthMutationResult = NonNullable<Awaited<ReturnType<typeof brochureAuth>>>
+    export type BrochureAuthMutationBody = BodyType<BrochureAuthInput>
+    export type BrochureAuthMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Authenticate as a wholesale buyer to access brochures
+ */
+export const useBrochureAuth = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof brochureAuth>>, TError,{data: BodyType<BrochureAuthInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof brochureAuth>>,
+        TError,
+        {data: BodyType<BrochureAuthInput>},
+        TContext
+      > => {
+      return useMutation(getBrochureAuthMutationOptions(options));
+    }
+
+export const getGetBrochureSessionUrl = () => {
+
+
+
+
+  return `/api/brochures/auth`
+}
+
+/**
+ * @summary Check whether the current session has brochure access
+ */
+export const getBrochureSession = async ( options?: RequestInit): Promise<BrochureSession> => {
+
+  return customFetch<BrochureSession>(getGetBrochureSessionUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBrochureSessionQueryKey = () => {
+    return [
+    `/api/brochures/auth`
+    ] as const;
+    }
+
+
+export const getGetBrochureSessionQueryOptions = <TData = Awaited<ReturnType<typeof getBrochureSession>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBrochureSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBrochureSessionQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBrochureSession>>> = ({ signal }) => getBrochureSession({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBrochureSession>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetBrochureSessionQueryResult = NonNullable<Awaited<ReturnType<typeof getBrochureSession>>>
+export type GetBrochureSessionQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Check whether the current session has brochure access
+ */
+
+export function useGetBrochureSession<TData = Awaited<ReturnType<typeof getBrochureSession>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBrochureSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetBrochureSessionQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListBrochuresUrl = () => {
+
+
+
+
+  return `/api/brochures`
+}
+
+/**
+ * @summary List all brochures (requires brochure or admin session)
+ */
+export const listBrochures = async ( options?: RequestInit): Promise<Brochure[]> => {
+
+  return customFetch<Brochure[]>(getListBrochuresUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListBrochuresQueryKey = () => {
+    return [
+    `/api/brochures`
+    ] as const;
+    }
+
+
+export const getListBrochuresQueryOptions = <TData = Awaited<ReturnType<typeof listBrochures>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listBrochures>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListBrochuresQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listBrochures>>> = ({ signal }) => listBrochures({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listBrochures>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListBrochuresQueryResult = NonNullable<Awaited<ReturnType<typeof listBrochures>>>
+export type ListBrochuresQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List all brochures (requires brochure or admin session)
+ */
+
+export function useListBrochures<TData = Awaited<ReturnType<typeof listBrochures>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listBrochures>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListBrochuresQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateBrochureUrl = () => {
+
+
+
+
+  return `/api/admin/brochures`
+}
+
+/**
+ * @summary Register a brochure record after client-side upload (admin only)
+ */
+export const createBrochure = async (brochureInput: BrochureInput, options?: RequestInit): Promise<Brochure> => {
+
+  return customFetch<Brochure>(getCreateBrochureUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(brochureInput)
+  }
+);}
+
+
+
+
+
+export const getCreateBrochureMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createBrochure>>, TError,{data: BodyType<BrochureInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createBrochure>>, TError,{data: BodyType<BrochureInput>}, TContext> => {
+
+const mutationKey = ['createBrochure'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createBrochure>>, {data: BodyType<BrochureInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createBrochure(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateBrochureMutationResult = NonNullable<Awaited<ReturnType<typeof createBrochure>>>
+    export type CreateBrochureMutationBody = BodyType<BrochureInput>
+    export type CreateBrochureMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Register a brochure record after client-side upload (admin only)
+ */
+export const useCreateBrochure = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createBrochure>>, TError,{data: BodyType<BrochureInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createBrochure>>,
+        TError,
+        {data: BodyType<BrochureInput>},
+        TContext
+      > => {
+      return useMutation(getCreateBrochureMutationOptions(options));
+    }
+
+export const getDeleteBrochureUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/brochures/${id}`
+}
+
+/**
+ * @summary Delete a brochure record (admin only)
+ */
+export const deleteBrochure = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteBrochureUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteBrochureMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteBrochure>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteBrochure>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteBrochure'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteBrochure>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteBrochure(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteBrochureMutationResult = NonNullable<Awaited<ReturnType<typeof deleteBrochure>>>
+
+    export type DeleteBrochureMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Delete a brochure record (admin only)
+ */
+export const useDeleteBrochure = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteBrochure>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteBrochure>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteBrochureMutationOptions(options));
+    }
 
 export const getRequestUploadUrlUrl = () => {
 

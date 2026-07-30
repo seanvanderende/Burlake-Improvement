@@ -342,6 +342,79 @@ export const GetAdminSessionResponse = zod.object({
 
 
 /**
+ * @summary Authenticate as a wholesale buyer to access brochures
+ */
+
+
+
+export const BrochureAuthBody = zod.object({
+  "password": zod.string().min(1)
+})
+
+export const BrochureAuthResponse = zod.object({
+  "authenticated": zod.boolean()
+})
+
+
+/**
+ * @summary Check whether the current session has brochure access
+ */
+export const GetBrochureSessionResponse = zod.object({
+  "authenticated": zod.boolean()
+})
+
+
+/**
+ * @summary List all brochures (requires brochure or admin session)
+ */
+export const ListBrochuresResponseItem = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "season": zod.string(),
+  "objectPath": zod.string(),
+  "fileName": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListBrochuresResponse = zod.array(ListBrochuresResponseItem)
+
+
+/**
+ * @summary Register a brochure record after client-side upload (admin only)
+ */
+
+
+
+
+
+
+export const CreateBrochureBody = zod.object({
+  "title": zod.string().min(1),
+  "season": zod.string().min(1),
+  "objectPath": zod.string().min(1),
+  "fileName": zod.string().min(1)
+})
+
+export const CreateBrochureResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "season": zod.string(),
+  "objectPath": zod.string(),
+  "fileName": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a brochure record (admin only)
+ */
+export const DeleteBrochureParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteBrochureResponse = zod.void()
+
+
+/**
  * Returns a presigned URL for uploading a product image directly to storage (admin only)
  * @summary Request a presigned upload URL
  */

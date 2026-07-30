@@ -164,6 +164,35 @@ export interface PresignedUpload {
   objectPath: string;
 }
 
+export interface BrochureAuthInput {
+  /** @minLength 1 */
+  password: string;
+}
+
+export interface BrochureSession {
+  authenticated: boolean;
+}
+
+export interface Brochure {
+  id: number;
+  title: string;
+  season: string;
+  objectPath: string;
+  fileName: string;
+  createdAt: string;
+}
+
+export interface BrochureInput {
+  /** @minLength 1 */
+  title: string;
+  /** @minLength 1 */
+  season: string;
+  /** @minLength 1 */
+  objectPath: string;
+  /** @minLength 1 */
+  fileName: string;
+}
+
 export type ListCollectionsParams = {
 availableOnly?: boolean;
 };

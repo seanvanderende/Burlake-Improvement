@@ -15,6 +15,8 @@ import AdminDashboard from '@/pages/admin/Dashboard';
 import AdminCollections from '@/pages/admin/Collections';
 import ProductForm from '@/pages/admin/ProductForm';
 import AdminImport from '@/pages/admin/AdminImport';
+import AdminBrochures from '@/pages/admin/AdminBrochures';
+import Brochures from '@/pages/Brochures';
 import NotFound from '@/pages/not-found';
 
 const queryClient = new QueryClient({
@@ -30,6 +32,13 @@ function Router() {
   return (
     <Switch>
       <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/brochures">
+        {() => (
+          <AdminLayout>
+            <AdminBrochures />
+          </AdminLayout>
+        )}
+      </Route>
       <Route path="/admin/import">
         {() => (
           <AdminLayout>
@@ -72,6 +81,7 @@ function Router() {
               <Route path="/" component={Home} />
               <Route path="/catalog" component={Catalog} />
               <Route path="/product/:id" component={ProductDetail} />
+              <Route path="/brochures" component={Brochures} />
               <Route path="/contact" component={Contact} />
               <Route component={NotFound} />
             </Switch>

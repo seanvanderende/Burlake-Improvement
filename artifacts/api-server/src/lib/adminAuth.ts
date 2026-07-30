@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 declare module "express-session" {
   interface SessionData {
     isAdmin?: boolean;
+    hasBrochureAccess?: boolean;
   }
 }
 

@@ -18,6 +18,8 @@ tags:
     description: Admin authentication operations
   - name: storage
     description: Object storage operations
+  - name: brochures
+    description: Seasonal brochure operations
 paths:
   /healthz:
     get:
@@ -406,6 +408,115 @@ paths:
               schema:
                 $ref: "#/components/schemas/AdminSession"
 
+  /brochures/auth:
+    post:
+      operationId: brochureAuth
+      tags: [brochures]
+      summary: Authenticate as a wholesale buyer to access brochures
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BrochureAuthInput"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrochureSession"
+        "401":
+          description: Incorrect password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      operationId: getBrochureSession
+      tags: [brochures]
+      summary: Check whether the current session has brochure access
+      responses:
+        "200":
+          description: Session status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrochureSession"
+
+  /brochures:
+    get:
+      operationId: listBrochures
+      tags: [brochures]
+      summary: List all brochures (requires brochure or admin session)
+      responses:
+        "200":
+          description: List of brochures
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Brochure"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/brochures:
+    post:
+      operationId: createBrochure
+      tags: [brochures]
+      summary: Register a brochure record after client-side upload (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BrochureInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Brochure"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/brochures/{id}:
+    delete:
+      operationId: deleteBrochure
+      tags: [brochures]
+      summary: Delete a brochure record (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /storage/uploads/request-url:
     post:
       operationId: requestUploadUrl
@@ -740,3 +851,65 @@ components:
           type: string
         objectPath:
           type: string
+
+    BrochureAuthInput:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          minLength: 1
+
+    BrochureSession:
+      type: object
+      required:
+        - authenticated
+      properties:
+        authenticated:
+          type: boolean
+
+    Brochure:
+      type: object
+      required:
+        - id
+        - title
+        - season
+        - objectPath
+        - fileName
+        - createdAt
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        season:
+          type: string
+        objectPath:
+          type: string
+        fileName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    BrochureInput:
+      type: object
+      required:
+        - title
+        - season
+        - objectPath
+        - fileName
+      properties:
+        title:
+          type: string
+          minLength: 1
+        season:
+          type: string
+          minLength: 1
+        objectPath:
+          type: string
+          minLength: 1
+        fileName:
+          type: string
+          minLength: 1
