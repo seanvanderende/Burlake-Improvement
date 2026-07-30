@@ -81,7 +81,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <span className="font-sans text-[0.65rem] tracking-[0.3em] uppercase opacity-80 mt-1">Greenhouses</span>
             </div>
             <p className="text-sm text-secondary-foreground/60 max-w-sm">
-              Supplying Western Canada's premier floral and garden retailers with exceptional wholesale plants for four generations.
+              Western Canada's leading wholesale greenhouse — growing quality you can stake your reputation on, since 1955.
             </p>
           </div>
           <div>

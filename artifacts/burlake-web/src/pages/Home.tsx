@@ -47,7 +47,7 @@ export default function Homepage() {
             <span className="italic font-light opacity-90">Rooted in Tradition.</span>
           </h1>
           <p className="reveal delay-200 text-lg md:text-xl text-background/80 max-w-2xl mx-auto mb-12 font-light leading-relaxed">
-            Supplying Western Canada's premier floral and garden retailers with exceptional wholesale plants for four generations.
+            Four generations of setting Western Canada's quality standard — grown at the scale your business demands.
           </p>
           <div className="reveal delay-300 flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link href="/contact" className="w-full sm:w-auto">
@@ -118,13 +118,13 @@ export default function Homepage() {
               </h2>
               <div className="reveal delay-200 space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
                 <p>
-                  What started over six decades ago as a modest family farm in Surrey, BC, has grown into one of the largest and most sophisticated greenhouse operations in North America. 
+                  What started over six decades ago as a modest family farm in Surrey, BC, has grown into one of the largest and most respected greenhouse operations in North America — known as much for the consistency of every plant as for the scale at which we produce them.
                 </p>
                 <p>
                   Yet, the core of our business remains exactly as it was on day one: the van der Ende family still walks the rows, inspects the crops, and ensures every plant meets a standard our retail partners stake their own reputations on.
                 </p>
                 <p>
-                  We are farmers first. We don't just grow millions of plants; we cultivate the reliability, consistency, and scale that your floral business needs to thrive.
+                  We are growers first. Scale is what lets us meet your volume — but quality is what earns your loyalty. Every plant that leaves our operation has been grown, graded, and handled to the standard that Western Canada's top retailers stake their own reputations on.
                 </p>
               </div>
               <div className="reveal delay-300 mt-12 pt-8 border-t border-secondary/10">
@@ -150,7 +150,7 @@ export default function Homepage() {
               </h2>
             </div>
             <div className="reveal delay-200 max-w-md text-white/60 font-light leading-relaxed">
-              From everyday staples to premium seasonal collections, our massive inventory ensures you always have the right mix for your retail floor.
+              Backed by four generations of growing expertise, every variety in our inventory is something you'll be proud to put in front of your customers — in the volumes you need to run a serious operation.
             </div>
           </div>
 
@@ -243,10 +243,10 @@ export default function Homepage() {
           <ShieldCheck size={48} className="mx-auto text-primary mb-8 opacity-80" strokeWidth={1} />
           <h2 className="reveal font-serif text-4xl md:text-6xl text-white leading-[1.1] mb-8">
             Exclusively Wholesale. <br/>
-            <span className="italic font-light text-primary">Built for Volume.</span>
+            <span className="italic font-light text-primary">The Western Canada Quality Standard.</span>
           </h2>
           <p className="reveal delay-100 text-lg md:text-xl text-white/80 font-light leading-relaxed mb-10">
-            We do not sell to the public. Our entire 1.3 million square foot operation is engineered specifically to support brick-and-mortar floral and garden retailers. From stringent crop planning to our dedicated climate-controlled delivery fleet, we are the silent partner behind your thriving storefront.
+            We do not sell to the public. Our entire 1.3 million square foot operation exists for one purpose: producing the highest-quality plants in Western Canada and delivering them reliably to your floor. From meticulous crop programming to our climate-controlled delivery fleet, we are the quality benchmark your retail reputation is built on.
           </p>
           <div className="reveal delay-200">
             <Link href="/contact">
