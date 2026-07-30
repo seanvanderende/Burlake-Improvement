@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FileText, Lock, Download, ChevronRight, Leaf } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { FileText, Download, ChevronRight, Leaf, ArrowLeft } from 'lucide-react';
+import { Link, useLocation } from 'wouter';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -55,109 +54,10 @@ function groupBySeasonOrdered(brochures: Brochure[]): [string, Brochure[]][] {
     if (!map.has(b.season)) map.set(b.season, []);
     map.get(b.season)!.push(b);
   }
-  // Sort by SEASON_ORDER, then any extras alphabetically
   const known = SEASON_ORDER.filter((s) => map.has(s));
   const extra = [...map.keys()].filter((s) => !SEASON_ORDER.includes(s)).sort();
   return [...known, ...extra].map((s) => [s, map.get(s)!]);
 }
-
-// ── Password gate ─────────────────────────────────────────────────────────────
-
-function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const unlock = useMutation({
-    mutationFn: async (pw: string) => {
-      const res = await fetch(`${BASE}/api/brochures/auth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: pw }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'Incorrect password');
-      }
-      return res.json();
-    },
-    onSuccess: () => onSuccess(),
-    onError: (err: Error) => setError(err.message),
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    unlock.mutate(password);
-  };
-
-  return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#faf8f4',
-        padding: '2rem',
-      }}
-    >
-      <div
-        style={{
-          background: '#fff',
-          border: '1px solid #e4ddd4',
-          borderRadius: '12px',
-          padding: '2.5rem',
-          width: '100%',
-          maxWidth: '380px',
-          textAlign: 'center',
-        }}
-      >
-        <div
-          style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '50%',
-            background: '#f0ebe3',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 1.25rem',
-          }}
-        >
-          <Lock size={24} style={{ color: '#5a7c5e' }} />
-        </div>
-        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '1.5rem', marginBottom: '0.5rem', color: '#2c2c2c' }}>
-          Wholesale Brochures
-        </h1>
-        <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '1.75rem', lineHeight: 1.5 }}>
-          Enter the buyer access code to view and download our seasonal brochures.
-        </p>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <Input
-            type="password"
-            placeholder="Access code"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoFocus
-            style={{ textAlign: 'center', letterSpacing: '0.1em' }}
-          />
-          {error && (
-            <p style={{ color: '#c0392b', fontSize: '0.85rem', margin: 0 }}>{error}</p>
-          )}
-          <Button type="submit" disabled={unlock.isPending || !password} className="w-full">
-            {unlock.isPending ? 'Checking…' : 'View Brochures'}
-          </Button>
-        </form>
-        <p style={{ marginTop: '1.25rem', fontSize: '0.8rem', color: '#999' }}>
-          Contact your sales rep if you need the access code.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ── Brochure card ─────────────────────────────────────────────────────────────
 
 function BrochureCard({ brochure }: { brochure: Brochure }) {
   const color = SEASON_COLORS[brochure.season] ?? '#5a7c5e';
@@ -219,10 +119,8 @@ function BrochureCard({ brochure }: { brochure: Brochure }) {
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
-
 export default function Brochures() {
-  const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   const { data: auth, isLoading: authLoading } = useQuery({
     queryKey: ['brochures-auth'],
@@ -237,21 +135,19 @@ export default function Brochures() {
     retry: false,
   });
 
-  const handleUnlocked = () => {
-    queryClient.invalidateQueries({ queryKey: ['brochures-auth'] });
-    queryClient.invalidateQueries({ queryKey: ['brochures'] });
-  };
+  // Redirect to portal if not authenticated
+  useEffect(() => {
+    if (!authLoading && !auth?.authenticated) {
+      setLocation('/portal');
+    }
+  }, [auth, authLoading, setLocation]);
 
-  if (authLoading) {
+  if (authLoading || !auth?.authenticated) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#faf8f4' }}>
         <p style={{ color: '#888' }}>Loading…</p>
       </div>
     );
-  }
-
-  if (!auth?.authenticated) {
-    return <PasswordGate onSuccess={handleUnlocked} />;
   }
 
   const grouped = brochures ? groupBySeasonOrdered(brochures) : [];
@@ -266,19 +162,46 @@ export default function Brochures() {
             Burnaby Lake Greenhouses
           </span>
           <ChevronRight size={14} style={{ color: '#bbb' }} />
-          <span style={{ fontSize: '0.9rem', color: '#666' }}>Wholesale Brochures</span>
+          <Link href="/portal">
+            <span style={{ fontSize: '0.9rem', color: '#5a7c5e', cursor: 'pointer', textDecoration: 'none' }}>
+              Customer Portal
+            </span>
+          </Link>
+          <ChevronRight size={14} style={{ color: '#bbb' }} />
+          <span style={{ fontSize: '0.9rem', color: '#666' }}>Brochures</span>
         </div>
       </div>
 
       {/* Content */}
       <div style={{ maxWidth: '860px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', color: '#2c2c2c', margin: '0 0 0.5rem' }}>
-            Seasonal Brochures
-          </h1>
-          <p style={{ color: '#666', margin: 0 }}>
-            Download our latest wholesale brochures for each season.
-          </p>
+        <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+          <Link href="/portal">
+            <button
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                background: 'none',
+                border: '1px solid #e4ddd4',
+                borderRadius: '6px',
+                padding: '0.4rem 0.75rem',
+                fontSize: '0.82rem',
+                color: '#666',
+                cursor: 'pointer',
+                marginTop: '0.35rem',
+              }}
+            >
+              <ArrowLeft size={13} /> Portal
+            </button>
+          </Link>
+          <div>
+            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', color: '#2c2c2c', margin: '0 0 0.5rem' }}>
+              Brochures
+            </h1>
+            <p style={{ color: '#666', margin: 0 }}>
+              Download our latest wholesale brochures for each season.
+            </p>
+          </div>
         </div>
 
         {brochuresLoading ? (

@@ -16,6 +16,7 @@ import AdminCollections from '@/pages/admin/Collections';
 import ProductForm from '@/pages/admin/ProductForm';
 import AdminImport from '@/pages/admin/AdminImport';
 import AdminBrochures from '@/pages/admin/AdminBrochures';
+import Portal from '@/pages/Portal';
 import Brochures from '@/pages/Brochures';
 import NotFound from '@/pages/not-found';
 import AdminApplications from '@/pages/admin/Applications';
@@ -89,7 +90,8 @@ function Router() {
               <Route path="/" component={Home} />
               <Route path="/catalog" component={Catalog} />
               <Route path="/product/:id" component={ProductDetail} />
-              <Route path="/brochures" component={Brochures} />
+              <Route path="/portal" component={Portal} />
+              <Route path="/portal/brochures" component={Brochures} />
               <Route path="/contact" component={Contact} />
               <Route component={NotFound} />
             </Switch>
