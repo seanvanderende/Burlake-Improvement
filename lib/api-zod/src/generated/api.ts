@@ -415,6 +415,90 @@ export const DeleteBrochureResponse = zod.void()
 
 
 /**
+ * Public endpoint for new buyers to submit a wholesale account application
+ * @summary Submit a wholesale account application
+ */
+
+
+
+
+
+
+
+export const SubmitApplicationBody = zod.object({
+  "businessName": zod.string().min(1),
+  "contactName": zod.string().min(1),
+  "email": zod.string().min(1),
+  "phone": zod.string().min(1),
+  "businessType": zod.string().min(1),
+  "monthlyVolume": zod.string().nullish(),
+  "notes": zod.string().nullish()
+})
+
+export const SubmitApplicationResponse = zod.object({
+  "id": zod.number(),
+  "businessName": zod.string(),
+  "contactName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string(),
+  "businessType": zod.string(),
+  "monthlyVolume": zod.string().nullable(),
+  "notes": zod.string().nullable(),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * Returns all applications sorted by newest first (admin only)
+ * @summary List all wholesale applications
+ */
+export const ListApplicationsResponseItem = zod.object({
+  "id": zod.number(),
+  "businessName": zod.string(),
+  "contactName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string(),
+  "businessType": zod.string(),
+  "monthlyVolume": zod.string().nullable(),
+  "notes": zod.string().nullable(),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListApplicationsResponse = zod.array(ListApplicationsResponseItem)
+
+
+/**
+ * Updates application status (admin only)
+ * @summary Update an application status
+ */
+export const UpdateApplicationParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateApplicationBody = zod.object({
+  "status": zod.enum(['pending', 'approved', 'rejected']).optional(),
+  "notes": zod.string().nullish()
+})
+
+export const UpdateApplicationResponse = zod.object({
+  "id": zod.number(),
+  "businessName": zod.string(),
+  "contactName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string(),
+  "businessType": zod.string(),
+  "monthlyVolume": zod.string().nullable(),
+  "notes": zod.string().nullable(),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
  * Returns a presigned URL for uploading a product image directly to storage (admin only)
  * @summary Request a presigned upload URL
  */

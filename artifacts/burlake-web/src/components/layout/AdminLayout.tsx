@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { useGetAdminSession, useAdminLogout, getGetAdminSessionQueryKey } from '@workspace/api-client-react';
-import { LogOut, Leaf, Layers, FileText } from 'lucide-react';
+import { LogOut, Leaf, Layers, FileText, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -56,6 +56,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <Link href="/admin/brochures">
               <span className="hidden sm:inline-flex items-center gap-1.5 text-sm text-secondary-foreground/70 hover:text-secondary-foreground transition-colors cursor-pointer">
                 <FileText size={14} /> Brochures
+              </span>
+            </Link>
+            <Link href="/admin/applications">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-sm text-secondary-foreground/70 hover:text-secondary-foreground transition-colors cursor-pointer">
+                <ClipboardList size={14} /> Applications
               </span>
             </Link>
           </div>

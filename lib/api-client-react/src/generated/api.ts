@@ -22,6 +22,9 @@ import type {
 import type {
   AdminLoginInput,
   AdminSession,
+  Application,
+  ApplicationInput,
+  ApplicationUpdate,
   Brochure,
   BrochureAuthInput,
   BrochureInput,
@@ -1638,6 +1641,229 @@ export const useDeleteBrochure = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getDeleteBrochureMutationOptions(options));
+    }
+
+export const getSubmitApplicationUrl = () => {
+
+
+
+
+  return `/api/applications`
+}
+
+/**
+ * Public endpoint for new buyers to submit a wholesale account application
+ * @summary Submit a wholesale account application
+ */
+export const submitApplication = async (applicationInput: ApplicationInput, options?: RequestInit): Promise<Application> => {
+
+  return customFetch<Application>(getSubmitApplicationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(applicationInput)
+  }
+);}
+
+
+
+
+
+export const getSubmitApplicationMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitApplication>>, TError,{data: BodyType<ApplicationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitApplication>>, TError,{data: BodyType<ApplicationInput>}, TContext> => {
+
+const mutationKey = ['submitApplication'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitApplication>>, {data: BodyType<ApplicationInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  submitApplication(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitApplicationMutationResult = NonNullable<Awaited<ReturnType<typeof submitApplication>>>
+    export type SubmitApplicationMutationBody = BodyType<ApplicationInput>
+    export type SubmitApplicationMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Submit a wholesale account application
+ */
+export const useSubmitApplication = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitApplication>>, TError,{data: BodyType<ApplicationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitApplication>>,
+        TError,
+        {data: BodyType<ApplicationInput>},
+        TContext
+      > => {
+      return useMutation(getSubmitApplicationMutationOptions(options));
+    }
+
+export const getListApplicationsUrl = () => {
+
+
+
+
+  return `/api/admin/applications`
+}
+
+/**
+ * Returns all applications sorted by newest first (admin only)
+ * @summary List all wholesale applications
+ */
+export const listApplications = async ( options?: RequestInit): Promise<Application[]> => {
+
+  return customFetch<Application[]>(getListApplicationsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListApplicationsQueryKey = () => {
+    return [
+    `/api/admin/applications`
+    ] as const;
+    }
+
+
+export const getListApplicationsQueryOptions = <TData = Awaited<ReturnType<typeof listApplications>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listApplications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListApplicationsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listApplications>>> = ({ signal }) => listApplications({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listApplications>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListApplicationsQueryResult = NonNullable<Awaited<ReturnType<typeof listApplications>>>
+export type ListApplicationsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List all wholesale applications
+ */
+
+export function useListApplications<TData = Awaited<ReturnType<typeof listApplications>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listApplications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListApplicationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateApplicationUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/applications/${id}`
+}
+
+/**
+ * Updates application status (admin only)
+ * @summary Update an application status
+ */
+export const updateApplication = async (id: number,
+    applicationUpdate: ApplicationUpdate, options?: RequestInit): Promise<Application> => {
+
+  return customFetch<Application>(getUpdateApplicationUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(applicationUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateApplicationMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateApplication>>, TError,{id: number;data: BodyType<ApplicationUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateApplication>>, TError,{id: number;data: BodyType<ApplicationUpdate>}, TContext> => {
+
+const mutationKey = ['updateApplication'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateApplication>>, {id: number;data: BodyType<ApplicationUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateApplication(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateApplicationMutationResult = NonNullable<Awaited<ReturnType<typeof updateApplication>>>
+    export type UpdateApplicationMutationBody = BodyType<ApplicationUpdate>
+    export type UpdateApplicationMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Update an application status
+ */
+export const useUpdateApplication = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateApplication>>, TError,{id: number;data: BodyType<ApplicationUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateApplication>>,
+        TError,
+        {id: number;data: BodyType<ApplicationUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateApplicationMutationOptions(options));
     }
 
 export const getRequestUploadUrlUrl = () => {

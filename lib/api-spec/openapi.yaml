@@ -20,6 +20,8 @@ tags:
     description: Object storage operations
   - name: brochures
     description: Seasonal brochure operations
+  - name: applications
+    description: Wholesale account application operations
 paths:
   /healthz:
     get:
@@ -517,6 +519,92 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /applications:
+    post:
+      operationId: submitApplication
+      tags: [applications]
+      summary: Submit a wholesale account application
+      description: Public endpoint for new buyers to submit a wholesale account application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationInput"
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/applications:
+    get:
+      operationId: listApplications
+      tags: [applications]
+      summary: List all wholesale applications
+      description: Returns all applications sorted by newest first (admin only)
+      responses:
+        "200":
+          description: List of applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/applications/{id}:
+    patch:
+      operationId: updateApplication
+      tags: [applications]
+      summary: Update an application status
+      description: Updates application status (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationUpdate"
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /storage/uploads/request-url:
     post:
       operationId: requestUploadUrl
@@ -826,6 +914,88 @@ components:
       properties:
         authenticated:
           type: boolean
+
+    Application:
+      type: object
+      required:
+        - id
+        - businessName
+        - contactName
+        - email
+        - phone
+        - businessType
+        - monthlyVolume
+        - notes
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+        businessName:
+          type: string
+        contactName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        businessType:
+          type: string
+        monthlyVolume:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ApplicationInput:
+      type: object
+      required:
+        - businessName
+        - contactName
+        - email
+        - phone
+        - businessType
+      properties:
+        businessName:
+          type: string
+          minLength: 1
+        contactName:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          minLength: 1
+        phone:
+          type: string
+          minLength: 1
+        businessType:
+          type: string
+          minLength: 1
+        monthlyVolume:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+
+    ApplicationUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        notes:
+          type: string
+          nullable: true
 
     UploadRequestInput:
       type: object

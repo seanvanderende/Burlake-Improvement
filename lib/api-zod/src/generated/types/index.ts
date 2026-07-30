@@ -8,6 +8,11 @@
 
 export * from './adminLoginInput';
 export * from './adminSession';
+export * from './application';
+export * from './applicationInput';
+export * from './applicationStatus';
+export * from './applicationUpdate';
+export * from './applicationUpdateStatus';
 export * from './brochure';
 export * from './brochureAuthInput';
 export * from './brochureInput';

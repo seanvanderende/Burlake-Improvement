@@ -2,14 +2,44 @@ import React from 'react';
 import { MapPin, Phone, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useSubmitApplication } from '@workspace/api-client-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Contact() {
   const [formState, setFormState] = React.useState<'idle' | 'submitting' | 'success'>('idle');
+  const { toast } = useToast();
 
-  const handleApply = (e: React.FormEvent) => {
+  const submitMutation = useSubmitApplication({
+    mutation: {
+      onSuccess: () => {
+        setFormState('success');
+      },
+      onError: (err: unknown) => {
+        setFormState('idle');
+        const message =
+          err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+        toast({ title: 'Submission failed', description: message, variant: 'destructive' });
+      },
+    },
+  });
+
+  const handleApply = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
     setFormState('submitting');
-    setTimeout(() => setFormState('success'), 1500);
+    submitMutation.mutate({
+      data: {
+        businessName: data.get('businessName') as string,
+        contactName: data.get('contactName') as string,
+        email: data.get('email') as string,
+        phone: data.get('phone') as string,
+        businessType: data.get('businessType') as string,
+        monthlyVolume: (data.get('monthlyVolume') as string) || null,
+        notes: (data.get('notes') as string) || null,
+      },
+    });
   };
 
   return (
@@ -74,7 +104,7 @@ export default function Contact() {
                   </div>
                   <h4 className="font-serif text-2xl text-secondary-foreground mb-4">Application Received</h4>
                   <p className="text-secondary-foreground/70 font-light max-w-md mx-auto">
-                    Thank you for your interest in Burnaby Lake Greenhouses. Our sales team will review your business credentials and contact you within 2-3 business days.
+                    Thank you for your interest in Burnaby Lake Greenhouses. Our sales team will review your business credentials and contact you within 2–3 business days.
                   </p>
                   <Button 
                     variant="link"
@@ -88,24 +118,53 @@ export default function Contact() {
                 <form onSubmit={handleApply} className="space-y-6 relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Input required type="text" placeholder="Business Name *" className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40" />
+                      <Input
+                        required
+                        name="businessName"
+                        type="text"
+                        placeholder="Business Name *"
+                        className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40"
+                      />
                     </div>
                     <div>
-                      <Input required type="text" placeholder="Contact Person *" className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40" />
+                      <Input
+                        required
+                        name="contactName"
+                        type="text"
+                        placeholder="Contact Person *"
+                        className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40"
+                      />
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Input required type="email" placeholder="Email Address *" className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40" />
+                      <Input
+                        required
+                        name="email"
+                        type="email"
+                        placeholder="Email Address *"
+                        className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40"
+                      />
                     </div>
                     <div>
-                      <Input required type="tel" placeholder="Phone Number *" className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40" />
+                      <Input
+                        required
+                        name="phone"
+                        type="tel"
+                        placeholder="Phone Number *"
+                        className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40"
+                      />
                     </div>
                   </div>
 
                   <div>
-                    <select required className="flex h-12 w-full border-b border-secondary-foreground/20 bg-transparent px-0 py-2 text-base text-secondary-foreground placeholder:text-secondary-foreground/40 focus-visible:outline-none focus-visible:border-primary transition-colors appearance-none" defaultValue="">
+                    <select
+                      required
+                      name="businessType"
+                      className="flex h-12 w-full border-b border-secondary-foreground/20 bg-transparent px-0 py-2 text-base text-secondary-foreground placeholder:text-secondary-foreground/40 focus-visible:outline-none focus-visible:border-primary transition-colors appearance-none"
+                      defaultValue=""
+                    >
                       <option value="" disabled hidden className="text-muted-foreground">Business Type *</option>
                       <option value="garden-center" className="bg-secondary text-secondary-foreground">Independent Garden Center</option>
                       <option value="florist" className="bg-secondary text-secondary-foreground">Retail Florist</option>
@@ -116,20 +175,30 @@ export default function Contact() {
                   </div>
 
                   <div>
-                    <Input required type="text" placeholder="Reseller Tax ID / Business License # *" className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40" />
+                    <Input
+                      name="monthlyVolume"
+                      type="text"
+                      placeholder="Approx. Monthly Order Volume (e.g. $2,000–$5,000)"
+                      className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40"
+                    />
                   </div>
 
                   <div>
-                    <textarea placeholder="Tell us about your business and purchasing volume..." rows={3} className="flex w-full border-b border-secondary-foreground/20 bg-transparent px-0 py-2 text-base text-secondary-foreground placeholder:text-secondary-foreground/40 focus-visible:outline-none focus-visible:border-primary transition-colors resize-none"></textarea>
+                    <textarea
+                      name="notes"
+                      placeholder="Tell us about your business and purchasing needs..."
+                      rows={3}
+                      className="flex w-full border-b border-secondary-foreground/20 bg-transparent px-0 py-2 text-base text-secondary-foreground placeholder:text-secondary-foreground/40 focus-visible:outline-none focus-visible:border-primary transition-colors resize-none"
+                    />
                   </div>
 
                   <div className="pt-6">
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={formState === 'submitting'}
                       className="w-full"
                     >
-                      {formState === 'submitting' ? 'Submitting...' : 'Submit Application'}
+                      {formState === 'submitting' ? 'Submitting…' : 'Submit Application'}
                     </Button>
                   </div>
                 </form>

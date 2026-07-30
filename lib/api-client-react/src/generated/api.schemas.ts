@@ -153,6 +153,60 @@ export interface AdminSession {
   authenticated: boolean;
 }
 
+export type ApplicationStatus = typeof ApplicationStatus[keyof typeof ApplicationStatus];
+
+
+export const ApplicationStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected',
+} as const;
+
+export interface Application {
+  id: number;
+  businessName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  businessType: string;
+  /** @nullable */
+  monthlyVolume: string | null;
+  /** @nullable */
+  notes: string | null;
+  status: ApplicationStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApplicationInput {
+  /** @minLength 1 */
+  businessName: string;
+  /** @minLength 1 */
+  contactName: string;
+  /** @minLength 1 */
+  email: string;
+  /** @minLength 1 */
+  phone: string;
+  /** @minLength 1 */
+  businessType: string;
+  monthlyVolume?: string | null;
+  notes?: string | null;
+}
+
+export type ApplicationUpdateStatus = typeof ApplicationUpdateStatus[keyof typeof ApplicationUpdateStatus];
+
+
+export const ApplicationUpdateStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected',
+} as const;
+
+export interface ApplicationUpdate {
+  status?: ApplicationUpdateStatus;
+  notes?: string | null;
+}
+
 export interface UploadRequestInput {
   name: string;
   size: number;

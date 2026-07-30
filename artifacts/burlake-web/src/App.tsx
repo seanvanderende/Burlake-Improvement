@@ -18,6 +18,7 @@ import AdminImport from '@/pages/admin/AdminImport';
 import AdminBrochures from '@/pages/admin/AdminBrochures';
 import Brochures from '@/pages/Brochures';
 import NotFound from '@/pages/not-found';
+import AdminApplications from '@/pages/admin/Applications';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +44,13 @@ function Router() {
         {() => (
           <AdminLayout>
             <AdminImport />
+          </AdminLayout>
+        )}
+      </Route>
+      <Route path="/admin/applications">
+        {() => (
+          <AdminLayout>
+            <AdminApplications />
           </AdminLayout>
         )}
       </Route>
