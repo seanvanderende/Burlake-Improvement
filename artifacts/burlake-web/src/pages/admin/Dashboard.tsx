@@ -12,7 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Upload, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { Plus, Upload, Download, Edit, Trash2, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 export default function AdminDashboard() {
@@ -82,6 +82,49 @@ export default function AdminDashboard() {
     }
   };
 
+  // ── CSV export ───────────────────────────────────────────────────────────────
+  const handleExportCsv = () => {
+    // Fetch all products (unfiltered) from the query cache or re-use current data
+    const allProducts =
+      queryClient.getQueryData<typeof products>(getListProductsQueryKey()) ?? products ?? [];
+
+    if (!allProducts.length) {
+      alert('No products to export.');
+      return;
+    }
+
+    const headers = ['name', 'sku', 'size', 'description', 'available', 'sortOrder', 'collections', 'imageUrl'];
+
+    const escape = (v: string | null | undefined) => {
+      const s = v == null ? '' : String(v);
+      // Wrap in quotes if the value contains commas, quotes, or newlines
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return `"${s.replace(/"/g, '""')}"`;
+      }
+      return s;
+    };
+
+    const rows = allProducts.map((p) => [
+      escape(p.name),
+      escape(p.sku),
+      escape(p.size),
+      escape(p.description),
+      String(p.available),
+      String(p.sortOrder),
+      escape(p.collections.map((c) => c.name).join('; ')),
+      escape(p.imageUrl),
+    ]);
+
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `burlake-products-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filteredProducts = products?.filter(
     (p) =>
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -123,7 +166,10 @@ export default function AdminDashboard() {
           <h1 className="font-serif text-3xl text-foreground">Products Dashboard</h1>
           <p className="text-muted-foreground text-sm mt-1">Manage catalog and weekly availability</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" onClick={handleExportCsv} disabled={!products?.length}>
+            <Download className="w-4 h-4 mr-2" /> Export CSV
+          </Button>
           <Button variant="outline" onClick={() => setLocation('/admin/import')}>
             <Upload className="w-4 h-4 mr-2" /> Import CSV
           </Button>
