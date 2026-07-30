@@ -36,7 +36,7 @@ export default function Contact() {
         email: data.get('email') as string,
         phone: data.get('phone') as string,
         businessType: data.get('businessType') as string,
-        monthlyVolume: (data.get('monthlyVolume') as string) || null,
+
         notes: (data.get('notes') as string) || null,
       },
     });
@@ -95,7 +95,7 @@ export default function Contact() {
             <div className="bg-secondary p-8 md:p-12 relative overflow-hidden h-full">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
               
-              <h3 className="font-serif text-3xl text-secondary-foreground mb-8">Application Form</h3>
+              <h3 className="font-serif text-3xl text-secondary-foreground mb-8">Contact Us</h3>
 
               {formState === 'success' ? (
                 <div className="py-16 text-center flex flex-col items-center animate-in zoom-in duration-500">
@@ -172,15 +172,6 @@ export default function Contact() {
                       <option value="hardware" className="bg-secondary text-secondary-foreground">Hardware / Box Store</option>
                       <option value="other" className="bg-secondary text-secondary-foreground">Other (Specify in notes)</option>
                     </select>
-                  </div>
-
-                  <div>
-                    <Input
-                      name="monthlyVolume"
-                      type="text"
-                      placeholder="Approx. Monthly Order Volume (e.g. $2,000–$5,000)"
-                      className="border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40"
-                    />
                   </div>
 
                   <div>
