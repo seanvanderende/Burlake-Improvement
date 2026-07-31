@@ -82,7 +82,7 @@ export default function Homepage() {
             </div>
             <div className="p-8 md:p-12 text-center reveal delay-300">
               <div className="text-4xl md:text-5xl font-serif text-primary mb-2">65<span className="text-2xl">+</span></div>
-              <div className="text-xs tracking-widest uppercase text-white/50">Years of Excellence</div>
+              <div className="text-xs tracking-widest uppercase text-white/50">Years of Growing Expertise</div>
             </div>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function Homepage() {
                   Yet, the core of our business remains exactly as it was on day one: the van der Ende family still walks the rows, inspects the crops, and ensures every plant meets a standard our retail partners stake their own reputations on.
                 </p>
                 <p>
-                  We are growers first. Scale is what lets us meet your volume — but quality is what earns your loyalty. Every plant that leaves our operation has been grown, graded, and handled to the standard that Western Canada's top retailers stake their own reputations on.
+                  We are growers first. Scale is what lets us meet your volume — but quality is what earns your loyalty. Over 65 years of growing expertise, held to the Western Canada quality standard, available exclusively to the trade.
                 </p>
               </div>
               <div className="reveal delay-300 mt-12 pt-8 border-t border-secondary/10">
