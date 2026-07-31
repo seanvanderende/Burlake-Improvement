@@ -295,7 +295,7 @@ export default function Catalog() {
             <div>
               <h1 className="font-serif text-4xl md:text-5xl text-foreground leading-[1.1]">
                 Grown at Scale.{' '}
-                <span className="italic font-light">Available to the Trade.</span>
+                <span className="italic font-light">Quality Guaranteed.</span>
               </h1>
               <p className="text-muted-foreground font-light mt-3 max-w-xl leading-relaxed">
                 Over 65 years of growing expertise — held to the Western Canada quality standard

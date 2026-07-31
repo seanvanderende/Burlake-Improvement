@@ -143,7 +143,7 @@ export default function History() {
         <div className="mt-24 text-center bg-secondary p-12 md:p-16 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <h3 className="font-serif text-3xl text-secondary-foreground mb-4 relative z-10">
-            Grown at Scale. <span className="italic font-light">Available to the Trade.</span>
+            Grown at Scale. <span className="italic font-light">Quality Guaranteed.</span>
           </h3>
           <p className="text-secondary-foreground/70 font-light max-w-xl mx-auto mb-8 relative z-10">
             Explore our current catalog or apply for a wholesale account to see the same standard
