@@ -27,6 +27,7 @@ import OrderForms from '@/pages/OrderForms';
 import OrderFormView from '@/pages/OrderFormView';
 import NotFound from '@/pages/not-found';
 import AdminApplications from '@/pages/admin/Applications';
+import AdminPortalSettings from '@/pages/admin/PortalSettings';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,6 +74,13 @@ function Router() {
         {() => (
           <AdminLayout>
             <AdminApplications />
+          </AdminLayout>
+        )}
+      </Route>
+      <Route path="/admin/portal-settings">
+        {() => (
+          <AdminLayout>
+            <AdminPortalSettings />
           </AdminLayout>
         )}
       </Route>

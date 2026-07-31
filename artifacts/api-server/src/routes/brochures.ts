@@ -4,15 +4,16 @@ import { db, brochuresTable, priceListsTable } from "@workspace/db";
 import { requireAdmin, requirePortalAccess } from "../lib/adminAuth";
 import { desc, eq } from "drizzle-orm";
 import { objectStorageService } from "./storage";
+import { getPortalCode, getPortalCodeVersion } from "../lib/portalSettings";
 
 const router = Router();
 
 // ── Customer auth ─────────────────────────────────────────────────────────────
 
 /** POST /brochures/auth — customer enters password to unlock portal access */
-router.post("/brochures/auth", (req, res) => {
+router.post("/brochures/auth", async (req, res) => {
   const { password } = req.body ?? {};
-  const expected = process.env.BROCHURE_PASSWORD;
+  const expected = await getPortalCode();
 
   if (!expected) {
     res.status(503).json({ error: "Portal access not configured" });
@@ -24,7 +25,11 @@ router.post("/brochures/auth", (req, res) => {
     return;
   }
 
+  // Store the current version token so we can detect code rotations
+  const version = await getPortalCodeVersion();
   req.session.hasBrochureAccess = true;
+  req.session.portalCodeVersion = version ?? undefined;
+
   req.session.save((err) => {
     if (err) {
       res.status(500).json({ error: "Session error" });
@@ -35,8 +40,27 @@ router.post("/brochures/auth", (req, res) => {
 });
 
 /** GET /brochures/auth — check whether current session has portal access */
-router.get("/brochures/auth", (req, res) => {
-  res.json({ authenticated: !!(req.session.hasBrochureAccess || req.session.isAdmin) });
+router.get("/brochures/auth", async (req, res) => {
+  // Admin sessions are always valid
+  if (req.session.isAdmin) {
+    res.json({ authenticated: true });
+    return;
+  }
+
+  if (req.session.hasBrochureAccess) {
+    // Validate that the portal code hasn't been rotated since login
+    const currentVersion = await getPortalCodeVersion();
+    if (currentVersion && req.session.portalCodeVersion === currentVersion) {
+      res.json({ authenticated: true });
+      return;
+    }
+    // Version mismatch — code was rotated; clear stale session access
+    req.session.hasBrochureAccess = false;
+    req.session.portalCodeVersion = undefined;
+    req.session.save(() => {});
+  }
+
+  res.json({ authenticated: false });
 });
 
 // ── Portal-gated routes ───────────────────────────────────────────────────────

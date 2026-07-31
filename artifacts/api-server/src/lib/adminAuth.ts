@@ -1,9 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
+import { getPortalCode, getPortalCodeVersion } from "./portalSettings";
 
 declare module "express-session" {
   interface SessionData {
     isAdmin?: boolean;
     hasBrochureAccess?: boolean;
+    /** Version token at the time portal access was granted. */
+    portalCodeVersion?: string;
   }
 }
 
@@ -27,19 +30,35 @@ export function requireAdmin(
 
 /**
  * Middleware guarding Customer Portal routes (brochures, price lists, etc.).
- * Passes if the session has portal access, admin access, OR the request
- * carries a valid Bearer token (used by the mobile app, which cannot use
- * cookie-based sessions).
+ * Passes if the session has portal access (and the code hasn't been rotated
+ * since login), admin access, OR the request carries a valid Bearer token
+ * (used by the mobile app, which cannot use cookie-based sessions).
+ *
+ * When the portal code is rotated, `portalCodeVersion` in the session will
+ * no longer match the current version, so existing portal sessions are
+ * transparently invalidated on the next request.
  */
-export function requirePortalAccess(
+export async function requirePortalAccess(
   req: Request,
   res: Response,
   next: NextFunction,
-): void {
-  // Cookie-session path (web portal)
-  if (req.session.hasBrochureAccess || req.session.isAdmin) {
+): Promise<void> {
+  // Admin sessions always pass through
+  if (req.session.isAdmin) {
     next();
     return;
+  }
+
+  // Cookie-session path (web portal): verify the version token hasn't rotated
+  if (req.session.hasBrochureAccess) {
+    const currentVersion = await getPortalCodeVersion();
+    if (currentVersion && req.session.portalCodeVersion === currentVersion) {
+      next();
+      return;
+    }
+    // Version mismatch — code was rotated; clear stale portal access
+    req.session.hasBrochureAccess = false;
+    req.session.portalCodeVersion = undefined;
   }
 
   // Bearer-token path (mobile app)
@@ -47,7 +66,7 @@ export function requirePortalAccess(
   const header = Array.isArray(authHeader) ? authHeader[0] : authHeader;
   if (header?.startsWith("Bearer ")) {
     const token = header.slice(7);
-    const expected = process.env["BROCHURE_PASSWORD"];
+    const expected = await getPortalCode();
     if (expected && token === expected) {
       next();
       return;
