@@ -41,12 +41,18 @@ export default function ProductDetail() {
   if (error || !product) {
     return (
       <div className="bg-background pt-32 pb-24 min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
-        <h1 className="font-serif text-3xl mb-4">Product Not Found</h1>
-        <p className="text-muted-foreground mb-8">
-          The product you're looking for doesn't exist or has been removed.
+        <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
+          <div className="w-8 h-px bg-primary" />
+          Wholesale Catalog
+          <div className="w-8 h-px bg-primary" />
+        </span>
+        <h1 className="font-serif text-3xl mb-4">Variety Not Available</h1>
+        <p className="text-muted-foreground font-light mb-8 max-w-sm leading-relaxed">
+          This variety may be seasonal or no longer in our current range. Browse our full
+          selection to find what you need.
         </p>
         <Link href="/catalog">
-          <Button variant="outline">Return to Catalog</Button>
+          <Button variant="outline">Browse Full Range</Button>
         </Link>
       </div>
     );
@@ -73,7 +79,7 @@ export default function ProductDetail() {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 font-serif text-2xl bg-secondary/5">
-                  No Photo Available
+                  Photo Coming Soon
                 </div>
               )}
             </div>
@@ -88,7 +94,7 @@ export default function ProductDetail() {
                       activePhoto === url ? 'border-primary' : 'border-border hover:border-muted-foreground'
                     }`}
                   >
-                    <img src={url} alt={`${product.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                    <img src={url} alt={`${product.name} view ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -96,11 +102,13 @@ export default function ProductDetail() {
           </div>
 
           <div className="md:col-span-6 lg:col-span-5 flex flex-col pt-4 md:pt-12">
-            {product.collections.length > 0 && (
-              <div className="text-sm text-primary uppercase tracking-[0.2em] font-semibold mb-4">
-                {product.collections.map((c) => c.name).join(' · ')}
-              </div>
-            )}
+            {/* Eyebrow — collection label or default brand label */}
+            <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-4 font-semibold">
+              <div className="w-8 h-px bg-primary" />
+              {product.collections.length > 0
+                ? product.collections.map((c) => c.name).join(' · ')
+                : 'Wholesale Catalog'}
+            </span>
 
             <h1 className="font-serif text-4xl lg:text-5xl text-foreground leading-[1.1] mb-6">
               {product.name}
@@ -129,25 +137,33 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {product.description && (
+            {product.description ? (
               <div className="mt-8">
-                <h3 className="font-serif text-xl mb-3">Product Details</h3>
+                <h3 className="font-serif text-xl mb-3">About This Variety</h3>
                 <p className="text-muted-foreground font-light leading-relaxed whitespace-pre-wrap">
                   {product.description}
+                </p>
+              </div>
+            ) : (
+              <div className="mt-8">
+                <p className="text-muted-foreground font-light leading-relaxed italic">
+                  Grown to the Western Canada quality standard — over 65 years of expertise
+                  behind every plant we bring to market.
                 </p>
               </div>
             )}
 
             <div className="mt-auto pt-12">
               <div className="bg-secondary/5 p-6 border border-border">
-                <h4 className="font-serif text-lg mb-2">Wholesale Pricing</h4>
+                <h4 className="font-serif text-lg mb-2">Trade Pricing</h4>
                 <p className="text-sm text-muted-foreground font-light mb-4">
-                  Pricing is available exclusively to approved retail partners. Contact your sales
-                  representative to place an order.
+                  Pricing is available exclusively to our retail trade partners. Speak
+                  with your representative to confirm availability and add this variety
+                  to your next order.
                 </p>
                 <Link href="/contact" className="w-full">
-                  <Button variant="outline" className="w-full">
-                    Partner With Us
+                  <Button variant="outline" className="w-full uppercase tracking-wider">
+                    Request a Quote
                   </Button>
                 </Link>
               </div>
