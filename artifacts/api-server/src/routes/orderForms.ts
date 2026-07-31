@@ -2,6 +2,26 @@ import { Router } from "express";
 import { db, orderFormsTable, orderFormItemsTable } from "@workspace/db";
 import { requireAdmin, requirePortalAccess } from "../lib/adminAuth";
 import { desc, eq, asc } from "drizzle-orm";
+import { objectStorageService } from "./storage";
+
+/**
+ * Mark an item photo as publicly readable once it's attached to a form item.
+ * Handles both relative paths (/api/storage/objects/...) and absolute URLs.
+ */
+async function markPhotoPublic(photoUrl?: string | null): Promise<void> {
+  if (!photoUrl) return;
+  const match = photoUrl.match(/\/api\/storage(\/objects\/.+)/);
+  if (!match) return;
+  const rawPath = match[1];
+  try {
+    await objectStorageService.trySetObjectEntityAclPolicy(rawPath, {
+      owner: "admin",
+      visibility: "public",
+    });
+  } catch {
+    // Non-fatal: don't fail the request if ACL update fails
+  }
+}
 
 const router = Router();
 
@@ -185,6 +205,7 @@ router.post("/admin/order-forms/:id/items", requireAdmin, async (req, res) => {
         sortOrder: sortOrder ?? 0,
       })
       .returning();
+    await markPhotoPublic(item.photoUrl);
     res.status(201).json(item);
   } catch {
     res.status(500).json({ error: "Failed to create item" });
@@ -246,6 +267,7 @@ router.patch("/admin/order-forms/:id/items/:itemId", requireAdmin, async (req, r
       .where(eq(orderFormItemsTable.id, itemId))
       .returning();
     if (!item) { res.status(404).json({ error: "Item not found" }); return; }
+    if (photoUrl !== undefined) await markPhotoPublic(item.photoUrl);
     res.json(item);
   } catch {
     res.status(500).json({ error: "Failed to update item" });

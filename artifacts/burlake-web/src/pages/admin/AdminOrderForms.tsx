@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Edit2, ChevronDown, ChevronUp, X, Check, Upload } from 'lucide-react';
+import { Plus, Trash2, Edit2, ChevronDown, ChevronUp, X, Check, Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link, useLocation } from 'wouter';
+import { useUpload } from '@workspace/object-storage-web';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -147,6 +148,60 @@ function CreateFormModal({ onClose, onCreated }: { onClose: () => void; onCreate
   );
 }
 
+// ── Photo upload button ───────────────────────────────────────────────────────
+
+function PhotoUploadButton({ onUploaded }: { onUploaded: (url: string) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { uploadFile, isUploading } = useUpload({
+    basePath: `${BASE}/api/storage`,
+    onSuccess: (resp) => {
+      // Store as a full absolute URL so the mobile app can use it without needing to know the domain
+      onUploaded(`${window.location.origin}${BASE}/api/storage${resp.objectPath}`);
+    },
+  });
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = ''; // reset so the same file can be re-selected
+    await uploadFile(file);
+  };
+
+  return (
+    <>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        style={{ display: 'none' }}
+        onChange={handleChange}
+      />
+      <button
+        type="button"
+        title={isUploading ? 'Uploading…' : 'Upload photo from computer'}
+        disabled={isUploading}
+        onClick={() => fileRef.current?.click()}
+        style={{
+          flexShrink: 0,
+          height: 32,
+          padding: '0 0.45rem',
+          border: '1px solid #d4cdc4',
+          borderRadius: 4,
+          background: isUploading ? '#f5f2ee' : '#fff',
+          cursor: isUploading ? 'default' : 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          color: '#5a7c5e',
+        }}
+      >
+        {isUploading
+          ? <Loader2 size={14} className="animate-spin" />
+          : <Upload size={14} />}
+      </button>
+    </>
+  );
+}
+
 // ── Item row (inline edit) ────────────────────────────────────────────────────
 
 function ItemRow({
@@ -183,7 +238,12 @@ function ItemRow({
         <td style={td}><Input value={pack} onChange={e => setPack(e.target.value)} style={{ minWidth: '80px' }} /></td>
         <td style={td}><Input value={casePrice} onChange={e => setCasePrice(e.target.value)} type="number" step="0.01" min="0" style={{ minWidth: '80px' }} /></td>
         <td style={td}><Input value={category} onChange={e => setCategory(e.target.value)} style={{ minWidth: '100px' }} /></td>
-        <td style={td}><Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://…" style={{ minWidth: '160px' }} /></td>
+        <td style={td}>
+          <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+            <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://… or upload →" style={{ minWidth: '130px' }} />
+            <PhotoUploadButton onUploaded={url => setPhotoUrl(url)} />
+          </div>
+        </td>
         <td style={{ ...td, whiteSpace: 'nowrap' }}>
           <button onClick={save} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3a7d44', marginRight: '0.5rem' }}><Check size={16} /></button>
           <button onClick={() => setEditing(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}><X size={16} /></button>
@@ -340,8 +400,11 @@ function AddItemForm({ formId, onAdded }: { formId: number; onAdded: () => void 
             <Input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Poinsettias" style={inputStyle} />
           </div>
           <div style={{ flex: '2 1 180px' }}>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#888', marginBottom: '0.2rem' }}>Photo URL</label>
-            <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://…" style={inputStyle} />
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#888', marginBottom: '0.2rem' }}>Photo</label>
+            <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+              <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://… or upload →" style={inputStyle} />
+              <PhotoUploadButton onUploaded={url => setPhotoUrl(url)} />
+            </div>
           </div>
           <Button type="submit" size="sm" disabled={addItem.isPending || !name} style={{ flexShrink: 0 }}>
             <Plus size={14} style={{ marginRight: '0.25rem' }} />{addItem.isPending ? 'Adding…' : 'Add'}
