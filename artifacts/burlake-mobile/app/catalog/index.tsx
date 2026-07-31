@@ -15,7 +15,7 @@ import { router, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '@/hooks/useColors';
-import { useListCollections, useListProducts } from '@workspace/api-client-react';
+import { getListProductsQueryKey, useListCollections, useListProducts } from '@workspace/api-client-react';
 import type { Collection, Product } from '@workspace/api-client-react';
 
 // ── Collection card ───────────────────────────────────────────────────────────
@@ -147,7 +147,10 @@ export default function CatalogScreen() {
   const {
     data: allProducts,
     isLoading: productsLoading,
-  } = useListProducts();
+    isFetching: productsFetching,
+  } = useListProducts(undefined, {
+    query: { enabled: isSearching, queryKey: getListProductsQueryKey() },
+  });
 
   const botPad = Platform.OS === 'web' ? 34 : insets.bottom;
 
@@ -262,8 +265,9 @@ export default function CatalogScreen() {
 
   // ── Search results view ────────────────────────────────────────────────────
   if (isSearching) {
-    const showSpinner = productsLoading && searchItems.length === 0;
-    const noResults = !productsLoading && searchItems.length === 0;
+    const productsPending = productsLoading || productsFetching || !allProducts;
+    const showSpinner = productsPending && searchItems.length === 0;
+    const noResults = !productsPending && searchItems.length === 0;
 
     return (
       <>
