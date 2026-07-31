@@ -17,17 +17,82 @@ import * as Haptics from 'expo-haptics';
 import { useColors } from '@/hooks/useColors';
 import { useAuth } from '@/context/AuthContext';
 
-export default function LoginScreen() {
+// ── Quick-nav card ────────────────────────────────────────────────────────────
+
+function NavCard({
+  icon,
+  title,
+  subtitle,
+  onPress,
+  accent,
+}: {
+  icon: string;
+  title: string;
+  subtitle: string;
+  onPress: () => void;
+  accent?: boolean;
+}) {
+  const colors = useColors();
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.72}
+      style={[
+        styles.navCard,
+        {
+          backgroundColor: accent ? colors.accent : colors.card,
+          borderColor: accent ? colors.accent : colors.border,
+        },
+      ]}
+    >
+      <View style={[styles.navIconWrap, { backgroundColor: accent ? 'rgba(255,255,255,0.12)' : colors.muted }]}>
+        <Ionicons
+          name={icon as any}
+          size={22}
+          color={accent ? '#ffffff' : colors.accent}
+        />
+      </View>
+      <View style={styles.navCardText}>
+        <Text
+          style={[
+            styles.navCardTitle,
+            { color: accent ? '#ffffff' : colors.foreground, fontFamily: 'DMSans_600SemiBold' },
+          ]}
+        >
+          {title}
+        </Text>
+        <Text
+          style={[
+            styles.navCardSub,
+            { color: accent ? 'rgba(255,255,255,0.75)' : colors.mutedForeground, fontFamily: 'DMSans_400Regular' },
+          ]}
+        >
+          {subtitle}
+        </Text>
+      </View>
+      <Ionicons
+        name="chevron-forward"
+        size={18}
+        color={accent ? 'rgba(255,255,255,0.6)' : colors.mutedForeground}
+      />
+    </TouchableOpacity>
+  );
+}
+
+// ── Screen ────────────────────────────────────────────────────────────────────
+
+export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { login, isAuthenticated, isLoading } = useAuth();
+
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const inputRef = useRef<TextInput>(null);
 
-  // Redirect once we know the user is already authenticated
+  // Redirect portal users straight to forms once we confirm auth
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       router.replace('/forms');
@@ -56,6 +121,14 @@ export default function LoginScreen() {
   const botPad = Platform.OS === 'web' ? 34 : insets.bottom;
   const canSubmit = password.trim().length > 0 && !isSubmitting;
 
+  if (isLoading) {
+    return (
+      <View style={[styles.loadingRoot, { backgroundColor: colors.secondary }]}>
+        <ActivityIndicator color={colors.primary} size="large" />
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.root, { backgroundColor: colors.secondary }]}>
       <KeyboardAvoidingView
@@ -68,8 +141,9 @@ export default function LoginScreen() {
             { paddingTop: topPad + 32, paddingBottom: botPad + 32 },
           ]}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {/* Brand mark */}
+          {/* ── Brand mark ── */}
           <View style={styles.brand}>
             <View style={[styles.logoRing, { borderColor: colors.primary }]}>
               <Ionicons name="leaf-outline" size={38} color={colors.primary} />
@@ -77,29 +151,50 @@ export default function LoginScreen() {
             <Text style={[styles.brandName, { color: '#ffffff', fontFamily: 'DMSans_700Bold' }]}>
               BURNABY LAKE{'\n'}GREENHOUSES
             </Text>
-            <Text style={[styles.portalTag, { color: colors.primary, fontFamily: 'DMSans_500Medium' }]}>
-              BUYER PORTAL
+            <Text style={[styles.brandTagline, { color: colors.primary, fontFamily: 'DMSans_400Regular' }]}>
+              Wholesale Growers Since 1987
             </Text>
           </View>
 
-          {/* Login card */}
-          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View style={styles.cardHeader}>
-              <Text style={[styles.cardTitle, { color: colors.foreground, fontFamily: 'DMSans_700Bold' }]}>
-                Welcome back
-              </Text>
-              <Text style={[styles.cardBody, { color: colors.mutedForeground, fontFamily: 'DMSans_400Regular' }]}>
-                Enter your portal password to access order forms and pricing.
-              </Text>
-            </View>
+          {/* ── Public nav cards ── */}
+          <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: 'DMSans_500Medium' }]}>
+              EXPLORE
+            </Text>
+            <NavCard
+              icon="grid-outline"
+              title="Browse Catalog"
+              subtitle="Browse our full range of plants and collections"
+              onPress={() => router.push('/catalog')}
+              accent
+            />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            <NavCard
+              icon="business-outline"
+              title="Apply for Wholesale"
+              subtitle="Open a wholesale account with us"
+              onPress={() => router.push('/apply')}
+            />
+          </View>
 
-            <View style={[
-              styles.inputWrap,
-              {
-                borderColor: error ? colors.destructive : colors.border,
-                backgroundColor: colors.background,
-              },
-            ]}>
+          {/* ── Portal login ── */}
+          <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: 'DMSans_500Medium' }]}>
+              BUYER PORTAL
+            </Text>
+            <Text style={[styles.portalBody, { color: colors.mutedForeground, fontFamily: 'DMSans_400Regular' }]}>
+              Enter your portal password to access order forms and pricing.
+            </Text>
+
+            <View
+              style={[
+                styles.inputWrap,
+                {
+                  borderColor: error ? colors.destructive : colors.border,
+                  backgroundColor: colors.background,
+                },
+              ]}
+            >
               <TextInput
                 ref={inputRef}
                 style={[styles.input, { color: colors.foreground, fontFamily: 'DMSans_400Regular' }]}
@@ -163,15 +258,16 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
+  loadingRoot: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   root: { flex: 1 },
   scroll: {
     flexGrow: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    gap: 0,
+    paddingHorizontal: 20,
+    gap: 14,
   },
-  brand: { alignItems: 'center', marginBottom: 44, gap: 0 },
+
+  brand: { alignItems: 'center', marginBottom: 8, gap: 0 },
   logoRing: {
     width: 76,
     height: 76,
@@ -187,20 +283,39 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 26,
   },
-  portalTag: { fontSize: 10, letterSpacing: 6, marginTop: 10 },
+  brandTagline: { fontSize: 13, marginTop: 10, letterSpacing: 0.5 },
 
-  card: {
+  section: {
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 440,
     borderRadius: 10,
     borderWidth: 1,
-    padding: 24,
-    gap: 16,
+    padding: 20,
+    gap: 12,
   },
-  cardHeader: { gap: 6 },
-  cardTitle: { fontSize: 22 },
-  cardBody: { fontSize: 14, lineHeight: 20 },
+  sectionLabel: { fontSize: 11, letterSpacing: 2 },
+  divider: { height: 1, marginVertical: -4 },
 
+  navCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 14,
+  },
+  navIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navCardText: { flex: 1 },
+  navCardTitle: { fontSize: 15 },
+  navCardSub: { fontSize: 12, marginTop: 2, lineHeight: 17 },
+
+  portalBody: { fontSize: 13, lineHeight: 19 },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -211,16 +326,15 @@ const styles = StyleSheet.create({
   },
   input: { flex: 1, fontSize: 16 },
   eyeBtn: { paddingLeft: 8 },
-
-  errorMsg: { fontSize: 13, marginTop: -8 },
-
+  errorMsg: { fontSize: 13, marginTop: -6 },
   loginBtn: {
     height: 52,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 2,
   },
   loginBtnText: { fontSize: 16 },
 
-  footerTxt: { color: 'rgba(255,255,255,0.3)', fontSize: 12, marginTop: 32 },
+  footerTxt: { color: 'rgba(255,255,255,0.3)', fontSize: 12, marginTop: 8 },
 });

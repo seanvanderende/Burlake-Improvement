@@ -37,6 +37,8 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="forms" />
+      <Stack.Screen name="catalog" />
+      <Stack.Screen name="apply" />
     </Stack>
   );
 }
