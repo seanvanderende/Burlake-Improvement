@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useListProducts, useListCollections, useListProductSizes } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 
 // ── Filter section ────────────────────────────────────────────────────────────
 
@@ -110,6 +110,7 @@ export default function Catalog() {
 
   const [selectedCollectionIds, setSelectedCollectionIds] = useState<Set<number>>(new Set());
   const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleCollection = (id: number) =>
     setSelectedCollectionIds((prev) => {
@@ -128,9 +129,11 @@ export default function Catalog() {
   const clearAll = () => {
     setSelectedCollectionIds(new Set());
     setSelectedSizes(new Set());
+    setSearchQuery('');
   };
 
-  const hasFilters = selectedCollectionIds.size > 0 || selectedSizes.size > 0;
+  const trimmedSearch = searchQuery.trim().toLowerCase();
+  const hasFilters = selectedCollectionIds.size > 0 || selectedSizes.size > 0 || trimmedSearch !== '';
 
   // Group collections by grp
   const byGroup = useMemo(() => {
@@ -153,9 +156,17 @@ export default function Catalog() {
       if (selectedSizes.size > 0) {
         if (!p.size || !selectedSizes.has(p.size)) return false;
       }
+      if (trimmedSearch) {
+        const hay = [
+          p.name,
+          (p as { sku?: string | null }).sku ?? '',
+          (p as { description?: string | null }).description ?? '',
+        ].join(' ').toLowerCase();
+        if (!hay.includes(trimmedSearch)) return false;
+      }
       return true;
     });
-  }, [allProducts, selectedCollectionIds, selectedSizes]);
+  }, [allProducts, selectedCollectionIds, selectedSizes, trimmedSearch]);
 
   const sortedSizes = useMemo(
     () => [...sizes].sort((a, b) => {
@@ -167,6 +178,39 @@ export default function Catalog() {
 
   const filterPanel = (
     <div>
+      {/* Search input */}
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ position: 'relative' }}>
+          <Search style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', width: 13, height: 13, color: '#9ca3af', pointerEvents: 'none' }} />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search varieties…"
+            style={{
+              width: '100%',
+              padding: '6px 28px 6px 26px',
+              border: '1px solid #e5e7eb',
+              borderRadius: 4,
+              fontSize: 13,
+              color: '#1a1a1a',
+              background: '#fff',
+              outline: 'none',
+              boxSizing: 'border-box',
+            }}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#9ca3af' }}
+            >
+              <X style={{ width: 12, height: 12 }} />
+            </button>
+          )}
+        </div>
+      </div>
+
       {byGroup['category']?.length > 0 && (
         <FilterSection title="Category">
           {byGroup['category'].map((col) => (
@@ -246,6 +290,16 @@ export default function Catalog() {
         {/* Active chips */}
         {hasFilters && (
           <div className="flex flex-wrap gap-2 mb-6">
+            {trimmedSearch && (
+              <span
+                onClick={() => setSearchQuery('')}
+                className="inline-flex items-center gap-1.5 text-xs bg-primary/10 text-primary border border-primary/30 px-2.5 py-1 cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                <Search className="w-3 h-3" />
+                &ldquo;{searchQuery.trim()}&rdquo;
+                <X className="w-3 h-3" />
+              </span>
+            )}
             {[...selectedCollectionIds].map((id) => {
               const col = collections.find((c) => c.id === id);
               return col ? (
