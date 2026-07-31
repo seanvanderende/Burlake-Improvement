@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Lock, FileText, List, ChevronRight, Leaf } from 'lucide-react';
+import { Lock, FileText, List, ChevronRight, Leaf, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link } from 'wouter';
@@ -214,6 +214,13 @@ function PortalHome() {
             icon={<List size={22} style={{ color: '#5a7c5e' }} />}
             title="Price Lists"
             description="View and download our current wholesale price lists."
+          />
+          {/* Order Forms card */}
+          <PortalCard
+            href="/portal/order-forms"
+            icon={<ClipboardList size={22} style={{ color: '#5a7c5e' }} />}
+            title="Order Forms"
+            description="Browse seasonal collections and submit your wholesale order."
           />
         </div>
       </div>

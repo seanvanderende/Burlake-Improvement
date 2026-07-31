@@ -7,6 +7,7 @@ import storageRouter from "./storage";
 import brochuresRouter from "./brochures";
 import priceListsRouter from "./priceLists";
 import applicationsRouter from "./applications";
+import orderFormsRouter from "./orderForms";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(storageRouter);
 router.use(brochuresRouter);
 router.use(priceListsRouter);
 router.use(applicationsRouter);
+router.use(orderFormsRouter);
 
 export default router;

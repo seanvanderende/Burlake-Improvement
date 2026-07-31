@@ -17,9 +17,12 @@ import ProductForm from '@/pages/admin/ProductForm';
 import AdminImport from '@/pages/admin/AdminImport';
 import AdminBrochures from '@/pages/admin/AdminBrochures';
 import AdminPriceLists from '@/pages/admin/AdminPriceLists';
+import AdminOrderForms from '@/pages/admin/AdminOrderForms';
 import Portal from '@/pages/Portal';
 import Brochures from '@/pages/Brochures';
 import PriceLists from '@/pages/PriceLists';
+import OrderForms from '@/pages/OrderForms';
+import OrderFormView from '@/pages/OrderFormView';
 import NotFound from '@/pages/not-found';
 import AdminApplications from '@/pages/admin/Applications';
 
@@ -47,6 +50,13 @@ function Router() {
         {() => (
           <AdminLayout>
             <AdminPriceLists />
+          </AdminLayout>
+        )}
+      </Route>
+      <Route path="/admin/order-forms">
+        {() => (
+          <AdminLayout>
+            <AdminOrderForms />
           </AdminLayout>
         )}
       </Route>
@@ -102,6 +112,8 @@ function Router() {
               <Route path="/portal" component={Portal} />
               <Route path="/portal/brochures" component={Brochures} />
               <Route path="/portal/price-lists" component={PriceLists} />
+              <Route path="/portal/order-forms/:id" component={OrderFormView} />
+              <Route path="/portal/order-forms" component={OrderForms} />
               <Route path="/contact" component={Contact} />
               <Route component={NotFound} />
             </Switch>
