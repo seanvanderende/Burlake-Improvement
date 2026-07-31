@@ -26,8 +26,6 @@ tags:
     description: Wholesale account application operations
   - name: orderForms
     description: Order form operations
-  - name: analytics
-    description: Site traffic analytics operations
 paths:
   /healthz:
     get:
@@ -150,42 +148,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /analytics/pageview:
-    post:
-      operationId: recordPageView
-      tags: [analytics]
-      summary: Record a page view
-      description: Logs a single page view for site traffic analytics
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PageViewInput"
-      responses:
-        "204":
-          description: Recorded
-
-  /admin/analytics/summary:
-    get:
-      operationId: getAnalyticsSummary
-      tags: [analytics]
-      summary: Get site traffic summary
-      description: Returns daily/weekly/monthly visit counts and the most visited pages (admin only)
-      responses:
-        "200":
-          description: Traffic summary
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AnalyticsSummary"
-        "401":
-          description: Not authenticated as admin
           content:
             application/json:
               schema:
@@ -1112,11 +1074,15 @@ components:
       type: object
       required:
         - created
+        - updated
         - duplicates
         - failed
       properties:
         created:
           type: integer
+        updated:
+          type: integer
+          description: Rows that matched an existing product by SKU and were updated in place rather than creating a duplicate
         duplicates:
           type: integer
         failed:
@@ -1438,67 +1404,6 @@ components:
           type: ["string", "null"]
         sortOrder:
           type: integer
-
-    PageViewInput:
-      type: object
-      required:
-        - path
-      properties:
-        path:
-          type: string
-          minLength: 1
-          maxLength: 500
-
-    AnalyticsCountBucket:
-      type: object
-      required:
-        - label
-        - count
-      properties:
-        label:
-          type: string
-        count:
-          type: integer
-
-    AnalyticsTopPage:
-      type: object
-      required:
-        - path
-        - count
-      properties:
-        path:
-          type: string
-        count:
-          type: integer
-
-    AnalyticsSummary:
-      type: object
-      required:
-        - daily
-        - weekly
-        - monthly
-        - topPages
-      properties:
-        daily:
-          type: array
-          description: Visit counts for the last 30 days, oldest first
-          items:
-            $ref: "#/components/schemas/AnalyticsCountBucket"
-        weekly:
-          type: array
-          description: Visit counts for the last 12 weeks, oldest first
-          items:
-            $ref: "#/components/schemas/AnalyticsCountBucket"
-        monthly:
-          type: array
-          description: Visit counts for the last 12 months, oldest first
-          items:
-            $ref: "#/components/schemas/AnalyticsCountBucket"
-        topPages:
-          type: array
-          description: Most visited pages of all time, most visited first
-          items:
-            $ref: "#/components/schemas/AnalyticsTopPage"
 
     OrderFormWithItems:
       allOf:

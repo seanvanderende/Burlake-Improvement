@@ -8,6 +8,8 @@
 
 export interface BulkCreateProductsResult {
   created: number;
+  /** Rows that matched an existing product by SKU and were updated in place rather than creating a duplicate */
+  updated: number;
   duplicates: number;
   failed: number;
   errors?: string[];

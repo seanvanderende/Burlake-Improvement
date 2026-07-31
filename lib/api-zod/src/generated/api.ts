@@ -109,45 +109,6 @@ export const DeleteCollectionResponse = zod.void()
 
 
 /**
- * Logs a single page view for site traffic analytics
- * @summary Record a page view
- */
-export const recordPageViewBodyPathMax = 500;
-
-
-
-export const RecordPageViewBody = zod.object({
-  "path": zod.string().min(1).max(recordPageViewBodyPathMax)
-})
-
-export const RecordPageViewResponse = zod.void()
-
-
-/**
- * Returns daily/weekly/monthly visit counts and the most visited pages (admin only)
- * @summary Get site traffic summary
- */
-export const GetAnalyticsSummaryResponse = zod.object({
-  "daily": zod.array(zod.object({
-  "label": zod.string(),
-  "count": zod.number()
-})).describe('Visit counts for the last 30 days, oldest first'),
-  "weekly": zod.array(zod.object({
-  "label": zod.string(),
-  "count": zod.number()
-})).describe('Visit counts for the last 12 weeks, oldest first'),
-  "monthly": zod.array(zod.object({
-  "label": zod.string(),
-  "count": zod.number()
-})).describe('Visit counts for the last 12 months, oldest first'),
-  "topPages": zod.array(zod.object({
-  "path": zod.string(),
-  "count": zod.number()
-})).describe('Most visited pages of all time, most visited first')
-})
-
-
-/**
  * Returns all distinct non-null size strings from products
  * @summary List distinct product sizes
  */
@@ -333,6 +294,7 @@ export const BulkCreateProductsBody = zod.object({
 
 export const BulkCreateProductsResponse = zod.object({
   "created": zod.number(),
+  "updated": zod.number().describe('Rows that matched an existing product by SKU and were updated in place rather than creating a duplicate'),
   "duplicates": zod.number(),
   "failed": zod.number(),
   "errors": zod.array(zod.string()).optional()

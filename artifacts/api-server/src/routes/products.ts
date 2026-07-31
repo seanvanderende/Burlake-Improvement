@@ -392,49 +392,55 @@ router.post(
     const allNames = [...new Set(products.flatMap((p) => p.collectionNames))];
     const collectionByName = await ensureCollectionsByName(allNames);
 
-    // Deduplicate by SKU (has SKU) or name (no SKU)
+    // Rows with a SKU that already exists are updated in place rather than
+    // skipped or duplicated. Rows without a SKU still fall back to a
+    // name-match duplicate check, since there's no stable key to update on.
     const incomingSkus = products.map((p) => p.sku).filter((s): s is string => Boolean(s));
     const incomingNames = products.filter((p) => !p.sku).map((p) => p.name);
 
     const [existingBySku, existingByName] = await Promise.all([
       incomingSkus.length > 0
         ? db
-            .select({ sku: productsTable.sku })
+            .select({ id: productsTable.id, sku: productsTable.sku })
             .from(productsTable)
             .where(inArray(productsTable.sku, incomingSkus))
-        : Promise.resolve([]),
+        : Promise.resolve([] as { id: number; sku: string | null }[]),
       incomingNames.length > 0
         ? db
             .select({ name: productsTable.name })
             .from(productsTable)
             .where(inArray(productsTable.name, incomingNames))
-        : Promise.resolve([]),
+        : Promise.resolve([] as { name: string }[]),
     ]);
 
-    const existingSkuSet = new Set(existingBySku.map((r) => r.sku));
+    const existingIdBySku = new Map(
+      existingBySku.filter((r) => r.sku !== null).map((r) => [r.sku as string, r.id]),
+    );
     const existingNameSet = new Set(existingByName.map((r) => r.name));
 
     let duplicates = 0;
     let failed = 0;
     let created = 0;
+    let updated = 0;
     const errors: string[] = [];
 
-    const toInsert = products.filter((p) => {
-      if (p.sku) {
-        if (existingSkuSet.has(p.sku)) { duplicates++; return false; }
+    const toInsert: typeof products = [];
+    const toUpdate: { id: number; product: (typeof products)[number] }[] = [];
+
+    for (const p of products) {
+      if (p.sku && existingIdBySku.has(p.sku)) {
+        toUpdate.push({ id: existingIdBySku.get(p.sku)!, product: p });
+      } else if (!p.sku && existingNameSet.has(p.name)) {
+        duplicates++;
       } else {
-        if (existingNameSet.has(p.name)) { duplicates++; return false; }
+        toInsert.push(p);
       }
-      return true;
-    });
+    }
 
     const BATCH = 50;
     for (let i = 0; i < toInsert.length; i += BATCH) {
       const chunk = toInsert.slice(i, i + BATCH);
       try {
-        const { collectionNames: _, ...rest } = chunk[0]; // destructure to get shape
-        void rest;
-
         const inserted = await db
           .insert(productsTable)
           .values(
@@ -465,7 +471,27 @@ router.post(
       }
     }
 
-    res.json(BulkCreateProductsResponse.parse({ created, duplicates, failed, errors }));
+    for (const { id, product } of toUpdate) {
+      try {
+        const { collectionNames, ...rest } = product;
+        await db
+          .update(productsTable)
+          .set({ ...rest, available: rest.available ?? true, updatedAt: new Date() })
+          .where(eq(productsTable.id, id));
+
+        const collectionIds = collectionNames
+          .map((name) => collectionByName.get(name))
+          .filter((cid): cid is number => cid !== undefined);
+        await setProductCollections(id, collectionIds);
+
+        updated++;
+      } catch (err: any) {
+        failed++;
+        errors.push(err?.message ?? "Unknown error");
+      }
+    }
+
+    res.json(BulkCreateProductsResponse.parse({ created, updated, duplicates, failed, errors }));
   },
 );
 

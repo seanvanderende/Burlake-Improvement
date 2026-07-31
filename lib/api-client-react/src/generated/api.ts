@@ -22,7 +22,6 @@ import type {
 import type {
   AdminLoginInput,
   AdminSession,
-  AnalyticsSummary,
   Application,
   ApplicationInput,
   ApplicationUpdate,
@@ -43,7 +42,6 @@ import type {
   ListProductsParams,
   OrderForm,
   OrderFormWithItems,
-  PageViewInput,
   PresignedUpload,
   PriceList,
   PriceListInput,
@@ -459,156 +457,6 @@ export const useDeleteCollection = <TError = ErrorType<ErrorResponse>,
       > => {
       return useMutation(getDeleteCollectionMutationOptions(options));
     }
-
-export const getRecordPageViewUrl = () => {
-
-
-
-
-  return `/api/analytics/pageview`
-}
-
-/**
- * Logs a single page view for site traffic analytics
- * @summary Record a page view
- */
-export const recordPageView = async (pageViewInput: PageViewInput, options?: RequestInit): Promise<void> => {
-
-  return customFetch<void>(getRecordPageViewUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(pageViewInput)
-  }
-);}
-
-
-
-
-
-export const getRecordPageViewMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordPageView>>, TError,{data: BodyType<PageViewInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof recordPageView>>, TError,{data: BodyType<PageViewInput>}, TContext> => {
-
-const mutationKey = ['recordPageView'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordPageView>>, {data: BodyType<PageViewInput>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  recordPageView(data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type RecordPageViewMutationResult = NonNullable<Awaited<ReturnType<typeof recordPageView>>>
-    export type RecordPageViewMutationBody = BodyType<PageViewInput>
-    export type RecordPageViewMutationError = ErrorType<unknown>
-
-    /**
- * @summary Record a page view
- */
-export const useRecordPageView = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordPageView>>, TError,{data: BodyType<PageViewInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
- ): UseMutationResult<
-        Awaited<ReturnType<typeof recordPageView>>,
-        TError,
-        {data: BodyType<PageViewInput>},
-        TContext
-      > => {
-      return useMutation(getRecordPageViewMutationOptions(options));
-    }
-
-export const getGetAnalyticsSummaryUrl = () => {
-
-
-
-
-  return `/api/admin/analytics/summary`
-}
-
-/**
- * Returns daily/weekly/monthly visit counts and the most visited pages (admin only)
- * @summary Get site traffic summary
- */
-export const getAnalyticsSummary = async ( options?: RequestInit): Promise<AnalyticsSummary> => {
-
-  return customFetch<AnalyticsSummary>(getGetAnalyticsSummaryUrl(),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-
-
-export const getGetAnalyticsSummaryQueryKey = () => {
-    return [
-    `/api/admin/analytics/summary`
-    ] as const;
-    }
-
-
-export const getGetAnalyticsSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getAnalyticsSummary>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetAnalyticsSummaryQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnalyticsSummary>>> = ({ signal }) => getAnalyticsSummary({ signal, ...requestOptions });
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsSummary>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetAnalyticsSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getAnalyticsSummary>>>
-export type GetAnalyticsSummaryQueryError = ErrorType<ErrorResponse>
-
-
-/**
- * @summary Get site traffic summary
- */
-
-export function useGetAnalyticsSummary<TData = Awaited<ReturnType<typeof getAnalyticsSummary>>, TError = ErrorType<ErrorResponse>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnalyticsSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-
- ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-
-  const queryOptions = getGetAnalyticsSummaryQueryOptions(options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
 
 export const getListProductSizesUrl = () => {
 

@@ -96,7 +96,7 @@
   --primary: 37 46% 55%; /* gold */
   --primary-foreground: 140 32% 9%; /* dark green */
 
-  --secondary: 137 30% 16%; /* mid green */
+  --secondary: 137 26% 24%; /* mid green, lightened */
   --secondary-foreground: 45 33% 96%; /* bg light */
 
   --muted: 45 20% 88%;
@@ -110,15 +110,15 @@
 
   --sidebar: 140 32% 9%;
   --sidebar-foreground: 45 33% 96%;
-  --sidebar-border: 137 30% 16%;
+  --sidebar-border: 137 26% 24%;
   --sidebar-primary: 37 46% 55%;
   --sidebar-primary-foreground: 140 32% 9%;
-  --sidebar-accent: 137 30% 16%;
+  --sidebar-accent: 137 26% 24%;
   --sidebar-accent-foreground: 45 33% 96%;
   --sidebar-ring: 37 46% 55%;
 
   --chart-1: 37 46% 55%;
-  --chart-2: 137 30% 16%;
+  --chart-2: 137 26% 24%;
   --chart-3: 138 27% 24%;
   --chart-4: 45 33% 96%;
   --chart-5: 140 32% 9%;

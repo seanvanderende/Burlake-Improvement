@@ -110,6 +110,7 @@ export default function AdminImport() {
   const [parseError, setParseError] = useState<string | null>(null);
   const [importResult, setImportResult] = useState<{
     created: number;
+    updated: number;
     duplicates: number;
     failed: number;
     errors: string[];
@@ -177,6 +178,7 @@ export default function AdminImport() {
     setStep('done');
     const CHUNK = 200;
     let created = 0;
+    let updated = 0;
     let duplicates = 0;
     let failed = 0;
     const errors: string[] = [];
@@ -186,6 +188,7 @@ export default function AdminImport() {
       try {
         const result = await bulkCreate.mutateAsync({ data: { products: chunk } });
         created += result.created;
+        updated += result.updated;
         duplicates += result.duplicates;
         failed += result.failed;
         if (result.errors) errors.push(...result.errors);
@@ -195,7 +198,7 @@ export default function AdminImport() {
       }
     }
 
-    setImportResult({ created, duplicates, failed, errors });
+    setImportResult({ created, updated, duplicates, failed, errors });
   };
 
   // ── Unique collection names in the preview data ────────────────────────────
@@ -419,10 +422,15 @@ export default function AdminImport() {
                     {importResult.created} product{importResult.created !== 1 ? 's' : ''} imported
                     successfully
                   </p>
+                  {importResult.updated > 0 && (
+                    <p className="text-muted-foreground text-sm">
+                      {importResult.updated} updated — matched an existing product by SKU.
+                    </p>
+                  )}
                   {importResult.duplicates > 0 && (
                     <p className="text-muted-foreground text-sm">
-                      {importResult.duplicates} skipped — already in your catalog (matched by SKU or
-                      name).
+                      {importResult.duplicates} skipped — already in your catalog (matched by name,
+                      no SKU).
                     </p>
                   )}
                   {importResult.failed > 0 && (
