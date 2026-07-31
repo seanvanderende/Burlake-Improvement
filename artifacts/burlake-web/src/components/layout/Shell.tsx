@@ -35,9 +35,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
           <Link href="/" className="flex items-center cursor-pointer z-50">
             <img
-              src="/images/logo-horizontal.jpg"
+              src="/images/logo-white.png"
               alt="Burnaby Lake Greenhouses"
-              className="h-10 w-auto rounded-sm"
+              className="h-12 md:h-14 w-auto transition-all duration-500"
             />
           </Link>
 
@@ -83,9 +83,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <div className="md:col-span-2">
             <div className="mb-6">
               <img
-                src="/images/logo-horizontal.jpg"
+                src="/images/logo-white.png"
                 alt="Burnaby Lake Greenhouses"
-                className="h-12 w-auto rounded-sm"
+                className="h-16 w-auto"
               />
             </div>
             <p className="text-sm text-secondary-foreground/60 max-w-sm">

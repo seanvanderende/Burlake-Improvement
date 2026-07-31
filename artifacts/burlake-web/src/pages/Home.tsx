@@ -143,7 +143,7 @@ export default function Homepage() {
             <div className="max-w-2xl">
               <span className="reveal inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
                 <div className="w-8 h-px bg-primary" />
-                The Burlake Standard
+                The Burnaby Lake Standard
               </span>
               <h2 className="reveal delay-100 font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.1]">
                 Cultivated for <br/><span className="italic font-light">the trade.</span>
