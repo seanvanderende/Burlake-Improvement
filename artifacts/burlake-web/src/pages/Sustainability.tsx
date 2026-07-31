@@ -13,34 +13,29 @@ const PRACTICES: Practice[] = [
     icon: <Droplets size={20} />,
     title: 'Water Recycling',
     paragraphs: [
-      'Large amounts of water are used throughout our facility every day — it is inevitable in this industry. With this usage in mind, a large portion of our facility is equipped to minimize water waste by recapturing as much of the irrigation water as we can.',
-      'Before the water is reused, it is filtered and pH- and nutrient-balanced, adding new water as needed to reach optimal nutrient levels, then stored in multiple water tanks on-site until it\u2019s cycled back into our irrigation system. Reusing water saves a tremendous amount of water and also recycles the fertilizers added into it, enabling a significant reduction in fertilizer usage.',
+      'Much of our facility recaptures irrigation water instead of losing it. Before reuse, it\u2019s filtered, pH-balanced, and stored on-site until it\u2019s cycled back into our irrigation system — cutting both water and fertilizer use significantly.',
     ],
   },
   {
     icon: <Recycle size={20} />,
     title: 'Pot Sterilizing',
     paragraphs: [
-      'At the end of any given season or holiday, we are left with tens of thousands of empty used pots — whether from unsold product, plants being used in our planter gardens, or upsizing plants into larger pots. All remaining natural materials get turned into compost.',
-      'To minimize our plastic waste, we collect all intact empty pots and treat them in a steam chamber for an extended period of time. This steaming process sterilizes the pots, allowing them to be reused for new crops in the coming seasons — playing a massive role in reducing waste and unnecessary plastic usage from our facility.',
+      'Every season leaves us with tens of thousands of empty pots. Natural materials are composted; intact plastic pots are steam-sterilized and reused for new crops — a major reduction in plastic waste.',
     ],
   },
   {
     icon: <Leaf size={20} />,
     title: 'Biodegradable & Recycled Materials',
     paragraphs: [
-      'Another way we reduce plastic waste is by using biodegradable and recycled materials for product packaging wherever we can: cardboard boxes (recycled in-house), paper sleeves instead of plastic to protect plants during shipping when possible, bamboo stakes for displaying product care labels, and paperboard and recycled plastic for our product care labels whenever we can.',
-      'When you buy one of our plants and it has a paperboard plant care label stuck into the soil, the material will start breaking down after a couple of weeks if left in wet soil. To preserve the information and as much of the label as possible, we suggest removing the label from the soil and cutting off the bottom point that was stuck in.',
+      'Where we can, we swap plastic for cardboard (recycled in-house), paper shipping sleeves, bamboo stakes, and paperboard care labels. Since paperboard labels break down in wet soil, remove and trim them if you\u2019d like to keep them intact.',
     ],
   },
   {
     icon: <Cpu size={20} />,
     title: 'Technology & Efficiency',
     paragraphs: [
-      'To heat our facility, we rely on eight natural gas-powered boilers that heat large amounts of water to temperatures set based on weather and crop needs, pumped throughout our facility to create a warm, humid growing environment.',
-      'We also control day length and direct sun exposure with a series of curtains near the roof of the structure — including a double layer of shade curtains to reduce sun exposure and increase ambient brightness, and solid black curtains for crops that require complete darkness. When closed, these curtains function like energy-retention shades, reflecting heat back into the facility and reducing how often and how long our boilers need to run.',
-      'We\u2019ve also long been early adopters of growing technology: in the late 1970s we were among the first greenhouses in North America to install high-intensity lights to improve product quality. In the early 1980s, we were among the first to install computerized environmental control systems to monitor and regulate temperature, humidity, CO\u2082, light levels, and day length — resulting in more efficient energy use.',
-      'Also in the 1980s, we were among the first facilities in North America to install a Dutch rolling palletized benching system, maximizing work space and efficiency even during peak seasons. This system also let us implement sub-irrigation and water-recapturing technology — watering crops by flooding them from below instead of overhead, which keeps foliage dry, decreases water loss, saves fertilizer, and reduces chemical needs.',
+      'Eight natural gas boilers heat our facility as needed, and roof-level shade and blackout curtains manage light and retain heat — reducing how often the boilers have to run.',
+      'We\u2019ve long led on growing technology: high-intensity lighting in the late 1970s, computerized environmental controls in the early 1980s, and one of North America\u2019s first Dutch rolling palletized benching systems — which also enabled sub-irrigation, watering crops from below to cut water, fertilizer, and chemical use.',
     ],
   },
 ];
