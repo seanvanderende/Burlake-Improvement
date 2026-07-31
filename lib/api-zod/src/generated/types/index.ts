@@ -8,6 +8,9 @@
 
 export * from './adminLoginInput';
 export * from './adminSession';
+export * from './analyticsCountBucket';
+export * from './analyticsSummary';
+export * from './analyticsTopPage';
 export * from './application';
 export * from './applicationInput';
 export * from './applicationStatus';
@@ -33,6 +36,7 @@ export * from './orderForm';
 export * from './orderFormItem';
 export * from './orderFormStatus';
 export * from './orderFormWithItems';
+export * from './pageViewInput';
 export * from './presignedUpload';
 export * from './priceList';
 export * from './priceListInput';
