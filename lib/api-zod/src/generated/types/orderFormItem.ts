@@ -20,5 +20,7 @@ export interface OrderFormItem {
   casePrice?: string | null;
   /** @nullable */
   category?: string | null;
+  /** @nullable */
+  photoUrl?: string | null;
   sortOrder: number;
 }

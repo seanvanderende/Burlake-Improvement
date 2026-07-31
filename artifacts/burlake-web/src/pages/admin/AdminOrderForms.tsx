@@ -31,6 +31,7 @@ interface OrderFormItem {
   pack: string | null;
   casePrice: string | null;
   category: string | null;
+  photoUrl: string | null;
   sortOrder: number;
 }
 
@@ -164,9 +165,10 @@ function ItemRow({
   const [pack, setPack] = useState(item.pack ?? '');
   const [casePrice, setCasePrice] = useState(item.casePrice ?? '');
   const [category, setCategory] = useState(item.category ?? '');
+  const [photoUrl, setPhotoUrl] = useState(item.photoUrl ?? '');
 
   const save = () => {
-    onSave(item.id, { name, itemNum: itemNum || null, upc: upc || null, pack: pack || null, casePrice: casePrice || null, category: category || null });
+    onSave(item.id, { name, itemNum: itemNum || null, upc: upc || null, pack: pack || null, casePrice: casePrice || null, category: category || null, photoUrl: photoUrl || null });
     setEditing(false);
   };
 
@@ -181,6 +183,7 @@ function ItemRow({
         <td style={td}><Input value={pack} onChange={e => setPack(e.target.value)} style={{ minWidth: '80px' }} /></td>
         <td style={td}><Input value={casePrice} onChange={e => setCasePrice(e.target.value)} type="number" step="0.01" min="0" style={{ minWidth: '80px' }} /></td>
         <td style={td}><Input value={category} onChange={e => setCategory(e.target.value)} style={{ minWidth: '100px' }} /></td>
+        <td style={td}><Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://…" style={{ minWidth: '160px' }} /></td>
         <td style={{ ...td, whiteSpace: 'nowrap' }}>
           <button onClick={save} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3a7d44', marginRight: '0.5rem' }}><Check size={16} /></button>
           <button onClick={() => setEditing(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}><X size={16} /></button>
@@ -201,6 +204,11 @@ function ItemRow({
           <span style={{ background: '#eef6ef', color: '#3a7d44', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>{item.category}</span>
         ) : '—'}
       </td>
+      <td style={td}>
+        {item.photoUrl ? (
+          <img src={item.photoUrl} alt="" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 4, border: '1px solid #e0d9d0', display: 'block' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+        ) : <span style={{ color: '#ccc', fontSize: '0.75rem' }}>—</span>}
+      </td>
       <td style={{ ...td, whiteSpace: 'nowrap' }}>
         <button onClick={() => setEditing(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', marginRight: '0.5rem' }}><Edit2 size={14} /></button>
         <button onClick={() => onDelete(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c0392b' }}><Trash2 size={14} /></button>
@@ -218,6 +226,7 @@ function AddItemForm({ formId, onAdded }: { formId: number; onAdded: () => void 
   const [pack, setPack] = useState('');
   const [casePrice, setCasePrice] = useState('');
   const [category, setCategory] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
   const [error, setError] = useState('');
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkText, setBulkText] = useState('');
@@ -228,13 +237,13 @@ function AddItemForm({ formId, onAdded }: { formId: number; onAdded: () => void 
       const res = await fetch(`${BASE}/api/admin/order-forms/${formId}/items`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, itemNum: itemNum || undefined, upc: upc || undefined, pack: pack || undefined, casePrice: casePrice ? parseFloat(casePrice) : undefined, category: category || undefined }),
+        body: JSON.stringify({ name, itemNum: itemNum || undefined, upc: upc || undefined, pack: pack || undefined, casePrice: casePrice ? parseFloat(casePrice) : undefined, category: category || undefined, photoUrl: photoUrl || undefined }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Failed'); }
       return res.json();
     },
     onSuccess: () => {
-      setName(''); setItemNum(''); setUpc(''); setPack(''); setCasePrice(''); setCategory('');
+      setName(''); setItemNum(''); setUpc(''); setPack(''); setCasePrice(''); setCategory(''); setPhotoUrl('');
       setError('');
       onAdded();
     },
@@ -329,6 +338,10 @@ function AddItemForm({ formId, onAdded }: { formId: number; onAdded: () => void 
           <div style={{ flex: '1 1 100px' }}>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#888', marginBottom: '0.2rem' }}>Category</label>
             <Input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Poinsettias" style={inputStyle} />
+          </div>
+          <div style={{ flex: '2 1 180px' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#888', marginBottom: '0.2rem' }}>Photo URL</label>
+            <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://…" style={inputStyle} />
           </div>
           <Button type="submit" size="sm" disabled={addItem.isPending || !name} style={{ flexShrink: 0 }}>
             <Plus size={14} style={{ marginRight: '0.25rem' }} />{addItem.isPending ? 'Adding…' : 'Add'}
@@ -479,14 +492,14 @@ function FormEditor({ formId, onClose }: { formId: number; onClose: () => void }
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#faf8f4' }}>
-              {['Name', 'Item #', 'UPC', 'Pack', 'Case Price', 'Category', ''].map(h => (
+              {['Name', 'Item #', 'UPC', 'Pack', 'Case Price', 'Category', 'Photo', ''].map(h => (
                 <th key={h} style={{ padding: '0.6rem 0.5rem', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#888', textAlign: 'left', borderBottom: '1px solid #e4ddd4' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {form.items.length === 0 ? (
-              <tr><td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: '#aaa', fontSize: '0.9rem' }}>No items yet — add some below.</td></tr>
+              <tr><td colSpan={8} style={{ padding: '2rem', textAlign: 'center', color: '#aaa', fontSize: '0.9rem' }}>No items yet — add some below.</td></tr>
             ) : (
               form.items.map(item => (
                 <ItemRow

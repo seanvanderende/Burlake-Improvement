@@ -1380,6 +1380,8 @@ components:
           type: ["string", "null"]
         category:
           type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
         sortOrder:
           type: integer
 

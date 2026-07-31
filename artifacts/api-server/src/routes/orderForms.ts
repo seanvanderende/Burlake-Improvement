@@ -167,7 +167,7 @@ router.post("/admin/order-forms/:id/items", requireAdmin, async (req, res) => {
   const formId = parseInt(String(req.params.id), 10);
   if (isNaN(formId)) { res.status(400).json({ error: "Invalid form id" }); return; }
 
-  const { name, itemNum, upc, pack, casePrice, category, sortOrder } = req.body ?? {};
+  const { name, itemNum, upc, pack, casePrice, category, photoUrl, sortOrder } = req.body ?? {};
   if (!name) { res.status(400).json({ error: "name is required" }); return; }
 
   try {
@@ -181,6 +181,7 @@ router.post("/admin/order-forms/:id/items", requireAdmin, async (req, res) => {
         pack: pack || null,
         casePrice: casePrice != null ? String(casePrice) : null,
         category: category || null,
+        photoUrl: photoUrl || null,
         sortOrder: sortOrder ?? 0,
       })
       .returning();
@@ -209,6 +210,7 @@ router.post("/admin/order-forms/:id/items/bulk", requireAdmin, async (req, res) 
       pack: it.pack ? String(it.pack) : null,
       casePrice: it.casePrice != null ? String(it.casePrice) : null,
       category: it.category ? String(it.category) : null,
+      photoUrl: it.photoUrl ? String(it.photoUrl) : null,
       sortOrder: typeof it.sortOrder === "number" ? it.sortOrder : i,
     })).filter(r => r.name);
 
@@ -226,7 +228,7 @@ router.patch("/admin/order-forms/:id/items/:itemId", requireAdmin, async (req, r
   const itemId = parseInt(String(req.params.itemId), 10);
   if (isNaN(itemId)) { res.status(400).json({ error: "Invalid item id" }); return; }
 
-  const { name, itemNum, upc, pack, casePrice, category, sortOrder } = req.body ?? {};
+  const { name, itemNum, upc, pack, casePrice, category, photoUrl, sortOrder } = req.body ?? {};
   const updates: Record<string, unknown> = {};
   if (name !== undefined) updates.name = name;
   if (itemNum !== undefined) updates.itemNum = itemNum || null;
@@ -234,6 +236,7 @@ router.patch("/admin/order-forms/:id/items/:itemId", requireAdmin, async (req, r
   if (pack !== undefined) updates.pack = pack || null;
   if (casePrice !== undefined) updates.casePrice = casePrice != null ? String(casePrice) : null;
   if (category !== undefined) updates.category = category || null;
+  if (photoUrl !== undefined) updates.photoUrl = photoUrl || null;
   if (sortOrder !== undefined) updates.sortOrder = sortOrder;
 
   try {

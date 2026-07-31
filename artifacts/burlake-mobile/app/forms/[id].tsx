@@ -27,6 +27,7 @@ import * as Haptics from 'expo-haptics';
 import { useColors } from '@/hooks/useColors';
 import { useGetOrderForm, ApiError } from '@workspace/api-client-react';
 import type { OrderFormItem } from '@workspace/api-client-react';
+import { Image } from 'expo-image';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -100,12 +101,14 @@ interface ItemRowProps {
   qty: number;
   onIncrement: () => void;
   onDecrement: () => void;
+  onPhotoPress?: (url: string, name: string) => void;
   colors: ReturnType<typeof useColors>;
 }
 
-function ItemRow({ item, qty, onIncrement, onDecrement, colors }: ItemRowProps) {
+function ItemRow({ item, qty, onIncrement, onDecrement, onPhotoPress, colors }: ItemRowProps) {
   const price = item.casePrice ? parseFloat(item.casePrice) : null;
   const lineTotal = price && qty > 0 ? price * qty : null;
+  const hasPhoto = !!item.photoUrl;
 
   return (
     <View style={[
@@ -115,6 +118,21 @@ function ItemRow({ item, qty, onIncrement, onDecrement, colors }: ItemRowProps) 
         backgroundColor: qty > 0 ? 'rgba(45,76,53,0.05)' : 'transparent',
       },
     ]}>
+      {hasPhoto && (
+        <TouchableOpacity
+          onPress={() => onPhotoPress?.(item.photoUrl!, item.name)}
+          style={[itemS.thumbWrap, { borderColor: colors.border }]}
+          activeOpacity={0.75}
+          hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+        >
+          <Image
+            source={item.photoUrl!}
+            style={itemS.thumb}
+            contentFit="cover"
+            transition={200}
+          />
+        </TouchableOpacity>
+      )}
       <View style={itemS.info}>
         <Text
           style={[itemS.name, { color: colors.foreground, fontFamily: 'DMSans_600SemiBold' }]}
@@ -154,6 +172,8 @@ function ItemRow({ item, qty, onIncrement, onDecrement, colors }: ItemRowProps) 
 
 const itemS = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
+  thumbWrap: { width: 56, height: 56, borderRadius: 6, borderWidth: StyleSheet.hairlineWidth, marginRight: 10, flexShrink: 0, overflow: 'hidden' },
+  thumb: { width: 56, height: 56 },
   info: { flex: 1, marginRight: 12, gap: 3 },
   name: { fontSize: 15, lineHeight: 20 },
   meta: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
@@ -342,6 +362,9 @@ export default function FormDetailScreen() {
   const [qty, setQty] = useState<Qty>({});
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  // Photo viewer state
+  const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; name: string } | null>(null);
 
   // Email modal state
   const [showModal, setShowModal] = useState(false);
@@ -569,6 +592,7 @@ export default function FormDetailScreen() {
             qty={qty[item.id] ?? 0}
             onIncrement={() => increment(item.id)}
             onDecrement={() => decrement(item.id)}
+            onPhotoPress={(url, name) => setSelectedPhoto({ url, name })}
             colors={colors}
           />
         )}
@@ -757,9 +781,93 @@ export default function FormDetailScreen() {
           </KeyboardAvoidingView>
         </TouchableOpacity>
       </Modal>
+
+      {/* Photo full-screen viewer */}
+      <PhotoViewer photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
     </View>
   );
 }
+
+// ── Photo viewer modal ────────────────────────────────────────────────────────
+
+function PhotoViewer({
+  photo,
+  onClose,
+}: {
+  photo: { url: string; name: string } | null;
+  onClose: () => void;
+}) {
+  if (!photo) return null;
+  return (
+    <Modal
+      visible
+      animationType="fade"
+      transparent
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      <View style={pvS.overlay}>
+        {/* Tap outside to close */}
+        <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
+        <Image
+          source={photo.url}
+          style={pvS.image}
+          contentFit="contain"
+          transition={200}
+        />
+        <View style={pvS.caption}>
+          <Text style={pvS.captionText} numberOfLines={2}>{photo.name}</Text>
+        </View>
+        <TouchableOpacity
+          style={pvS.closeBtn}
+          onPress={onClose}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
+          <Ionicons name="close" size={22} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+}
+
+const pvS = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  image: {
+    width: '100%',
+    height: '72%',
+  },
+  caption: {
+    position: 'absolute',
+    bottom: 64,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
+  captionText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 15,
+    fontFamily: 'DMSans_400Regular',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: 56,
+    right: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 const s = StyleSheet.create({
   root: { flex: 1 },

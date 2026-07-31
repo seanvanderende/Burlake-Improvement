@@ -614,6 +614,7 @@ export const GetOrderFormResponse = zod.object({
   "pack": zod.string().nullish(),
   "casePrice": zod.string().nullish(),
   "category": zod.string().nullish(),
+  "photoUrl": zod.string().nullish(),
   "sortOrder": zod.number()
 })).optional()
 }))

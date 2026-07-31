@@ -30,6 +30,7 @@ export const orderFormItemsTable = pgTable("order_form_items", {
   pack: text("pack"),
   casePrice: numeric("case_price", { precision: 10, scale: 2 }),
   category: text("category"),
+  photoUrl: text("photo_url"),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
