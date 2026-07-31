@@ -216,9 +216,16 @@ export default function Catalog() {
             Wholesale Catalog
           </span>
           <div className="flex items-end justify-between gap-4 flex-wrap">
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground leading-[1.1]">
-              Available to the Trade
-            </h1>
+            <div>
+              <h1 className="font-serif text-4xl md:text-5xl text-foreground leading-[1.1]">
+                Grown at Scale.{' '}
+                <span className="italic font-light">Available to the Trade.</span>
+              </h1>
+              <p className="text-muted-foreground font-light mt-3 max-w-xl leading-relaxed">
+                Over 65 years of growing expertise — held to the Western Canada quality standard
+                your retail reputation is built on.
+              </p>
+            </div>
             <div className="flex items-center gap-3">
               {hasFilters && (
                 <button
@@ -285,8 +292,9 @@ export default function Catalog() {
               </div>
             ) : filtered.length === 0 ? (
               <div className="py-24 text-center border border-dashed border-border bg-muted/20">
-                <p className="text-muted-foreground font-light text-lg">No products match your current filters.</p>
-                <Button variant="outline" className="mt-6" onClick={clearAll}>Clear Filters</Button>
+                <p className="font-serif text-xl text-foreground mb-2">No varieties match those filters.</p>
+                <p className="text-muted-foreground font-light">Try broadening your selection — our full range reflects over 65 years of curated growing.</p>
+                <Button variant="outline" className="mt-6" onClick={clearAll}>Browse Full Range</Button>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-x-6 md:gap-y-10">
