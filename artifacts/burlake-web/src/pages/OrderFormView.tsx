@@ -72,7 +72,7 @@ function QtyInput({ value, onChange }: { value: number; onChange: (v: number) =>
 
 // ── Product card ──────────────────────────────────────────────────────────────
 
-function ProductCard({ item, qty, onQtyChange }: { item: OrderFormItem; qty: number; onQtyChange: (v: number) => void }) {
+function ProductCard({ item, qty, onQtyChange, onImageClick }: { item: OrderFormItem; qty: number; onQtyChange: (v: number) => void; onImageClick: (item: OrderFormItem) => void }) {
   const price = item.casePrice ? parseFloat(item.casePrice) : null;
   const lineTotal = price && qty > 0 ? price * qty : null;
   const selected = qty > 0;
@@ -89,14 +89,19 @@ function ProductCard({ item, qty, onQtyChange }: { item: OrderFormItem; qty: num
       {/* Color bar when selected */}
       <div style={{ height: '3px', background: selected ? '#3a7d44' : 'transparent', transition: 'background 0.15s' }} />
       {item.photoUrl && (
-        <div style={{ width: '100%', aspectRatio: '1 / 1', background: '#f4f1ea', overflow: 'hidden' }}>
+        <button
+          type="button"
+          onClick={() => onImageClick(item)}
+          aria-label={`Expand photo of ${item.name}`}
+          style={{ width: '100%', aspectRatio: '1 / 1', background: '#f4f1ea', overflow: 'hidden', border: 'none', padding: 0, margin: 0, cursor: 'zoom-in', display: 'block' }}
+        >
           <img
             src={item.photoUrl}
             alt={item.name}
             loading="lazy"
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
-        </div>
+        </button>
       )}
       <div style={{ padding: '1rem' }}>
         <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1a2e1a', lineHeight: 1.3, marginBottom: '0.5rem' }}>{item.name}</div>
@@ -156,6 +161,7 @@ export default function OrderFormView() {
   const [search, setSearch] = useState('');
   const [activeChip, setActiveChip] = useState<string>('All');
   const [selectedOnly, setSelectedOnly] = useState(false);
+  const [lightboxItem, setLightboxItem] = useState<OrderFormItem | null>(null);
 
   // Order detail fields
   const [store, setStore] = useState('');
@@ -395,6 +401,31 @@ export default function OrderFormView() {
   const hasSelection = totals.items > 0;
 
   return (
+    <>
+    {lightboxItem?.photoUrl && (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${lightboxItem.name} photo`}
+        onClick={() => setLightboxItem(null)}
+        style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(15,25,15,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', cursor: 'zoom-out' }}
+      >
+        <button
+          type="button"
+          onClick={() => setLightboxItem(null)}
+          aria-label="Close"
+          style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', width: '40px', height: '40px', borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: '1.3rem', lineHeight: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >×</button>
+        <figure style={{ margin: 0, maxWidth: '90vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }} onClick={e => e.stopPropagation()}>
+          <img
+            src={lightboxItem.photoUrl}
+            alt={lightboxItem.name}
+            style={{ maxWidth: '90vw', maxHeight: '80vh', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)' }}
+          />
+          <figcaption style={{ color: '#f0f7f0', fontSize: '0.9rem', fontWeight: 600, textAlign: 'center' }}>{lightboxItem.name}</figcaption>
+        </figure>
+      </div>
+    )}
     <div style={{ minHeight: '100vh', background: '#f4f7f4', paddingTop: '4rem' }}>
       {/* Toast */}
       {toastMsg && (
@@ -531,7 +562,7 @@ export default function OrderFormView() {
               </div>
               <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
                 {(grouped[group] ?? []).map(item => (
-                  <ProductCard key={item.id} item={item} qty={qty[item.id] ?? 0} onQtyChange={v => setItemQty(item.id, v)} />
+                  <ProductCard key={item.id} item={item} qty={qty[item.id] ?? 0} onQtyChange={v => setItemQty(item.id, v)} onImageClick={setLightboxItem} />
                 ))}
               </div>
             </div>
@@ -654,5 +685,6 @@ export default function OrderFormView() {
         </div>
       </div>
     </div>
+    </>
   );
 }
