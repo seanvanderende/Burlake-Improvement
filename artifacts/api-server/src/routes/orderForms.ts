@@ -238,6 +238,7 @@ router.post("/admin/order-forms/:id/items/bulk", requireAdmin, async (req, res) 
     if (rows.length === 0) { res.status(400).json({ error: "No valid items found" }); return; }
 
     const inserted = await db.insert(orderFormItemsTable).values(rows).returning();
+    await Promise.all(inserted.map((item) => markPhotoPublic(item.photoUrl)));
     res.status(201).json(inserted);
   } catch {
     res.status(500).json({ error: "Failed to bulk-create items" });

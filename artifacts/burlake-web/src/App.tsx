@@ -7,6 +7,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Shell } from '@/components/layout/Shell';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import Home from '@/pages/Home';
+import History from '@/pages/History';
+import Sustainability from '@/pages/Sustainability';
 import Catalog from '@/pages/Catalog';
 import ProductDetail from '@/pages/ProductDetail';
 import Contact from '@/pages/Contact';
@@ -107,6 +109,8 @@ function Router() {
           <Shell>
             <Switch>
               <Route path="/" component={Home} />
+              <Route path="/history" component={History} />
+              <Route path="/sustainability" component={Sustainability} />
               <Route path="/catalog" component={Catalog} />
               <Route path="/product/:id" component={ProductDetail} />
               <Route path="/portal" component={Portal} />

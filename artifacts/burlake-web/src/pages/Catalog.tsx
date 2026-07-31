@@ -104,13 +104,14 @@ function FilterOption({
 // ── Catalog page ──────────────────────────────────────────────────────────────
 
 export default function Catalog() {
-  const { data: allProducts = [], isLoading } = useListProducts({ availableOnly: true });
+  const { data: allProducts = [], isLoading } = useListProducts();
   const { data: collections = [] } = useListCollections();
   const { data: sizes = [] } = useListProductSizes();
 
   const [selectedCollectionIds, setSelectedCollectionIds] = useState<Set<number>>(new Set());
   const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [inStockOnly, setInStockOnly] = useState(false);
 
   const toggleCollection = (id: number) =>
     setSelectedCollectionIds((prev) => {
@@ -130,10 +131,11 @@ export default function Catalog() {
     setSelectedCollectionIds(new Set());
     setSelectedSizes(new Set());
     setSearchQuery('');
+    setInStockOnly(false);
   };
 
   const trimmedSearch = searchQuery.trim().toLowerCase();
-  const hasFilters = selectedCollectionIds.size > 0 || selectedSizes.size > 0 || trimmedSearch !== '';
+  const hasFilters = selectedCollectionIds.size > 0 || selectedSizes.size > 0 || trimmedSearch !== '' || inStockOnly;
 
   // Group collections by grp
   const byGroup = useMemo(() => {
@@ -149,6 +151,7 @@ export default function Catalog() {
   // Client-side filtering
   const filtered = useMemo(() => {
     return allProducts.filter((p) => {
+      if (inStockOnly && !p.available) return false;
       if (selectedCollectionIds.size > 0) {
         const ids = new Set(p.collections.map((c) => c.id));
         if (![...selectedCollectionIds].some((id) => ids.has(id))) return false;
@@ -210,6 +213,14 @@ export default function Catalog() {
           )}
         </div>
       </div>
+
+      <FilterSection title="Availability">
+        <FilterOption
+          label="In Stock Only"
+          checked={inStockOnly}
+          onChange={() => setInStockOnly((v) => !v)}
+        />
+      </FilterSection>
 
       {byGroup['category']?.length > 0 && (
         <FilterSection title="Category">
@@ -290,6 +301,14 @@ export default function Catalog() {
         {/* Active chips */}
         {hasFilters && (
           <div className="flex flex-wrap gap-2 mb-6">
+            {inStockOnly && (
+              <span
+                onClick={() => setInStockOnly(false)}
+                className="inline-flex items-center gap-1.5 text-xs bg-muted text-foreground border border-border px-2.5 py-1 cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                In Stock Only <X className="w-3 h-3" />
+              </span>
+            )}
             {trimmedSearch && (
               <span
                 onClick={() => setSearchQuery('')}
@@ -366,6 +385,14 @@ export default function Catalog() {
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 font-serif text-base bg-secondary/5">
                           No Photo
                         </div>
+                      )}
+                      {!product.available && (
+                        <div className="absolute top-2 left-2 bg-secondary text-secondary-foreground text-[10px] uppercase tracking-wider font-semibold px-2 py-1">
+                          Out of Stock
+                        </div>
+                      )}
+                      {!product.available && (
+                        <div className="absolute inset-0 bg-background/40" />
                       )}
                     </div>
                     <div>

@@ -25,6 +25,7 @@ interface MappedProduct {
   description: string | null;
   imageUrl: string | null;
   sku: string | null;
+  size: string | null;
   available: boolean;
 }
 
@@ -37,6 +38,22 @@ function buildImageUrl(raw: string): string | null {
   if (!first) return null;
   if (first.startsWith('http')) return first;
   return `https://static.wixstatic.com/media/${first}`;
+}
+
+/**
+ * Extract a pot size (e.g. `6"`, `6x11"`, `1 Gal`) from a leading measurement
+ * in the product name, e.g. `6" Olive`, `6x11" Planter`, `1 gal Shasta Daisy`.
+ * Returns null when the name has no recognizable leading size.
+ */
+function extractSize(rawName: string): string | null {
+  const name = rawName.trim();
+  let m = name.match(/^(\d+(?:\.\d+)?)\s*gal(?:lon)?s?\b/i);
+  if (m) return `${m[1]} Gal`;
+  m = name.match(/^(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*(?:in\b|inch(?:es)?\b|["'])?/i);
+  if (m) return `${m[1]}x${m[2]}"`;
+  m = name.match(/^(\d+(?:\.\d+)?)\s*(?:in\b|inch(?:es)?\b|["'])/i);
+  if (m) return `${m[1]}"`;
+  return null;
 }
 
 /** Parse a CSV row into a MappedProduct. Returns null if name or collections are missing. */
@@ -56,6 +73,7 @@ function parseRow(row: CsvRow): MappedProduct | null {
     description: row.description?.trim() || null,
     imageUrl: buildImageUrl(row.productImageUrl || ''),
     sku: row.sku?.trim() || null,
+    size: extractSize(name),
     available: row.visible?.trim().toUpperCase() === 'TRUE',
   };
 }
@@ -288,6 +306,7 @@ export default function AdminImport() {
                       <th className="px-4 py-2 text-left font-medium">Name</th>
                       <th className="px-4 py-2 text-left font-medium">Collections</th>
                       <th className="px-4 py-2 text-left font-medium">SKU</th>
+                      <th className="px-4 py-2 text-left font-medium">Size</th>
                       <th className="px-4 py-2 text-left font-medium">In Stock</th>
                     </tr>
                   </thead>
@@ -302,6 +321,9 @@ export default function AdminImport() {
                         </td>
                         <td className="px-4 py-2 text-muted-foreground font-mono text-xs">
                           {p.sku || '—'}
+                        </td>
+                        <td className="px-4 py-2 text-muted-foreground text-xs">
+                          {p.size || '—'}
                         </td>
                         <td className="px-4 py-2">
                           <span

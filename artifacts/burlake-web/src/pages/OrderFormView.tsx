@@ -15,6 +15,7 @@ interface OrderFormItem {
   pack: string | null;
   casePrice: string | null;
   category: string | null;
+  photoUrl: string | null;
   sortOrder: number;
 }
 
@@ -87,6 +88,16 @@ function ProductCard({ item, qty, onQtyChange }: { item: OrderFormItem; qty: num
     }}>
       {/* Color bar when selected */}
       <div style={{ height: '3px', background: selected ? '#3a7d44' : 'transparent', transition: 'background 0.15s' }} />
+      {item.photoUrl && (
+        <div style={{ width: '100%', aspectRatio: '1 / 1', background: '#f4f1ea', overflow: 'hidden' }}>
+          <img
+            src={item.photoUrl}
+            alt={item.name}
+            loading="lazy"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        </div>
+      )}
       <div style={{ padding: '1rem' }}>
         <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1a2e1a', lineHeight: 1.3, marginBottom: '0.5rem' }}>{item.name}</div>
         <div style={{ fontSize: '0.75rem', color: '#999', display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.75rem' }}>
