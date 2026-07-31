@@ -462,6 +462,14 @@ function AddItemForm({ formId, onAdded }: { formId: number; onAdded: () => void 
               <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://… or upload →" style={inputStyle} />
               <PhotoUploadButton onUploaded={url => setPhotoUrl(url)} />
             </div>
+            {photoUrl && (
+              <img
+                src={photoUrl}
+                alt="preview"
+                style={{ marginTop: '0.35rem', width: 64, height: 64, objectFit: 'cover', borderRadius: 6, border: '1px solid #e0d9d0' }}
+                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              />
+            )}
           </div>
           <Button type="submit" size="sm" disabled={addItem.isPending || !name} style={{ flexShrink: 0 }}>
             <Plus size={14} style={{ marginRight: '0.25rem' }} />{addItem.isPending ? 'Adding…' : 'Add'}
