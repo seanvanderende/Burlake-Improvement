@@ -73,7 +73,9 @@ function SearchProductCard({ product }: { product: Product }) {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => router.push(`/catalog/product/${product.id}`)}
       style={[styles.searchCard, { backgroundColor: colors.card, borderColor: colors.border }]}
       testID={`search-product-card-${product.id}`}
     >
@@ -108,7 +110,7 @@ function SearchProductCard({ product }: { product: Product }) {
           </Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
