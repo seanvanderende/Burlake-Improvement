@@ -16,6 +16,7 @@ export const orderFormsTable = pgTable("order_forms", {
   season: text("season"),
   deadline: date("deadline"),
   status: text("status").notNull().default("draft"), // 'draft' | 'active' | 'closed'
+  replyToEmail: text("reply_to_email"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

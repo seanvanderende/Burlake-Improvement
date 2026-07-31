@@ -16,6 +16,7 @@ interface OrderForm {
   description: string | null;
   season: string | null;
   deadline: string | null;
+  replyToEmail: string | null;
   status: 'draft' | 'active' | 'closed';
   createdAt: string;
   updatedAt: string;
@@ -83,6 +84,7 @@ function CreateFormModal({ onClose, onCreated }: { onClose: () => void; onCreate
   const [description, setDescription] = useState('');
   const [season, setSeason] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [replyToEmail, setReplyToEmail] = useState('');
   const [error, setError] = useState('');
 
   const create = useMutation({
@@ -90,7 +92,7 @@ function CreateFormModal({ onClose, onCreated }: { onClose: () => void; onCreate
       const res = await fetch(`${BASE}/api/admin/order-forms`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, customerName, description: description || undefined, season: season || undefined, deadline: deadline || undefined }),
+        body: JSON.stringify({ title, customerName, description: description || undefined, season: season || undefined, deadline: deadline || undefined, replyToEmail: replyToEmail || undefined }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Failed'); }
       return res.json() as Promise<OrderForm>;
@@ -119,6 +121,10 @@ function CreateFormModal({ onClose, onCreated }: { onClose: () => void; onCreate
               <Input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} />
             </Field>
           </div>
+          <Field label="Reply-To Email">
+            <Input type="email" placeholder="orders@burlake.com" value={replyToEmail} onChange={e => setReplyToEmail(e.target.value)} />
+            <span style={{ fontSize: '0.75rem', color: '#aaa', marginTop: '0.15rem' }}>Buyers' "Email Order" button will send to this address.</span>
+          </Field>
           <Field label="Description (optional)">
             <textarea
               placeholder="Notes visible to the buyer at the top of the form…"
@@ -355,6 +361,7 @@ function FormEditor({ formId, onClose }: { formId: number; onClose: () => void }
   const [description, setDescription] = useState('');
   const [season, setSeason] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [replyToEmail, setReplyToEmail] = useState('');
   const [status, setStatus] = useState('draft');
 
   React.useEffect(() => {
@@ -364,6 +371,7 @@ function FormEditor({ formId, onClose }: { formId: number; onClose: () => void }
       setDescription(form.description ?? '');
       setSeason(form.season ?? '');
       setDeadline(form.deadline ?? '');
+      setReplyToEmail(form.replyToEmail ?? '');
       setStatus(form.status);
     }
   }, [form, editingMeta]);
@@ -373,7 +381,7 @@ function FormEditor({ formId, onClose }: { formId: number; onClose: () => void }
       const res = await fetch(`${BASE}/api/admin/order-forms/${formId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, customerName, description: description || null, season: season || null, deadline: deadline || null, status }),
+        body: JSON.stringify({ title, customerName, description: description || null, season: season || null, deadline: deadline || null, replyToEmail: replyToEmail || null, status }),
       });
       if (!res.ok) throw new Error('Failed to save');
       return res.json();
@@ -430,6 +438,9 @@ function FormEditor({ formId, onClose }: { formId: number; onClose: () => void }
             <Field label="Description">
               <textarea value={description} onChange={e => setDescription(e.target.value)} style={{ padding: '0.5rem', border: '1px solid #e0d9d0', borderRadius: '6px', fontSize: '0.9rem', resize: 'vertical', minHeight: '60px', fontFamily: 'inherit' }} />
             </Field>
+            <Field label="Reply-To Email">
+              <Input type="email" placeholder="orders@burlake.com" value={replyToEmail} onChange={e => setReplyToEmail(e.target.value)} />
+            </Field>
             <Field label="Status">
               <select value={status} onChange={e => setStatus(e.target.value)} style={{ padding: '0.5rem', border: '1px solid #e0d9d0', borderRadius: '6px', fontSize: '0.9rem' }}>
                 <option value="draft">Draft (hidden from portal)</option>
@@ -453,6 +464,7 @@ function FormEditor({ formId, onClose }: { formId: number; onClose: () => void }
                 {form.customerName}{form.season ? ` · ${form.season}` : ''}{form.deadline ? ` · Due ${form.deadline}` : ''}
               </p>
               {form.description && <p style={{ margin: '0.35rem 0 0', fontSize: '0.82rem', color: '#888' }}>{form.description}</p>}
+              {form.replyToEmail && <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#5a7c5e' }}>Reply-to: {form.replyToEmail}</p>}
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
               <Button size="sm" variant="outline" onClick={() => setEditingMeta(true)}><Edit2 size={13} style={{ marginRight: '0.25rem' }} />Edit</Button>

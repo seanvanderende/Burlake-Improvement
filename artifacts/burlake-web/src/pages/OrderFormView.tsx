@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'wouter';
-import { Download, Printer, X } from 'lucide-react';
+import { Download, Printer, Mail } from 'lucide-react';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -25,6 +25,7 @@ interface OrderFormData {
   description: string | null;
   season: string | null;
   deadline: string | null;
+  replyToEmail: string | null;
   items: OrderFormItem[];
 }
 
@@ -230,6 +231,117 @@ export default function OrderFormView() {
     return form.items.filter(it => (qty[it.id] ?? 0) > 0);
   }, [form, qty]);
 
+  // Shared validation — highlights required fields and returns false if anything is missing.
+  // Also scrolls the order-details section into view so the buyer can see the errors.
+  const validateOrderDetails = (): boolean => {
+    const errors: Record<string, boolean> = {};
+    if (!store.trim()) errors.store = true;
+    if (!buyer.trim()) errors.buyer = true;
+    if (!email.trim()) errors.email = true;
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      toast('Please fill in the required fields below');
+      document.getElementById('order-details-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+    return true;
+  };
+
+  const emailOrder = () => {
+    if (!form) return;
+    if (!hasSelection) { toast('Select some items first'); return; }
+    if (!validateOrderDetails()) return;
+
+    const pad = (s: string, w: number) => s.slice(0, w).padEnd(w);
+    const lines: string[] = [];
+
+    lines.push(`${form.title}`);
+    if (form.season && form.season !== form.title) lines.push(form.season);
+    lines.push(`Burnaby Lake Greenhouses — Order Form`);
+    lines.push(`Order ID: ${orderIdRef.current}`);
+    lines.push('');
+
+    if (store)        lines.push(`Store / Location:    ${store}`);
+    if (buyer)        lines.push(`Buyer Name:          ${buyer}`);
+    if (email)        lines.push(`Email:               ${email}`);
+    if (po)           lines.push(`PO #:                ${po}`);
+    if (deliveryDate) lines.push(`Requested Delivery:  ${deliveryDate}`);
+    if (notes)        lines.push(`Notes:               ${notes}`);
+    lines.push('');
+
+    lines.push('SELECTIONS');
+    lines.push('─'.repeat(72));
+    lines.push(
+      pad('Item Name', 30) + '  ' +
+      pad('Item #', 10) + '  ' +
+      pad('Pack', 10) + '  ' +
+      'Cases'.padStart(6) + '  ' +
+      'Line Total'.padStart(10)
+    );
+    lines.push('─'.repeat(72));
+
+    selectedLines.forEach(it => {
+      const q = qty[it.id];
+      const price = it.casePrice ? parseFloat(it.casePrice) : 0;
+      lines.push(
+        pad(it.name, 30) + '  ' +
+        pad(it.itemNum ?? '—', 10) + '  ' +
+        pad(it.pack ?? '—', 10) + '  ' +
+        String(q).padStart(6) + '  ' +
+        (price ? money(q * price) : '—').padStart(10)
+      );
+    });
+
+    lines.push('─'.repeat(72));
+    lines.push(
+      pad(`TOTAL — ${totals.items} item${totals.items !== 1 ? 's' : ''}`, 54) +
+      String(totals.cases).padStart(6) + '  ' +
+      money(totals.total).padStart(10)
+    );
+    lines.push('');
+    lines.push(`${totals.cases} case${totals.cases !== 1 ? 's' : ''}, ${num(totals.units)} unit${totals.units !== 1 ? 's' : ''}`);
+
+    const subject = `Order ${orderIdRef.current} — ${form.title}${store ? ` · ${store}` : ''}`;
+    const fullBody = lines.join('\n');
+    const to = form.replyToEmail ?? '';
+
+    // mailto: has practical URL-length limits (~2000 chars for the encoded body).
+    // If the order fits, send it inline. If it's too large, download the CSV first
+    // and open a short email asking the buyer to attach it — no false claims about
+    // attachments that mailto cannot provide.
+    const encodedBody = encodeURIComponent(fullBody);
+    const encodedSubject = encodeURIComponent(subject);
+    const encodedTo = encodeURIComponent(to);
+
+    if (encodedBody.length <= 1800) {
+      window.location.href = `mailto:${encodedTo}?subject=${encodedSubject}&body=${encodedBody}`;
+      toast('Opening your email client…');
+    } else {
+      // Order too large for inline email — download the CSV so the buyer can attach it,
+      // then open a short email with totals only and instructions.
+      downloadCSV();
+      const shortBody = [
+        subject,
+        '',
+        `Store / Location:  ${store}`,
+        `Buyer Name:        ${buyer}`,
+        `PO #:              ${po || '—'}`,
+        `Requested Delivery: ${deliveryDate || '—'}`,
+        '',
+        `SUMMARY`,
+        `Items:  ${totals.items}`,
+        `Cases:  ${totals.cases}`,
+        `Units:  ${totals.units}`,
+        `Total:  ${money(totals.total)}`,
+        '',
+        'The full itemized order has been downloaded as a CSV file.',
+        'Please attach it to this email before sending.',
+      ].join('\n');
+      window.location.href = `mailto:${encodedTo}?subject=${encodedSubject}&body=${encodeURIComponent(shortBody)}`;
+      toast('Order too large for inline email — CSV downloaded. Please attach it to your email.');
+    }
+  };
+
   const downloadCSV = () => {
     if (!selectedLines.length) { toast('Select some items first'); return; }
     const header = ['Order ID', 'Store / Location', 'Buyer', 'Email', 'PO #', 'Requested Delivery', 'Item Name', 'Item #', 'UPC', 'Pack', 'Cases', 'Units', 'Case Price', 'Line Total'];
@@ -338,6 +450,9 @@ export default function OrderFormView() {
           <button onClick={clearAll} style={{ padding: '0.45rem 0.9rem', border: '1px solid #ddd', borderRadius: '7px', background: '#fff', color: '#888', fontSize: '0.82rem', cursor: 'pointer' }}>Clear</button>
           <button onClick={downloadCSV} disabled={!hasSelection} style={{ padding: '0.45rem 0.9rem', border: '1px solid #3a7d44', borderRadius: '7px', background: '#fff', color: '#3a7d44', fontSize: '0.82rem', cursor: hasSelection ? 'pointer' : 'default', opacity: hasSelection ? 1 : 0.4, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <Download size={13} /> CSV
+          </button>
+          <button onClick={emailOrder} disabled={!hasSelection} style={{ padding: '0.45rem 0.9rem', border: '1px solid #3a7d44', borderRadius: '7px', background: '#fff', color: '#3a7d44', fontSize: '0.82rem', cursor: hasSelection ? 'pointer' : 'default', opacity: hasSelection ? 1 : 0.4, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <Mail size={13} /> Email
           </button>
           <button onClick={() => window.print()} style={{ padding: '0.45rem 0.9rem', border: '1px solid #ddd', borderRadius: '7px', background: '#fff', color: '#555', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <Printer size={13} /> Print
@@ -468,7 +583,7 @@ export default function OrderFormView() {
 
       {/* Order details form */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem 3rem' }}>
-        <div style={{ background: '#fff', border: '1px solid #e4ddd4', borderRadius: '10px', padding: '1.5rem', marginTop: '0.5rem' }}>
+        <div id="order-details-section" style={{ background: '#fff', border: '1px solid #e4ddd4', borderRadius: '10px', padding: '1.5rem', marginTop: '0.5rem' }}>
           <h2 style={{ margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 600, color: '#2c2c2c', fontFamily: 'Georgia, serif' }}>Order Details</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
             {[
@@ -503,18 +618,19 @@ export default function OrderFormView() {
           <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <button
               onClick={() => {
-                const errors: Record<string, boolean> = {};
-                if (!store.trim()) errors.store = true;
-                if (!buyer.trim()) errors.buyer = true;
-                if (!email.trim()) errors.email = true;
-                setFieldErrors(errors);
-                if (Object.keys(errors).length > 0) { toast('Please fill in the required fields'); return; }
                 if (!hasSelection) { toast('Select some items first'); return; }
+                if (!validateOrderDetails()) return;
                 downloadCSV();
               }}
               style={{ padding: '0.6rem 1.4rem', background: '#3a7d44', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
             >
               <Download size={15} /> Download Order (CSV)
+            </button>
+            <button
+              onClick={emailOrder}
+              style={{ padding: '0.6rem 1.1rem', border: '1px solid #3a7d44', borderRadius: '8px', background: '#fff', color: '#3a7d44', fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              <Mail size={14} /> Email Order
             </button>
             <button
               onClick={() => window.print()}

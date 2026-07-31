@@ -85,14 +85,14 @@ router.get("/admin/order-forms/:id", requireAdmin, async (req, res) => {
 
 /** POST /admin/order-forms — create a new order form */
 router.post("/admin/order-forms", requireAdmin, async (req, res) => {
-  const { title, customerName, description, season, deadline, status } = req.body ?? {};
+  const { title, customerName, description, season, deadline, status, replyToEmail } = req.body ?? {};
   if (!title || !customerName) {
     res.status(400).json({ error: "title and customerName are required" }); return;
   }
   try {
     const [form] = await db
       .insert(orderFormsTable)
-      .values({ title, customerName, description, season, deadline: deadline || null, status: status || "draft" })
+      .values({ title, customerName, description, season, deadline: deadline || null, status: status || "draft", replyToEmail: replyToEmail || null })
       .returning();
     res.status(201).json(form);
   } catch {
@@ -105,7 +105,7 @@ router.patch("/admin/order-forms/:id", requireAdmin, async (req, res) => {
   const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
-  const { title, customerName, description, season, deadline, status } = req.body ?? {};
+  const { title, customerName, description, season, deadline, status, replyToEmail } = req.body ?? {};
   const updates: Record<string, unknown> = { updatedAt: new Date() };
   if (title !== undefined) updates.title = title;
   if (customerName !== undefined) updates.customerName = customerName;
@@ -113,6 +113,7 @@ router.patch("/admin/order-forms/:id", requireAdmin, async (req, res) => {
   if (season !== undefined) updates.season = season;
   if (deadline !== undefined) updates.deadline = deadline || null;
   if (status !== undefined) updates.status = status;
+  if (replyToEmail !== undefined) updates.replyToEmail = replyToEmail || null;
 
   try {
     const [form] = await db
