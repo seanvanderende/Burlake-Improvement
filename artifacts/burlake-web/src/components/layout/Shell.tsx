@@ -33,11 +33,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-[100dvh] flex-col">
       <nav className={cn(`fixed w-full z-50 transition-all duration-500`, navBg)}>
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2 cursor-pointer z-50 group">
-            <div className={cn(`flex flex-col transition-colors duration-500`, textColor)}>
-              <span className="font-serif font-semibold text-2xl leading-none tracking-wide group-hover:text-primary transition-colors">Burnaby Lake</span>
-              <span className="font-sans text-[0.65rem] tracking-[0.3em] uppercase opacity-80 mt-1">Greenhouses</span>
-            </div>
+          <Link href="/" className="flex items-center cursor-pointer z-50">
+            <img
+              src="/images/logo-horizontal.jpg"
+              alt="Burnaby Lake Greenhouses"
+              className="h-10 w-auto rounded-sm"
+            />
           </Link>
 
           {/* Desktop Nav */}
@@ -76,9 +77,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <footer className="bg-secondary text-secondary-foreground border-t border-white/5 py-12">
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="md:col-span-2">
-            <div className="flex flex-col text-background mb-6">
-              <span className="font-serif font-semibold text-2xl leading-none tracking-wide">Burnaby Lake</span>
-              <span className="font-sans text-[0.65rem] tracking-[0.3em] uppercase opacity-80 mt-1">Greenhouses</span>
+            <div className="mb-6">
+              <img
+                src="/images/logo-horizontal.jpg"
+                alt="Burnaby Lake Greenhouses"
+                className="h-12 w-auto rounded-sm"
+              />
             </div>
             <p className="text-sm text-secondary-foreground/60 max-w-sm">
               Western Canada's leading wholesale greenhouse — growing quality you can stake your reputation on, since 1955.
