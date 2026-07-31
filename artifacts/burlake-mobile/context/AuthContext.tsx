@@ -79,11 +79,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (pw: string) => {
     const domain = process.env.EXPO_PUBLIC_DOMAIN;
-    const res = await fetch(`https://${domain}/api/brochures/auth`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pw }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`https://${domain}/api/brochures/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw }),
+      });
+    } catch {
+      throw new Error('Unable to connect. Check your network and try again.');
+    }
     if (!res.ok) {
       throw new Error('Incorrect password');
     }

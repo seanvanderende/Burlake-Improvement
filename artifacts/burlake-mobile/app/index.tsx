@@ -108,9 +108,9 @@ export default function HomeScreen() {
       await login(trimmed);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/forms');
-    } catch {
+    } catch (err) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      setError('Incorrect password. Please try again.');
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
       inputRef.current?.focus();
     } finally {
       setIsSubmitting(false);
