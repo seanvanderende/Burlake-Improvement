@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'wouter';
 import { useGetProduct } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, XCircle } from 'lucide-react';
 
 export default function ProductDetail() {
   const params = useParams();
@@ -11,6 +11,17 @@ export default function ProductDetail() {
   const { data: product, isLoading, error } = useGetProduct(id, {
     query: { enabled: !!id, queryKey: ['product', id] },
   });
+
+  const gallery = React.useMemo(
+    () => [product?.imageUrl, ...(product?.photos ?? [])].filter((u): u is string => !!u),
+    [product],
+  );
+  const [activePhoto, setActivePhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    setActivePhoto(gallery[0] ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]);
 
   if (isLoading) {
     return (
@@ -54,9 +65,9 @@ export default function ProductDetail() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-24">
           <div className="md:col-span-6 lg:col-span-7">
             <div className="aspect-[4/5] bg-muted border border-border overflow-hidden relative">
-              {product.imageUrl ? (
+              {activePhoto ? (
                 <img
-                  src={product.imageUrl}
+                  src={activePhoto}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -66,6 +77,22 @@ export default function ProductDetail() {
                 </div>
               )}
             </div>
+            {gallery.length > 1 && (
+              <div className="flex gap-3 mt-4 flex-wrap">
+                {gallery.map((url, index) => (
+                  <button
+                    key={url + index}
+                    type="button"
+                    onClick={() => setActivePhoto(url)}
+                    className={`w-16 h-16 md:w-20 md:h-20 border overflow-hidden shrink-0 transition-colors ${
+                      activePhoto === url ? 'border-primary' : 'border-border hover:border-muted-foreground'
+                    }`}
+                  >
+                    <img src={url} alt={`${product.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="md:col-span-6 lg:col-span-5 flex flex-col pt-4 md:pt-12">
@@ -79,17 +106,13 @@ export default function ProductDetail() {
               {product.name}
             </h1>
 
-            <div className="flex items-center gap-2 mb-8">
-              {product.available ? (
-                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-green-700 bg-green-100 px-3 py-1 uppercase tracking-wider">
-                  <CheckCircle2 className="w-4 h-4" /> Available Now
-                </span>
-              ) : (
+            {!product.available && (
+              <div className="flex items-center gap-2 mb-8">
                 <span className="inline-flex items-center gap-1.5 text-sm font-medium text-destructive-foreground bg-destructive px-3 py-1 uppercase tracking-wider">
                   <XCircle className="w-4 h-4" /> Out of Stock
                 </span>
-              )}
-            </div>
+              </div>
+            )}
 
             <div className="border-t border-b border-border py-6 my-2 grid grid-cols-2 gap-4">
               {product.sku && (

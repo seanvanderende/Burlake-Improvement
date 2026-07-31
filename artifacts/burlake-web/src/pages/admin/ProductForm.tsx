@@ -41,6 +41,7 @@ export default function ProductForm() {
     description: '',
     available: true,
     imageUrl: '',
+    photoUrls: [] as string[],
     sortOrder: 0,
   });
 
@@ -57,6 +58,7 @@ export default function ProductForm() {
         description: product.description || '',
         available: product.available,
         imageUrl: product.imageUrl || '',
+        photoUrls: product.photos ?? [],
         sortOrder: product.sortOrder || 0,
       });
     }
@@ -96,6 +98,7 @@ export default function ProductForm() {
       size: formData.size || null,
       description: formData.description || null,
       imageUrl: formData.imageUrl || null,
+      photoUrls: formData.photoUrls,
       available: formData.available,
       sortOrder: formData.sortOrder,
     };
@@ -341,6 +344,85 @@ export default function ProductForm() {
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="space-y-4 pt-2 border-t border-border">
+            <Label>
+              Additional Photos (Optional)
+              {formData.photoUrls.length > 0 && (
+                <span className="ml-2 text-sm font-sans font-normal text-primary">
+                  {formData.photoUrls.length} added
+                </span>
+              )}
+            </Label>
+            <p className="text-sm text-muted-foreground font-light -mt-2">
+              Add extra angles or detail shots. These appear in a gallery on the product page, alongside the primary photo above.
+            </p>
+
+            {formData.photoUrls.length > 0 && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                {formData.photoUrls.map((url, index) => (
+                  <div key={url + index} className="relative aspect-square border border-border bg-muted overflow-hidden group">
+                    <img src={url} alt={`Additional photo ${index + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          photoUrls: prev.photoUrls.filter((_, i) => i !== index),
+                        }))
+                      }
+                      className="absolute inset-0 bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs font-medium uppercase tracking-wider text-destructive"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <ObjectUploader
+              maxNumberOfFiles={10}
+              onGetUploadParameters={async (file: any) => {
+                const res = await fetch('/api/storage/uploads/request-url', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    name: file.name,
+                    size: file.size,
+                    contentType: file.type,
+                  }),
+                });
+                if (res.status === 401) {
+                  setLocation('/admin/login');
+                  throw new Error('Unauthorized');
+                }
+                const { uploadURL, objectPath } = await res.json();
+                uploadObjectPaths.current[file.id] = objectPath;
+                return {
+                  method: 'PUT',
+                  url: uploadURL,
+                  headers: { 'Content-Type': file.type },
+                };
+              }}
+              onComplete={(result: any) => {
+                const newUrls: string[] = [];
+                for (const file of result?.successful ?? []) {
+                  const objectPath = uploadObjectPaths.current[file.id];
+                  if (objectPath) {
+                    newUrls.push(`/api/storage${objectPath}`);
+                    delete uploadObjectPaths.current[file.id];
+                  }
+                }
+                if (newUrls.length > 0) {
+                  setFormData((prev) => ({ ...prev, photoUrls: [...prev.photoUrls, ...newUrls] }));
+                }
+              }}
+            >
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 uppercase tracking-wider cursor-pointer">
+                <Upload className="w-4 h-4" /> Add Photos
+              </div>
+            </ObjectUploader>
           </div>
         </div>
 

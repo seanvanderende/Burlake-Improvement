@@ -135,6 +135,7 @@ export const ListProductsResponseItem = zod.object({
   "slug": zod.string()
 }).describe('A slim collection reference embedded in product responses')),
   "imageUrl": zod.string().nullable(),
+  "photos": zod.array(zod.string()).describe('Additional photos beyond the primary imageUrl, in display order.'),
   "sku": zod.string().nullable(),
   "size": zod.string().nullable(),
   "description": zod.string().nullable(),
@@ -158,6 +159,7 @@ export const CreateProductBody = zod.object({
   "name": zod.string().min(1),
   "collectionIds": zod.array(zod.number()).min(1),
   "imageUrl": zod.string().nullish(),
+  "photoUrls": zod.array(zod.string()).optional().describe('Additional photos beyond the primary imageUrl, in display order. Omit to leave unchanged; pass an array (including empty) to replace.'),
   "sku": zod.string().nullish(),
   "size": zod.string().nullish(),
   "description": zod.string().nullish(),
@@ -174,6 +176,7 @@ export const CreateProductResponse = zod.object({
   "slug": zod.string()
 }).describe('A slim collection reference embedded in product responses')),
   "imageUrl": zod.string().nullable(),
+  "photos": zod.array(zod.string()).describe('Additional photos beyond the primary imageUrl, in display order.'),
   "sku": zod.string().nullable(),
   "size": zod.string().nullable(),
   "description": zod.string().nullable(),
@@ -200,6 +203,7 @@ export const GetProductResponse = zod.object({
   "slug": zod.string()
 }).describe('A slim collection reference embedded in product responses')),
   "imageUrl": zod.string().nullable(),
+  "photos": zod.array(zod.string()).describe('Additional photos beyond the primary imageUrl, in display order.'),
   "sku": zod.string().nullable(),
   "size": zod.string().nullable(),
   "description": zod.string().nullable(),
@@ -226,6 +230,7 @@ export const UpdateProductBody = zod.object({
   "name": zod.string().min(1).optional(),
   "collectionIds": zod.array(zod.number()).min(1).optional(),
   "imageUrl": zod.string().nullish(),
+  "photoUrls": zod.array(zod.string()).optional().describe('Additional photos beyond the primary imageUrl, in display order. Omit to leave unchanged; pass an array (including empty) to replace.'),
   "sku": zod.string().nullish(),
   "size": zod.string().nullish(),
   "description": zod.string().nullish(),
@@ -242,6 +247,7 @@ export const UpdateProductResponse = zod.object({
   "slug": zod.string()
 }).describe('A slim collection reference embedded in product responses')),
   "imageUrl": zod.string().nullable(),
+  "photos": zod.array(zod.string()).describe('Additional photos beyond the primary imageUrl, in display order.'),
   "sku": zod.string().nullable(),
   "size": zod.string().nullable(),
   "description": zod.string().nullable(),

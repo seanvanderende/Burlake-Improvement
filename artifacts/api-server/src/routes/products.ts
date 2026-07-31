@@ -5,6 +5,7 @@ import {
   productsTable,
   collectionsTable,
   productCollectionsTable,
+  productPhotosTable,
 } from "@workspace/db";
 import {
   ListProductsQueryParams,
@@ -137,6 +138,56 @@ async function markImagePublicIfOwned(imageUrl?: string | null): Promise<void> {
   });
 }
 
+/**
+ * Fetch a product's additional gallery photos (beyond the primary imageUrl),
+ * in display order, for a set of product IDs. Returned as a Map keyed by
+ * productId → ordered url list.
+ */
+async function getPhotosByProduct(
+  productIds: number[],
+): Promise<Map<number, string[]>> {
+  const map = new Map<number, string[]>();
+  if (productIds.length === 0) return map;
+
+  const rows = await db
+    .select({
+      productId: productPhotosTable.productId,
+      url: productPhotosTable.url,
+    })
+    .from(productPhotosTable)
+    .where(inArray(productPhotosTable.productId, productIds))
+    .orderBy(asc(productPhotosTable.sortOrder), asc(productPhotosTable.id));
+
+  for (const row of rows) {
+    if (!map.has(row.productId)) map.set(row.productId, []);
+    map.get(row.productId)!.push(row.url);
+  }
+
+  return map;
+}
+
+/**
+ * Replace a product's gallery photos with the given ordered list, marking
+ * any newly-added ones public. Skipped when `photoUrls` is undefined (no
+ * change requested).
+ */
+async function setProductPhotos(
+  productId: number,
+  photoUrls: string[] | undefined,
+): Promise<void> {
+  if (photoUrls === undefined) return;
+
+  await Promise.all(photoUrls.map((url) => markImagePublicIfOwned(url)));
+
+  await db.delete(productPhotosTable).where(eq(productPhotosTable.productId, productId));
+
+  if (photoUrls.length > 0) {
+    await db.insert(productPhotosTable).values(
+      photoUrls.map((url, index) => ({ productId, url, sortOrder: index })),
+    );
+  }
+}
+
 // ─── Public routes ────────────────────────────────────────────────────────────
 
 // Must be registered before /products/:id to avoid "sizes" being parsed as an id
@@ -189,11 +240,16 @@ router.get("/products", async (req: Request, res: Response): Promise<void> => {
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(asc(productsTable.sortOrder), asc(productsTable.name));
 
-  const collectionMap = await getCollectionsByProduct(products.map((p) => p.id));
+  const resultProductIds = products.map((p) => p.id);
+  const [collectionMap, photosMap] = await Promise.all([
+    getCollectionsByProduct(resultProductIds),
+    getPhotosByProduct(resultProductIds),
+  ]);
 
   const result = products.map((p) => ({
     ...p,
     collections: collectionMap.get(p.id) ?? [],
+    photos: photosMap.get(p.id) ?? [],
   }));
 
   res.json(ListProductsResponse.parse(result));
@@ -218,9 +274,16 @@ router.get(
       return;
     }
 
-    const collectionMap = await getCollectionsByProduct([product.id]);
+    const [collectionMap, photosMap] = await Promise.all([
+      getCollectionsByProduct([product.id]),
+      getPhotosByProduct([product.id]),
+    ]);
     res.json(
-      GetProductResponse.parse({ ...product, collections: collectionMap.get(product.id) ?? [] }),
+      GetProductResponse.parse({
+        ...product,
+        collections: collectionMap.get(product.id) ?? [],
+        photos: photosMap.get(product.id) ?? [],
+      }),
     );
   },
 );
@@ -237,7 +300,7 @@ router.post(
       return;
     }
 
-    const { collectionIds, ...productData } = parsed.data;
+    const { collectionIds, photoUrls, ...productData } = parsed.data;
     await markImagePublicIfOwned(productData.imageUrl);
 
     const [product] = await db
@@ -245,11 +308,21 @@ router.post(
       .values(productData)
       .returning();
 
-    await setProductCollections(product.id, collectionIds);
+    await Promise.all([
+      setProductCollections(product.id, collectionIds),
+      setProductPhotos(product.id, photoUrls),
+    ]);
 
-    const collectionMap = await getCollectionsByProduct([product.id]);
+    const [collectionMap, photosMap] = await Promise.all([
+      getCollectionsByProduct([product.id]),
+      getPhotosByProduct([product.id]),
+    ]);
     res.status(201).json(
-      CreateProductResponse.parse({ ...product, collections: collectionMap.get(product.id) ?? [] }),
+      CreateProductResponse.parse({
+        ...product,
+        collections: collectionMap.get(product.id) ?? [],
+        photos: photosMap.get(product.id) ?? [],
+      }),
     );
   },
 );
@@ -270,7 +343,7 @@ router.patch(
       return;
     }
 
-    const { collectionIds, ...productData } = parsed.data;
+    const { collectionIds, photoUrls, ...productData } = parsed.data;
     await markImagePublicIfOwned(productData.imageUrl);
 
     const [product] = await db
@@ -284,13 +357,21 @@ router.patch(
       return;
     }
 
-    if (collectionIds !== undefined) {
-      await setProductCollections(product.id, collectionIds);
-    }
+    await Promise.all([
+      collectionIds !== undefined ? setProductCollections(product.id, collectionIds) : Promise.resolve(),
+      setProductPhotos(product.id, photoUrls),
+    ]);
 
-    const collectionMap = await getCollectionsByProduct([product.id]);
+    const [collectionMap, photosMap] = await Promise.all([
+      getCollectionsByProduct([product.id]),
+      getPhotosByProduct([product.id]),
+    ]);
     res.json(
-      UpdateProductResponse.parse({ ...product, collections: collectionMap.get(product.id) ?? [] }),
+      UpdateProductResponse.parse({
+        ...product,
+        collections: collectionMap.get(product.id) ?? [],
+        photos: photosMap.get(product.id) ?? [],
+      }),
     );
   },
 );

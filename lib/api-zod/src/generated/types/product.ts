@@ -13,6 +13,8 @@ export interface Product {
   collections: ProductCollection[];
   /** @nullable */
   imageUrl: string | null;
+  /** Additional photos beyond the primary imageUrl, in display order. */
+  photos: string[];
   /** @nullable */
   sku: string | null;
   /** @nullable */

@@ -57,6 +57,8 @@ export interface Product {
   collections: ProductCollection[];
   /** @nullable */
   imageUrl: string | null;
+  /** Additional photos beyond the primary imageUrl, in display order. */
+  photos: string[];
   /** @nullable */
   sku: string | null;
   /** @nullable */
@@ -76,6 +78,8 @@ export interface ProductInput {
   collectionIds: number[];
   /** @nullable */
   imageUrl?: string | null;
+  /** Additional photos beyond the primary imageUrl, in display order. Omit to leave unchanged; pass an array (including empty) to replace. */
+  photoUrls?: string[];
   /** @nullable */
   sku?: string | null;
   /** @nullable */
@@ -93,6 +97,8 @@ export interface ProductUpdate {
   collectionIds?: number[];
   /** @nullable */
   imageUrl?: string | null;
+  /** Additional photos beyond the primary imageUrl, in display order. Omit to leave unchanged; pass an array (including empty) to replace. */
+  photoUrls?: string[];
   /** @nullable */
   sku?: string | null;
   /** @nullable */

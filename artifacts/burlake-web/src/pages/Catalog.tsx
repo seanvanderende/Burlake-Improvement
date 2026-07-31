@@ -396,10 +396,11 @@ export default function Catalog() {
                       )}
                     </div>
                     <div>
-                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5 truncate">
-                        {product.collections.map((c) => c.name).join(' · ')}
-                        {product.size ? ` · ${product.size}` : ''}
-                      </div>
+                      {product.size && (
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5 truncate">
+                          {product.size}
+                        </div>
+                      )}
                       <h3 className="font-serif text-base leading-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
                         {product.name}
                       </h3>

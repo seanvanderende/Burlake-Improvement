@@ -929,6 +929,7 @@ components:
         - name
         - collections
         - imageUrl
+        - photos
         - sku
         - size
         - description
@@ -947,6 +948,11 @@ components:
             $ref: "#/components/schemas/ProductCollection"
         imageUrl:
           type: ["string", "null"]
+        photos:
+          type: array
+          description: Additional photos beyond the primary imageUrl, in display order.
+          items:
+            type: string
         sku:
           type: ["string", "null"]
         size:
@@ -980,6 +986,11 @@ components:
           minItems: 1
         imageUrl:
           type: ["string", "null"]
+        photoUrls:
+          type: array
+          description: Additional photos beyond the primary imageUrl, in display order. Omit to leave unchanged; pass an array (including empty) to replace.
+          items:
+            type: string
         sku:
           type: ["string", "null"]
         size:
@@ -1004,6 +1015,11 @@ components:
           minItems: 1
         imageUrl:
           type: ["string", "null"]
+        photoUrls:
+          type: array
+          description: Additional photos beyond the primary imageUrl, in display order. Omit to leave unchanged; pass an array (including empty) to replace.
+          items:
+            type: string
         sku:
           type: ["string", "null"]
         size:
