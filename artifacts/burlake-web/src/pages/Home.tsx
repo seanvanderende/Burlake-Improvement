@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'wouter';
-import { ArrowRight, MapPin, Phone, CheckCircle2, Sprout, Leaf, Sun, ShieldCheck } from 'lucide-react';
+import { ArrowRight, MapPin, Phone, CheckCircle2, Leaf, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function useReveal() {
@@ -154,76 +154,30 @@ export default function Homepage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1 */}
-            <Link href="/catalog" className="reveal delay-100 group relative aspect-[4/5] overflow-hidden bg-accent border border-white/5 block">
-              <img 
-                src="/images/tropical-foliage.jpg" 
-                alt="Tropical Foliage" 
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-90"
+          <Link href="/catalog" className="reveal delay-100 group relative block overflow-hidden border border-white/10">
+            <div className="absolute inset-0">
+              <img
+                src="/images/products-banner.jpg"
+                alt="Product Catalog"
+                className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-105 opacity-40 group-hover:opacity-55"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/20 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-70" />
-              
-              <div className="absolute bottom-0 left-0 p-8 w-full flex flex-col justify-end">
-                <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center mb-6 text-primary transform transition-transform duration-500 group-hover:-translate-y-2">
-                  <Leaf size={18} />
-                </div>
-                <h3 className="font-serif text-3xl text-white mb-3 transform transition-transform duration-500 group-hover:-translate-y-2">Tropical Foliage</h3>
-                <p className="text-white/60 font-light text-sm h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:h-auto group-hover:opacity-100 group-hover:mt-2">
-                  A massive, year-round selection of lush, vibrant indoor tropicals cultivated for longevity and retail appeal.
-                </p>
+              <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/85 to-secondary/40" />
+            </div>
+            <div className="relative py-20 md:py-28 px-8 md:px-16 flex flex-col items-start">
+              <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center mb-6 text-primary transform transition-transform duration-500 group-hover:-translate-y-1">
+                <Leaf size={18} />
               </div>
-            </Link>
-
-            {/* Card 2 */}
-            <Link href="/catalog" className="reveal delay-200 group relative aspect-[4/5] overflow-hidden bg-accent border border-white/5 block">
-              <img 
-                src="/images/flowering.jpg" 
-                alt="Flowering Plants" 
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-90"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/20 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-70" />
-              
-              <div className="absolute bottom-0 left-0 p-8 w-full flex flex-col justify-end">
-                <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center mb-6 text-primary transform transition-transform duration-500 group-hover:-translate-y-2">
-                  <Sun size={18} />
-                </div>
-                <h3 className="font-serif text-3xl text-white mb-3 transform transition-transform duration-500 group-hover:-translate-y-2">Flowering Plants</h3>
-                <p className="text-white/60 font-light text-sm h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:h-auto group-hover:opacity-100 group-hover:mt-2">
-                  Vibrant blooming varieties programmed meticulously to arrive in perfect color for major retail holidays and everyday sales.
-                </p>
-              </div>
-            </Link>
-
-            {/* Card 3 */}
-            <Link href="/catalog" className="reveal delay-300 group relative aspect-[4/5] overflow-hidden bg-accent border border-white/5 block">
-              <img 
-                src="/images/planters.jpg" 
-                alt="Planters & Upgrades" 
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-90"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/20 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-70" />
-              
-              <div className="absolute bottom-0 left-0 p-8 w-full flex flex-col justify-end">
-                <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center mb-6 text-primary transform transition-transform duration-500 group-hover:-translate-y-2">
-                  <Sprout size={18} />
-                </div>
-                <h3 className="font-serif text-3xl text-white mb-3 transform transition-transform duration-500 group-hover:-translate-y-2">Planters & Upgrades</h3>
-                <p className="text-white/60 font-light text-sm h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:h-auto group-hover:opacity-100 group-hover:mt-2">
-                  Value-added ceramic and decorative planters, mixed arrangements, and retail-ready upgrades that drive higher margins.
-                </p>
-              </div>
-            </Link>
-          </div>
-          
-          <div className="reveal delay-400 mt-16 text-center border-t border-white/10 pt-16">
-             <p className="text-lg text-white/70 font-light mb-6">
-                We also offer <strong className="text-white font-medium">Seasonal Collections</strong> (Easter, Mother's Day, Poinsettias) and fresh <strong className="text-white font-medium">Cut Flowers</strong>.
-             </p>
-             <Link href="/catalog">
-               <Button variant="outline-light">Explore Full Catalog</Button>
-             </Link>
-          </div>
+              <h3 className="font-serif text-3xl md:text-5xl text-white mb-4 max-w-xl leading-tight">
+                Tropical foliage. Flowering plants. Planters & upgrades.
+              </h3>
+              <p className="text-white/70 font-light text-base md:text-lg max-w-xl mb-8 leading-relaxed">
+                Explore the full wholesale range in one place — plus Seasonal Collections and fresh Cut Flowers.
+              </p>
+              <Button variant="outline-light" className="pointer-events-none">
+                Explore Full Catalog <ArrowRight className="ml-2 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Button>
+            </div>
+          </Link>
         </div>
       </section>
 
