@@ -569,6 +569,57 @@ export const UpdateApplicationResponse = zod.object({
 
 
 /**
+ * @summary List active order forms (portal access required)
+ */
+export const ListOrderFormsResponseItem = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "customerName": zod.string(),
+  "description": zod.string().nullish(),
+  "season": zod.string().nullish(),
+  "deadline": zod.string().nullish(),
+  "replyToEmail": zod.string().nullish(),
+  "status": zod.enum(['draft', 'active', 'closed']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListOrderFormsResponse = zod.array(ListOrderFormsResponseItem)
+
+
+/**
+ * @summary Get a single order form with its items (portal access required)
+ */
+export const GetOrderFormParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetOrderFormResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "customerName": zod.string(),
+  "description": zod.string().nullish(),
+  "season": zod.string().nullish(),
+  "deadline": zod.string().nullish(),
+  "replyToEmail": zod.string().nullish(),
+  "status": zod.enum(['draft', 'active', 'closed']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}).and(zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "formId": zod.number(),
+  "name": zod.string(),
+  "itemNum": zod.string().nullish(),
+  "upc": zod.string().nullish(),
+  "pack": zod.string().nullish(),
+  "casePrice": zod.string().nullish(),
+  "category": zod.string().nullish(),
+  "sortOrder": zod.number()
+})).optional()
+}))
+
+
+/**
  * Returns a presigned URL for uploading a product image directly to storage (admin only)
  * @summary Request a presigned upload URL
  */

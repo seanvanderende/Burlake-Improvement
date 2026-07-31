@@ -33,7 +33,25 @@ router.get("/order-forms/:id", requirePortalAccess, async (req, res) => {
       .where(eq(orderFormsTable.id, id));
 
     if (!form) { res.status(404).json({ error: "Order form not found" }); return; }
-    if (form.status === "draft") { res.status(403).json({ error: "This form is not yet available" }); return; }
+
+    // Portal buyers may only access active forms
+    if (form.status !== "active") {
+      const msg = form.status === "draft"
+        ? "This form is not yet available"
+        : "This form is no longer accepting orders";
+      res.status(403).json({ error: msg });
+      return;
+    }
+
+    // Enforce deadline: if the deadline date (inclusive) has passed in UTC,
+    // buyers can no longer submit orders even if staff haven't closed the form yet
+    if (form.deadline) {
+      const todayUTC = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+      if (form.deadline < todayUTC) {
+        res.status(403).json({ error: "The order deadline for this form has passed" });
+        return;
+      }
+    }
 
     const items = await db
       .select()

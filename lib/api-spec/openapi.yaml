@@ -24,6 +24,8 @@ tags:
     description: Wholesale price list operations
   - name: applications
     description: Wholesale account application operations
+  - name: orderForms
+    description: Order form operations
 paths:
   /healthz:
     get:
@@ -744,6 +746,58 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /order-forms:
+    get:
+      operationId: listOrderForms
+      tags: [orderForms]
+      summary: List active order forms (portal access required)
+      responses:
+        "200":
+          description: List of active order forms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderForm"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /order-forms/{id}:
+    get:
+      operationId: getOrderForm
+      tags: [orderForms]
+      summary: Get a single order form with its items (portal access required)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order form with items
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderFormWithItems"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /storage/uploads/request-url:
     post:
       operationId: requestUploadUrl
@@ -1267,3 +1321,74 @@ components:
         fileName:
           type: string
           minLength: 1
+
+    OrderForm:
+      type: object
+      required:
+        - id
+        - title
+        - customerName
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        customerName:
+          type: string
+        description:
+          type: ["string", "null"]
+        season:
+          type: ["string", "null"]
+        deadline:
+          type: ["string", "null"]
+        replyToEmail:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [draft, active, closed]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    OrderFormItem:
+      type: object
+      required:
+        - id
+        - formId
+        - name
+        - sortOrder
+      properties:
+        id:
+          type: integer
+        formId:
+          type: integer
+        name:
+          type: string
+        itemNum:
+          type: ["string", "null"]
+        upc:
+          type: ["string", "null"]
+        pack:
+          type: ["string", "null"]
+        casePrice:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+
+    OrderFormWithItems:
+      allOf:
+        - $ref: "#/components/schemas/OrderForm"
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/OrderFormItem"

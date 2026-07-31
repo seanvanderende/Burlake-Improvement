@@ -40,6 +40,8 @@ import type {
   HealthStatus,
   ListCollectionsParams,
   ListProductsParams,
+  OrderForm,
+  OrderFormWithItems,
   PresignedUpload,
   PriceList,
   PriceListInput,
@@ -2240,6 +2242,160 @@ export const useUpdateApplication = <TError = ErrorType<ErrorResponse>,
       > => {
       return useMutation(getUpdateApplicationMutationOptions(options));
     }
+
+export const getListOrderFormsUrl = () => {
+
+
+
+
+  return `/api/order-forms`
+}
+
+/**
+ * @summary List active order forms (portal access required)
+ */
+export const listOrderForms = async ( options?: RequestInit): Promise<OrderForm[]> => {
+
+  return customFetch<OrderForm[]>(getListOrderFormsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListOrderFormsQueryKey = () => {
+    return [
+    `/api/order-forms`
+    ] as const;
+    }
+
+
+export const getListOrderFormsQueryOptions = <TData = Awaited<ReturnType<typeof listOrderForms>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listOrderForms>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListOrderFormsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listOrderForms>>> = ({ signal }) => listOrderForms({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listOrderForms>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListOrderFormsQueryResult = NonNullable<Awaited<ReturnType<typeof listOrderForms>>>
+export type ListOrderFormsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List active order forms (portal access required)
+ */
+
+export function useListOrderForms<TData = Awaited<ReturnType<typeof listOrderForms>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listOrderForms>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListOrderFormsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetOrderFormUrl = (id: number,) => {
+
+
+
+
+  return `/api/order-forms/${id}`
+}
+
+/**
+ * @summary Get a single order form with its items (portal access required)
+ */
+export const getOrderForm = async (id: number, options?: RequestInit): Promise<OrderFormWithItems> => {
+
+  return customFetch<OrderFormWithItems>(getGetOrderFormUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetOrderFormQueryKey = (id: number,) => {
+    return [
+    `/api/order-forms/${id}`
+    ] as const;
+    }
+
+
+export const getGetOrderFormQueryOptions = <TData = Awaited<ReturnType<typeof getOrderForm>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOrderForm>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOrderFormQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOrderForm>>> = ({ signal }) => getOrderForm(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOrderForm>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetOrderFormQueryResult = NonNullable<Awaited<ReturnType<typeof getOrderForm>>>
+export type GetOrderFormQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get a single order form with its items (portal access required)
+ */
+
+export function useGetOrderForm<TData = Awaited<ReturnType<typeof getOrderForm>>, TError = ErrorType<ErrorResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOrderForm>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetOrderFormQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getRequestUploadUrlUrl = () => {
 

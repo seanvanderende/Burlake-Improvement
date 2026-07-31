@@ -267,6 +267,53 @@ export interface PriceListInput {
   fileName: string;
 }
 
+export type OrderFormStatus = typeof OrderFormStatus[keyof typeof OrderFormStatus];
+
+
+export const OrderFormStatus = {
+  draft: 'draft',
+  active: 'active',
+  closed: 'closed',
+} as const;
+
+export interface OrderForm {
+  id: number;
+  title: string;
+  customerName: string;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  season?: string | null;
+  /** @nullable */
+  deadline?: string | null;
+  /** @nullable */
+  replyToEmail?: string | null;
+  status: OrderFormStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderFormItem {
+  id: number;
+  formId: number;
+  name: string;
+  /** @nullable */
+  itemNum?: string | null;
+  /** @nullable */
+  upc?: string | null;
+  /** @nullable */
+  pack?: string | null;
+  /** @nullable */
+  casePrice?: string | null;
+  /** @nullable */
+  category?: string | null;
+  sortOrder: number;
+}
+
+export type OrderFormWithItems = OrderForm & {
+  items?: OrderFormItem[];
+};
+
 export type ListCollectionsParams = {
 availableOnly?: boolean;
 };
