@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Edit2, ChevronDown, ChevronUp, X, Check, Upload, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, ChevronDown, ChevronUp, X, Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link, useLocation } from 'wouter';
@@ -202,7 +202,90 @@ function PhotoUploadButton({ onUploaded }: { onUploaded: (url: string) => void }
   );
 }
 
-// ── Item row (inline edit) ────────────────────────────────────────────────────
+// ── Edit item modal ───────────────────────────────────────────────────────────
+
+function EditItemModal({
+  item,
+  onClose,
+  onSave,
+}: {
+  item: OrderFormItem;
+  onClose: () => void;
+  onSave: (id: number, patch: Partial<OrderFormItem>) => void;
+}) {
+  const [name, setName] = useState(item.name);
+  const [itemNum, setItemNum] = useState(item.itemNum ?? '');
+  const [upc, setUpc] = useState(item.upc ?? '');
+  const [pack, setPack] = useState(item.pack ?? '');
+  const [casePrice, setCasePrice] = useState(item.casePrice ?? '');
+  const [category, setCategory] = useState(item.category ?? '');
+  const [photoUrl, setPhotoUrl] = useState(item.photoUrl ?? '');
+
+  const save = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(item.id, {
+      name,
+      itemNum: itemNum || null,
+      upc: upc || null,
+      pack: pack || null,
+      casePrice: casePrice || null,
+      category: category || null,
+      photoUrl: photoUrl || null,
+    });
+    onClose();
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ background: '#fff', borderRadius: '12px', padding: '2rem', width: '100%', maxWidth: '480px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}><X size={18} /></button>
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '1.2rem', marginBottom: '1.5rem', color: '#2c2c2c' }}>Edit Item</h2>
+        <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <Field label="Name *">
+            <Input value={name} onChange={e => setName(e.target.value)} required />
+          </Field>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <Field label="Item #">
+              <Input value={itemNum} onChange={e => setItemNum(e.target.value)} placeholder="CHR-001" />
+            </Field>
+            <Field label="UPC">
+              <Input value={upc} onChange={e => setUpc(e.target.value)} placeholder="012345678901" />
+            </Field>
+            <Field label="Pack">
+              <Input value={pack} onChange={e => setPack(e.target.value)} placeholder="6/tray" />
+            </Field>
+            <Field label="Case Price">
+              <Input value={casePrice} onChange={e => setCasePrice(e.target.value)} type="number" step="0.01" min="0" placeholder="18.95" />
+            </Field>
+          </div>
+          <Field label="Category">
+            <Input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Poinsettias" />
+          </Field>
+          <Field label="Photo">
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://…" style={{ flex: 1 }} />
+              <PhotoUploadButton onUploaded={url => setPhotoUrl(url)} />
+            </div>
+            {photoUrl && (
+              <img
+                src={photoUrl}
+                alt="preview"
+                style={{ marginTop: '0.5rem', width: 64, height: 64, objectFit: 'cover', borderRadius: 6, border: '1px solid #e0d9d0' }}
+                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              />
+            )}
+          </Field>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit" disabled={!name}>Save changes</Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Item row (read-only, opens edit modal) ────────────────────────────────────
 
 function ItemRow({
   item,
@@ -214,66 +297,40 @@ function ItemRow({
   onSave: (id: number, patch: Partial<OrderFormItem>) => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(item.name);
-  const [itemNum, setItemNum] = useState(item.itemNum ?? '');
-  const [upc, setUpc] = useState(item.upc ?? '');
-  const [pack, setPack] = useState(item.pack ?? '');
-  const [casePrice, setCasePrice] = useState(item.casePrice ?? '');
-  const [category, setCategory] = useState(item.category ?? '');
-  const [photoUrl, setPhotoUrl] = useState(item.photoUrl ?? '');
-
-  const save = () => {
-    onSave(item.id, { name, itemNum: itemNum || null, upc: upc || null, pack: pack || null, casePrice: casePrice || null, category: category || null, photoUrl: photoUrl || null });
-    setEditing(false);
-  };
 
   const td: React.CSSProperties = { padding: '0.6rem 0.5rem', borderBottom: '1px solid #f0ebe3', fontSize: '0.85rem', color: '#333', verticalAlign: 'middle' };
 
-  if (editing) {
-    return (
-      <tr style={{ background: '#fffdf9' }}>
-        <td style={td}><Input value={name} onChange={e => setName(e.target.value)} style={{ minWidth: '140px' }} /></td>
-        <td style={td}><Input value={itemNum} onChange={e => setItemNum(e.target.value)} style={{ minWidth: '80px' }} /></td>
-        <td style={td}><Input value={upc} onChange={e => setUpc(e.target.value)} style={{ minWidth: '110px' }} /></td>
-        <td style={td}><Input value={pack} onChange={e => setPack(e.target.value)} style={{ minWidth: '80px' }} /></td>
-        <td style={td}><Input value={casePrice} onChange={e => setCasePrice(e.target.value)} type="number" step="0.01" min="0" style={{ minWidth: '80px' }} /></td>
-        <td style={td}><Input value={category} onChange={e => setCategory(e.target.value)} style={{ minWidth: '100px' }} /></td>
+  return (
+    <>
+      {editing && (
+        <EditItemModal
+          item={item}
+          onClose={() => setEditing(false)}
+          onSave={onSave}
+        />
+      )}
+      <tr style={{ transition: 'background 0.1s' }} onMouseEnter={e => (e.currentTarget.style.background = '#faf8f4')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
+        <td style={td}>{item.name}</td>
+        <td style={{ ...td, color: '#888' }}>{item.itemNum || '—'}</td>
+        <td style={{ ...td, color: '#888', fontFamily: 'monospace', fontSize: '0.8rem' }}>{item.upc || '—'}</td>
+        <td style={{ ...td, color: '#888' }}>{item.pack || '—'}</td>
+        <td style={td}>{item.casePrice ? `$${parseFloat(item.casePrice).toFixed(2)}` : '—'}</td>
         <td style={td}>
-          <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-            <Input value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://… or upload →" style={{ minWidth: '130px' }} />
-            <PhotoUploadButton onUploaded={url => setPhotoUrl(url)} />
-          </div>
+          {item.category ? (
+            <span style={{ background: '#eef6ef', color: '#3a7d44', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>{item.category}</span>
+          ) : '—'}
+        </td>
+        <td style={td}>
+          {item.photoUrl ? (
+            <img src={item.photoUrl} alt="" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 4, border: '1px solid #e0d9d0', display: 'block' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+          ) : <span style={{ color: '#ccc', fontSize: '0.75rem' }}>—</span>}
         </td>
         <td style={{ ...td, whiteSpace: 'nowrap' }}>
-          <button onClick={save} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3a7d44', marginRight: '0.5rem' }}><Check size={16} /></button>
-          <button onClick={() => setEditing(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}><X size={16} /></button>
+          <button onClick={() => setEditing(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', marginRight: '0.5rem' }}><Edit2 size={14} /></button>
+          <button onClick={() => onDelete(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c0392b' }}><Trash2 size={14} /></button>
         </td>
       </tr>
-    );
-  }
-
-  return (
-    <tr style={{ transition: 'background 0.1s' }} onMouseEnter={e => (e.currentTarget.style.background = '#faf8f4')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
-      <td style={td}>{item.name}</td>
-      <td style={{ ...td, color: '#888' }}>{item.itemNum || '—'}</td>
-      <td style={{ ...td, color: '#888', fontFamily: 'monospace', fontSize: '0.8rem' }}>{item.upc || '—'}</td>
-      <td style={{ ...td, color: '#888' }}>{item.pack || '—'}</td>
-      <td style={td}>{item.casePrice ? `$${parseFloat(item.casePrice).toFixed(2)}` : '—'}</td>
-      <td style={td}>
-        {item.category ? (
-          <span style={{ background: '#eef6ef', color: '#3a7d44', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>{item.category}</span>
-        ) : '—'}
-      </td>
-      <td style={td}>
-        {item.photoUrl ? (
-          <img src={item.photoUrl} alt="" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 4, border: '1px solid #e0d9d0', display: 'block' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
-        ) : <span style={{ color: '#ccc', fontSize: '0.75rem' }}>—</span>}
-      </td>
-      <td style={{ ...td, whiteSpace: 'nowrap' }}>
-        <button onClick={() => setEditing(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', marginRight: '0.5rem' }}><Edit2 size={14} /></button>
-        <button onClick={() => onDelete(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c0392b' }}><Trash2 size={14} /></button>
-      </td>
-    </tr>
+    </>
   );
 }
 
