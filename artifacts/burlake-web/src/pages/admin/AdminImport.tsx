@@ -10,14 +10,11 @@ import { Link } from 'wouter';
 
 type Step = 'upload' | 'preview' | 'done';
 
-interface CsvRow {
-  name: string;
-  description: string;
-  productImageUrl: string;
-  collection: string;
-  sku: string;
-  visible: string;
-}
+// A CSV row can come in either of two shapes:
+//  - the legacy Wix export format (name, description, productImageUrl, collection, sku, visible)
+//  - this site's own "Export CSV" format (name, sku, size, description, available, sortOrder, collections, imageUrl)
+// Rows are read generically and normalized in `parseRow` based on which columns are present.
+type CsvRow = Record<string, string>;
 
 interface MappedProduct {
   name: string;
@@ -56,25 +53,48 @@ function extractSize(rawName: string): string | null {
   return null;
 }
 
-/** Parse a CSV row into a MappedProduct. Returns null if name or collections are missing. */
+/**
+ * Parse a CSV row into a MappedProduct. Returns null if name or collections are
+ * missing. Supports two column layouts so a file exported from this site's own
+ * "Export CSV" button can be re-imported as-is, alongside the legacy Wix layout:
+ *  - Wix export:  name, description, productImageUrl, collection, sku, visible
+ *  - Site export: name, sku, size, description, available, sortOrder, collections, imageUrl
+ */
 function parseRow(row: CsvRow): MappedProduct | null {
   const name = row.name?.trim();
   if (!name) return null;
 
-  const collectionNames = row.collection
-    ? row.collection.split(';').map((c) => c.trim()).filter(Boolean)
-    : [];
+  // "collections" (site export, semicolon-separated) takes priority over
+  // "collection" (Wix export) when both happen to be present.
+  const rawCollections = row.collections ?? row.collection ?? '';
+  const collectionNames = rawCollections
+    .split(';')
+    .map((c) => c.trim())
+    .filter(Boolean);
 
   if (collectionNames.length === 0) return null;
+
+  const rawImageUrl = row.imageUrl ?? row.productImageUrl ?? '';
+  const imageUrl = rawImageUrl.startsWith('http') || rawImageUrl.startsWith('/')
+    ? rawImageUrl
+    : buildImageUrl(rawImageUrl);
+
+  const rawSize = row.size?.trim();
+  const size = rawSize || extractSize(name);
+
+  // "available" (site export: "true"/"false") takes priority over "visible"
+  // (Wix export: "TRUE"/"FALSE") when both are present.
+  const availableRaw = row.available ?? row.visible ?? '';
+  const available = availableRaw.trim().toUpperCase() === 'TRUE';
 
   return {
     name,
     collectionNames,
     description: row.description?.trim() || null,
-    imageUrl: buildImageUrl(row.productImageUrl || ''),
+    imageUrl: imageUrl || null,
     sku: row.sku?.trim() || null,
-    size: extractSize(name),
-    available: row.visible?.trim().toUpperCase() === 'TRUE',
+    size,
+    available,
   };
 }
 
@@ -106,11 +126,15 @@ export default function AdminImport() {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const required = ['name', 'collection'];
-        const missing = required.filter((k) => !results.meta.fields?.includes(k));
+        const fields = results.meta.fields ?? [];
+        const missing: string[] = [];
+        if (!fields.includes('name')) missing.push('name');
+        if (!fields.includes('collection') && !fields.includes('collections')) {
+          missing.push('collection (or collections)');
+        }
         if (missing.length > 0) {
           setParseError(
-            `CSV is missing required columns: ${missing.join(', ')}. Expected columns: name, description, productImageUrl, collection, sku, visible.`,
+            `CSV is missing required columns: ${missing.join(', ')}. Expected either this site's exported columns (name, sku, size, description, available, sortOrder, collections, imageUrl) or the legacy columns (name, description, productImageUrl, collection, sku, visible).`,
           );
           return;
         }
