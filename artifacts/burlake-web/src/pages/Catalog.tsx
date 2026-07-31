@@ -171,12 +171,41 @@ export default function Catalog() {
     });
   }, [inStockProducts, selectedCollectionIds, selectedSizes, trimmedSearch]);
 
+  // Sizes actually present among products matching the current category/search
+  // filters (size selection itself is excluded, so picking one size doesn't
+  // hide the others). A size still shows if it's already selected, even with
+  // zero matches, so an active filter never becomes impossible to clear.
+  const sizesInScope = useMemo(() => {
+    const inScope = inStockProducts.filter((p) => {
+      if (selectedCollectionIds.size > 0) {
+        const ids = new Set(p.collections.map((c) => c.id));
+        if (![...selectedCollectionIds].some((id) => ids.has(id))) return false;
+      }
+      if (trimmedSearch) {
+        const hay = [
+          p.name,
+          (p as { sku?: string | null }).sku ?? '',
+          (p as { description?: string | null }).description ?? '',
+        ].join(' ').toLowerCase();
+        if (!hay.includes(trimmedSearch)) return false;
+      }
+      return true;
+    });
+    const set = new Set<string>();
+    for (const p of inScope) {
+      if (p.size) set.add(p.size);
+    }
+    return set;
+  }, [inStockProducts, selectedCollectionIds, trimmedSearch]);
+
   const sortedSizes = useMemo(
-    () => [...sizes].sort((a, b) => {
-      const na = parseFloat(a), nb = parseFloat(b);
-      return !isNaN(na) && !isNaN(nb) ? na - nb : a.localeCompare(b);
-    }),
-    [sizes],
+    () => sizes
+      .filter((s) => sizesInScope.has(s) || selectedSizes.has(s))
+      .sort((a, b) => {
+        const na = parseFloat(a), nb = parseFloat(b);
+        return !isNaN(na) && !isNaN(nb) ? na - nb : a.localeCompare(b);
+      }),
+    [sizes, sizesInScope, selectedSizes],
   );
 
   const filterPanel = (
