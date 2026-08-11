@@ -8,6 +8,13 @@ const router: IRouter = Router();
 
 /** POST /analytics/pageview — record a single page view (public, unauthenticated) */
 router.post("/analytics/pageview", async (req: Request, res: Response): Promise<void> => {
+  // Skip recording when the request comes from an active admin session so
+  // that staff/testing visits to public pages are not counted in buyer traffic.
+  if (req.session?.isAdmin) {
+    res.status(204).end();
+    return;
+  }
+
   const parsed = RecordPageViewBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
