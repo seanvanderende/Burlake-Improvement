@@ -21,6 +21,12 @@ export const productCollectionsTable = pgTable(
     collectionId: integer("collection_id")
       .notNull()
       .references(() => collectionsTable.id, { onDelete: "cascade" }),
+    /**
+     * When this product was tagged with this collection. Used to determine a
+     * product's "first assigned" collection for the catalog's default sort,
+     * independent of the collections' own display sortOrder.
+     */
+    createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [primaryKey({ columns: [table.productId, table.collectionId] })],
 );

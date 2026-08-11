@@ -149,9 +149,29 @@ export default function Catalog() {
     return map;
   }, [collections]);
 
+  // Collections come back from the API already ordered by sortOrder then name
+  // (see /api/collections). Map each collection id to its position in that
+  // order so products can be grouped by collection, using each product's
+  // earliest-ordered collection when it belongs to more than one.
+  const collectionRank = useMemo(() => {
+    const map = new Map<number, number>();
+    collections.forEach((c, i) => map.set(c.id, i));
+    return map;
+  }, [collections]);
+
+  // A product's collections come back from the API in assignment order (the
+  // order they were tagged), so the first entry is the collection it was
+  // tagged with first. That collection's display order decides where the
+  // product sits in the catalog when it belongs to more than one.
+  const rankOf = (p: { collections: { id: number }[] }) => {
+    const first = p.collections[0];
+    if (!first) return Infinity;
+    return collectionRank.get(first.id) ?? Infinity;
+  };
+
   // Client-side filtering
   const filtered = useMemo(() => {
-    return inStockProducts.filter((p) => {
+    const matches = inStockProducts.filter((p) => {
       if (selectedCollectionIds.size > 0) {
         const ids = new Set(p.collections.map((c) => c.id));
         if (![...selectedCollectionIds].some((id) => ids.has(id))) return false;
@@ -169,7 +189,19 @@ export default function Catalog() {
       }
       return true;
     });
-  }, [inStockProducts, selectedCollectionIds, selectedSizes, trimmedSearch]);
+
+    // Default sort: grouped by collection order, alphabetical by name within
+    // (and across) each group.
+    return [...matches].sort((a, b) => {
+      const rankDiff = rankOf(a) - rankOf(b);
+      if (rankDiff !== 0) return rankDiff;
+      // Plain lexicographic comparison, not localeCompare: many product names
+      // start with a size mark using different quote characters (2", 2', 2.25"),
+      // and ICU's locale-aware collation treats that punctuation as low-priority,
+      // producing a non-alphabetical-looking order for this catalog's naming style.
+      return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    });
+  }, [inStockProducts, selectedCollectionIds, selectedSizes, trimmedSearch, collectionRank]);
 
   // Sizes actually present among products matching the current category/search
   // filters (size selection itself is excluded, so picking one size doesn't

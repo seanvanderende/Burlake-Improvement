@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   useListCollections,
   useCreateCollection,
@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, Edit2, Trash2, Check, X, Loader2 } from 'lucide-react';
+import { GripVertical, Plus, Edit2, Trash2, Check, X, Loader2 } from 'lucide-react';
 
 const GROUP_OPTIONS = [
   { value: '', label: '— None —' },
@@ -27,12 +27,24 @@ function grpLabel(grp: string | null | undefined) {
 export default function AdminCollections() {
   const queryClient = useQueryClient();
   const { data: collections, isLoading } = useListCollections();
+  type CollectionRow = NonNullable<typeof collections>[number];
 
   const [newName, setNewName] = useState('');
   const [newGrp, setNewGrp] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
   const [editingGrp, setEditingGrp] = useState('');
+
+  // Local copy of the collection order, so a drag-and-drop reorder can show
+  // immediately without waiting on a round-trip, then reconciled with the
+  // server order once the reorder mutations settle.
+  const [order, setOrder] = useState<CollectionRow[]>([]);
+  const [isReordering, setIsReordering] = useState(false);
+  const dragIndexRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!isReordering && collections) setOrder(collections);
+  }, [collections, isReordering]);
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: getListCollectionsQueryKey() });
@@ -65,8 +77,10 @@ export default function AdminCollections() {
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
+    // New collections join at the end of the order.
+    const nextOrder = order.length > 0 ? Math.max(...order.map((c) => c.sortOrder)) + 1 : 0;
     createMutation.mutate({
-      data: { name: newName.trim(), grp: newGrp || null },
+      data: { name: newName.trim(), grp: newGrp || null, sortOrder: nextOrder },
     });
   };
 
@@ -100,13 +114,55 @@ export default function AdminCollections() {
     }
   };
 
+  // ── Drag-to-reorder ──────────────────────────────────────────────────────
+  // Reordering sets the catalog's default sort priority for each collection.
+
+  const handleDragStart = (index: number) => {
+    dragIndexRef.current = index;
+    setIsReordering(true);
+  };
+
+  const handleDragOver = (e: React.DragEvent, overIndex: number) => {
+    e.preventDefault();
+    const from = dragIndexRef.current;
+    if (from === null || from === overIndex) return;
+    setOrder((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(overIndex, 0, moved);
+      return next;
+    });
+    dragIndexRef.current = overIndex;
+  };
+
+  const handleDragEnd = async () => {
+    dragIndexRef.current = null;
+    // Persist the new order as sequential sortOrder values, only for rows
+    // whose position actually changed.
+    const updates = order
+      .map((col, index) => ({ col, index }))
+      .filter(({ col, index }) => col.sortOrder !== index);
+    try {
+      await Promise.all(
+        updates.map(({ col, index }) =>
+          updateMutation.mutateAsync({ id: col.id, data: { sortOrder: index } }),
+        ),
+      );
+    } finally {
+      setIsReordering(false);
+      invalidate();
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div>
         <h1 className="font-serif text-3xl text-foreground">Collections</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Manage collection tags. The <strong>Group</strong> controls which filter section the
-          collection appears in on the public catalog.
+          collection appears in on the public catalog. Drag rows by the handle to set the
+          <strong> Order</strong> — this is the default catalog sort. Products are grouped by the
+          first collection they were tagged with, then alphabetically by name.
         </p>
       </div>
 
@@ -152,6 +208,7 @@ export default function AdminCollections() {
             <tr>
               <th className="px-6 py-4 text-left font-medium">Collection</th>
               <th className="px-6 py-4 text-left font-medium">Group</th>
+              <th className="px-6 py-4 text-left font-medium">Order</th>
               <th className="px-6 py-4 text-left font-medium">Slug</th>
               <th className="px-6 py-4 text-left font-medium">Products</th>
               <th className="px-6 py-4 text-right font-medium">Actions</th>
@@ -160,34 +217,50 @@ export default function AdminCollections() {
           <tbody className="divide-y divide-border">
             {isLoading ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
                   Loading…
                 </td>
               </tr>
-            ) : collections?.length === 0 ? (
+            ) : order.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
                   No collections yet. Add one above.
                 </td>
               </tr>
             ) : (
-              collections?.map((col) => (
-                <tr key={col.id} className="hover:bg-muted/30 transition-colors">
+              order.map((col, index) => (
+                <tr
+                  key={col.id}
+                  draggable={editingId === null}
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragEnd={handleDragEnd}
+                  className={`hover:bg-muted/30 transition-colors ${
+                    isReordering ? 'cursor-grabbing' : ''
+                  }`}
+                >
                   <td className="px-6 py-4">
-                    {editingId === col.id ? (
-                      <Input
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleUpdate(col.id);
-                          if (e.key === 'Escape') cancelEdit();
-                        }}
-                        autoFocus
-                        className="h-8 py-1"
+                    <div className="flex items-center gap-2">
+                      <GripVertical
+                        className={`w-4 h-4 shrink-0 text-muted-foreground/50 ${
+                          editingId === null ? 'cursor-grab' : 'cursor-not-allowed opacity-30'
+                        }`}
                       />
-                    ) : (
-                      <span className="font-medium text-foreground">{col.name}</span>
-                    )}
+                      {editingId === col.id ? (
+                        <Input
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleUpdate(col.id);
+                            if (e.key === 'Escape') cancelEdit();
+                          }}
+                          autoFocus
+                          className="h-8 py-1"
+                        />
+                      ) : (
+                        <span className="font-medium text-foreground">{col.name}</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     {editingId === col.id ? (
@@ -218,6 +291,7 @@ export default function AdminCollections() {
                       </span>
                     )}
                   </td>
+                  <td className="px-6 py-4 text-muted-foreground">{index + 1}</td>
                   <td className="px-6 py-4 text-muted-foreground font-mono text-xs">
                     {col.slug}
                   </td>

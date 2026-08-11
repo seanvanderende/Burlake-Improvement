@@ -7,3 +7,4 @@
 - [React peer deps in new workspace packages](workspace-react-peer-deps.md) — new packages with a React peer dep need `"react": "catalog:"` in devDependencies or `tsc --build` project-reference typecheck fails, even though it works at runtime via hoisting.
 - [Orval/zod naming convention drift](orval-zod-naming-drift.md) — restoring old deleted routes referencing schema-name-based zod exports (e.g. `PageViewInput`) may need updating to current operation-based names (e.g. `RecordPageViewBody`) after re-running codegen.
 - [api-server dev workflow requires manual restart](api-server-no-hot-reload.md) — build-then-start, no watcher; new/changed routes 404 until the workflow is restarted, even though tsc passes.
+- [Migrating bulk external images to App Storage](product-image-wix-migration.md) — one-off script pattern for moving Wix/CDN-hosted catalog images into internal storage, with dedupe-by-URL.

@@ -55,7 +55,11 @@ async function getCollectionsByProduct(
       collectionsTable,
       eq(productCollectionsTable.collectionId, collectionsTable.id),
     )
-    .where(inArray(productCollectionsTable.productId, productIds));
+    .where(inArray(productCollectionsTable.productId, productIds))
+    // Order by assignment time so the first item in each product's
+    // collections array is the collection it was tagged with first — used
+    // as the catalog's tie-break when a product belongs to several.
+    .orderBy(asc(productCollectionsTable.createdAt));
 
   for (const link of links) {
     if (!map.has(link.productId)) map.set(link.productId, []);
