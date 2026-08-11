@@ -89,7 +89,7 @@ export default function Homepage() {
             <span className="italic font-light opacity-90">Quality Guaranteed.</span>
           </h1>
           <p className="reveal delay-200 text-lg md:text-xl text-background/80 max-w-2xl mx-auto mb-12 font-light leading-relaxed">
-            Four generations of setting Western Canada's quality standard — grown at the scale your business demands.
+            Four generations of growing expertise, backed by a quality standard your business can depend on.
           </p>
           <div className="reveal delay-300 flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link href="/contact" className="w-full sm:w-auto">
