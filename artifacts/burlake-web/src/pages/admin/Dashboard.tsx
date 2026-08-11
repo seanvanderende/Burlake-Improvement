@@ -240,7 +240,7 @@ export default function AdminDashboard() {
                 <th className="px-6 py-4 font-medium">Product</th>
                 <th className="px-6 py-4 font-medium">Collections</th>
                 <th className="px-6 py-4 font-medium">SKU / Size</th>
-                <th className="px-6 py-4 font-medium">In Stock</th>
+                <th className="px-6 py-4 font-medium">Visible</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
