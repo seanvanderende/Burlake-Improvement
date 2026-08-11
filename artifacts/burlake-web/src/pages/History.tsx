@@ -5,6 +5,7 @@ interface Milestone {
   years: string;
   title: string;
   points: string[];
+  images?: { src: string; alt: string }[];
 }
 
 const MILESTONES: Milestone[] = [
@@ -14,6 +15,9 @@ const MILESTONES: Milestone[] = [
     points: [
       "Huibrecht (Herb) van der Ende and his family emigrated from Holland to Burnaby, British Columbia.",
       "Herb worked on — and loved — the hobby farm of the individual who sponsored his family's move to BC.",
+    ],
+    images: [
+      { src: '/images/history/1951-burnaby.jpg', alt: 'Aerial view of the original Burnaby property, 1951' },
     ],
   },
   {
@@ -38,6 +42,9 @@ const MILESTONES: Milestone[] = [
       'Herb was joined by some of his sons in operating the greenhouse — the second generation.',
       'All production was moved to the Guildford area facility, and the original Burnaby facility was closed.',
     ],
+    images: [
+      { src: '/images/history/1963-guildford.jpg', alt: 'Aerial view of the Guildford greenhouse facility, 1963' },
+    ],
   },
   {
     years: '1969 – 1977',
@@ -45,6 +52,10 @@ const MILESTONES: Milestone[] = [
     points: [
       'Business expanded and a new facility was built in the Fleetwood area of Surrey.',
       'The Fleetwood facility was further expanded to keep pace with growing product demand.',
+    ],
+    images: [
+      { src: '/images/history/1970-fleetwood.jpg', alt: 'Aerial view of the newly built Fleetwood facility, 1970' },
+      { src: '/images/history/1977-fleetwood.jpg', alt: 'Aerial view of the expanded Fleetwood facility, 1977' },
     ],
   },
   {
@@ -54,6 +65,10 @@ const MILESTONES: Milestone[] = [
       'The first phase of our current facility in the Cloverdale area of Surrey was built, and the site was aggressively expanded to handle rapidly increasing demand.',
       "Some of Herb's grandsons — the third generation of van der Endes — joined in operating the greenhouse.",
       'In 1988, production was moved out of the Guildford facility, which was then closed.',
+    ],
+    images: [
+      { src: '/images/history/1982-cloverdale.jpg', alt: 'Aerial view of the first phase of the Cloverdale facility, 1982' },
+      { src: '/images/history/1982-2004-cloverdale.jpg', alt: 'Aerial view of the expanded Cloverdale facility during the 1982–2004 era' },
     ],
   },
   {
@@ -69,6 +84,9 @@ const MILESTONES: Milestone[] = [
     title: 'A Fourth Generation',
     points: [
       "Some of Herb's great-grandchildren joined the business, introducing the fourth generation of van der Endes to the operation of the family greenhouse.",
+    ],
+    images: [
+      { src: '/images/history/2010-present.jpg', alt: 'Aerial view of the Cloverdale facility, 2010 to present' },
     ],
   },
 ];
@@ -131,6 +149,30 @@ export default function History() {
                           </li>
                         ))}
                       </ul>
+                      {m.images && m.images.length > 0 && (
+                        <div
+                          className={`mt-5 flex flex-wrap gap-3 ${
+                            isLeft ? 'md:justify-end' : 'md:justify-start'
+                          }`}
+                        >
+                          {m.images.map((img, k) => (
+                            <a
+                              key={k}
+                              href={img.src}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block w-full sm:w-[calc(50%-0.375rem)] overflow-hidden rounded-sm border border-border group"
+                            >
+                              <img
+                                src={img.src}
+                                alt={img.alt}
+                                loading="lazy"
+                                className="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                            </a>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
