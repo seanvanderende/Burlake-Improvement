@@ -51,7 +51,7 @@ export default function Homepage() {
             addressCountry: 'CA',
           },
           areaServed: 'Western Canada',
-          slogan: 'Grown at Scale. Rooted in Tradition.',
+          slogan: 'Grown at Scale. Quality Guaranteed.',
         }}
       />
       <JsonLd
@@ -86,7 +86,7 @@ export default function Homepage() {
           </span>
           <h1 className="reveal delay-100 font-serif text-5xl md:text-7xl lg:text-8xl text-background leading-[1.1] mb-8 max-w-5xl mx-auto">
             Grown at Scale. <br/>
-            <span className="italic font-light opacity-90">Rooted in Tradition.</span>
+            <span className="italic font-light opacity-90">Quality Guaranteed.</span>
           </h1>
           <p className="reveal delay-200 text-lg md:text-xl text-background/80 max-w-2xl mx-auto mb-12 font-light leading-relaxed">
             Four generations of setting Western Canada's quality standard — grown at the scale your business demands.
