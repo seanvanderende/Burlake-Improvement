@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useListProducts, useListCollections, useListProductSizes } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
-import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search, SlidersHorizontal, X } from 'lucide-react';
 
 // ── Filter section ────────────────────────────────────────────────────────────
 
@@ -111,6 +111,7 @@ export default function Catalog() {
   const [selectedCollectionIds, setSelectedCollectionIds] = useState<Set<number>>(new Set());
   const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Out-of-stock items aren't shown in the public catalog at all.
   const inStockProducts = useMemo(() => allProducts.filter((p) => p.available), [allProducts]);
@@ -137,6 +138,7 @@ export default function Catalog() {
 
   const trimmedSearch = searchQuery.trim().toLowerCase();
   const hasFilters = selectedCollectionIds.size > 0 || selectedSizes.size > 0 || trimmedSearch !== '';
+  const activeFilterCount = selectedCollectionIds.size + selectedSizes.size + (trimmedSearch ? 1 : 0);
 
   // Group collections by grp
   const byGroup = useMemo(() => {
@@ -335,11 +337,24 @@ export default function Catalog() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(true)}
+                className="lg:hidden inline-flex items-center gap-1.5 text-xs uppercase tracking-wider border border-border px-3 py-2 hover:border-primary transition-colors"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] leading-none">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
               {hasFilters && (
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground hover:text-destructive transition-colors"
+                  className="hidden lg:inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground hover:text-destructive transition-colors"
                 >
                   <X className="w-3.5 h-3.5" /> Clear filters
                 </button>
@@ -391,8 +406,11 @@ export default function Catalog() {
         {/* Layout: sidebar always visible */}
         <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
 
-          {/* Sidebar — always visible */}
-          <aside style={{ width: 210, minWidth: 210, flexShrink: 0, position: 'sticky', top: 112, background: '#f5f5f0', padding: '16px', borderRight: '1px solid #e5e7eb' }}>
+          {/* Sidebar — desktop only; mobile uses the Filters drawer below */}
+          <aside
+            className="hidden lg:block"
+            style={{ width: 210, minWidth: 210, flexShrink: 0, position: 'sticky', top: 112, background: '#f5f5f0', padding: '16px', borderRight: '1px solid #e5e7eb' }}
+          >
             {filterPanel}
           </aside>
 
@@ -449,6 +467,50 @@ export default function Catalog() {
           </div>
         </div>
       </div>
+
+      {/* Mobile filters drawer */}
+      {mobileFiltersOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/40 animate-in fade-in duration-200"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
+          <div className="absolute inset-y-0 left-0 w-[85%] max-w-sm bg-background shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
+              <span className="font-serif text-lg text-foreground">Filters</span>
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(false)}
+                aria-label="Close filters"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-4">
+              {filterPanel}
+            </div>
+            <div className="flex-shrink-0 border-t border-border p-4 flex gap-3">
+              {hasFilters && (
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="px-4 py-3 text-xs uppercase tracking-wider border border-border text-muted-foreground hover:text-destructive hover:border-destructive transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(false)}
+                className="flex-1 bg-primary text-primary-foreground py-3 text-xs uppercase tracking-wider font-medium"
+              >
+                Show {filtered.length} product{filtered.length !== 1 ? 's' : ''}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
