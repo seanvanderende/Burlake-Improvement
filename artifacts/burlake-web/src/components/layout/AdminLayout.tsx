@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { useGetAdminSession, useAdminLogout, getGetAdminSessionQueryKey } from '@workspace/api-client-react';
-import { LogOut, Leaf, Layers, FileText, ClipboardList, List, BookOpen, KeyRound } from 'lucide-react';
+import { LogOut, Leaf, Layers, FileText, ClipboardList, List, BookOpen, KeyRound, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -76,6 +76,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <Link href="/admin/portal-settings">
               <span className="hidden sm:inline-flex items-center gap-1.5 text-sm text-secondary-foreground/70 hover:text-secondary-foreground transition-colors cursor-pointer">
                 <KeyRound size={14} /> Portal
+              </span>
+            </Link>
+            <Link href="/admin/analytics">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-sm text-secondary-foreground/70 hover:text-secondary-foreground transition-colors cursor-pointer">
+                <BarChart3 size={14} /> Analytics
               </span>
             </Link>
           </div>

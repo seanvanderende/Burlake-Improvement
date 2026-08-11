@@ -1,4 +1,5 @@
 export * from "./products";
+export * from "./analytics";
 export * from "./collections";
 export * from "./brochures";
 export * from "./priceLists";

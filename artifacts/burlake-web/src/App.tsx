@@ -1,8 +1,9 @@
-import React from 'react';
-import { Route, Switch, Router as WouterRouter } from 'wouter';
+import React, { useEffect, useRef } from 'react';
+import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { useRecordPageView } from '@workspace/api-client-react';
 
 import { Shell } from '@/components/layout/Shell';
 import { AdminLayout } from '@/components/layout/AdminLayout';
@@ -28,6 +29,7 @@ import OrderFormView from '@/pages/OrderFormView';
 import NotFound from '@/pages/not-found';
 import AdminApplications from '@/pages/admin/Applications';
 import AdminPortalSettings from '@/pages/admin/PortalSettings';
+import AdminAnalytics from '@/pages/admin/Analytics';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +39,22 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+/** Fires a fire-and-forget pageview log whenever the public site's route changes. */
+function PageViewTracker() {
+  const [pathname] = useLocation();
+  const recordPageView = useRecordPageView();
+  const lastPath = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (lastPath.current === pathname) return;
+    lastPath.current = pathname;
+    recordPageView.mutate({ data: { path: pathname } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  return null;
+}
 
 function Router() {
   return (
@@ -84,6 +102,13 @@ function Router() {
           </AdminLayout>
         )}
       </Route>
+      <Route path="/admin/analytics">
+        {() => (
+          <AdminLayout>
+            <AdminAnalytics />
+          </AdminLayout>
+        )}
+      </Route>
       <Route path="/admin/collections">
         {() => (
           <AdminLayout>
@@ -115,6 +140,7 @@ function Router() {
       <Route>
         {() => (
           <Shell>
+            <PageViewTracker />
             <Switch>
               <Route path="/" component={Home} />
               <Route path="/history" component={History} />

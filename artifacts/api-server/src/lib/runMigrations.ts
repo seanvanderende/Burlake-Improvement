@@ -17,6 +17,16 @@ export async function runMigrations(): Promise<void> {
         updated_at timestamptz NOT NULL DEFAULT now()
       );
     `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS page_views (
+        id         serial      PRIMARY KEY,
+        path       text        NOT NULL,
+        created_at timestamptz NOT NULL DEFAULT now()
+      );
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS page_views_created_at_idx ON page_views (created_at);
+    `);
     logger.info("Migrations complete");
   } catch (err) {
     logger.error({ err }, "Migration failed");

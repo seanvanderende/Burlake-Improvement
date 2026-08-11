@@ -5,3 +5,4 @@
 - [Object storage private-object ACL](object-storage-private-acl.md) — uploaded files default to private; anything meant for public display (e.g. product photos) must be explicitly marked public via ACL policy once attached to its record.
 - [Presigned PUT upload response has no body](object-storage-presign-response.md) — don't read server-issued metadata (like objectPath) from the PUT response; capture it at request time keyed by file id instead.
 - [React peer deps in new workspace packages](workspace-react-peer-deps.md) — new packages with a React peer dep need `"react": "catalog:"` in devDependencies or `tsc --build` project-reference typecheck fails, even though it works at runtime via hoisting.
+- [Orval/zod naming convention drift](orval-zod-naming-drift.md) — restoring old deleted routes referencing schema-name-based zod exports (e.g. `PageViewInput`) may need updating to current operation-based names (e.g. `RecordPageViewBody`) after re-running codegen.

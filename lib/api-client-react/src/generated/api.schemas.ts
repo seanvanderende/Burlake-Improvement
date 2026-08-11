@@ -320,6 +320,35 @@ export interface OrderFormItem {
   sortOrder: number;
 }
 
+export interface PageViewInput {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  path: string;
+}
+
+export interface AnalyticsCountBucket {
+  label: string;
+  count: number;
+}
+
+export interface AnalyticsTopPage {
+  path: string;
+  count: number;
+}
+
+export interface AnalyticsSummary {
+  /** Visit counts for the last 30 days, oldest first */
+  daily: AnalyticsCountBucket[];
+  /** Visit counts for the last 12 weeks, oldest first */
+  weekly: AnalyticsCountBucket[];
+  /** Visit counts for the last 12 months, oldest first */
+  monthly: AnalyticsCountBucket[];
+  /** Most visited pages of all time, most visited first */
+  topPages: AnalyticsTopPage[];
+}
+
 export type OrderFormWithItems = OrderForm & {
   items?: OrderFormItem[];
 };

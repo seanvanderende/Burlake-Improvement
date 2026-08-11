@@ -9,6 +9,7 @@ import priceListsRouter from "./priceLists";
 import applicationsRouter from "./applications";
 import orderFormsRouter from "./orderForms";
 import portalSettingsRouter from "./portalSettings";
+import analyticsRouter from "./analytics";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(priceListsRouter);
 router.use(applicationsRouter);
 router.use(orderFormsRouter);
 router.use(portalSettingsRouter);
+router.use(analyticsRouter);
 
 export default router;
