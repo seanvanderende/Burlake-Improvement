@@ -29,7 +29,7 @@ export default function Homepage() {
     <div className="overflow-x-hidden">
       <Seo
         title="Burnaby Lake Greenhouses"
-        description="Western Canada's leading wholesale greenhouse since 1955. Four generations of growing expertise, 1.3M+ sq ft under glass — supplying florists, grocers, and garden centers at scale."
+        description="Western Canada's leading wholesale grower of indoor potted flowering plants and tropical foliage since 1955. Four generations of growing expertise, 1.3M+ sq ft under glass — supplying florists, grocers, and garden centers at scale."
         path="/"
         image="/images/hero-greenhouse.jpg"
       />
@@ -43,7 +43,7 @@ export default function Homepage() {
           logo: absoluteUrl('/images/logo-horizontal.jpg'),
           foundingDate: '1955',
           description:
-            "Western Canada's leading wholesale greenhouse grower, supplying tropical foliage, flowering plants, planters, and cut flowers to retail trade partners since 1955.",
+            "Western Canada's leading wholesale grower of indoor potted flowering plants and tropical foliage, supplying retail trade partners at scale since 1955.",
           address: {
             '@type': 'PostalAddress',
             addressLocality: 'Surrey',
@@ -89,7 +89,7 @@ export default function Homepage() {
             <span className="italic font-light opacity-90">Rooted in Tradition.</span>
           </h1>
           <p className="reveal delay-200 text-lg md:text-xl text-background/80 max-w-2xl mx-auto mb-12 font-light leading-relaxed">
-            Four generations of setting Western Canada's quality standard — grown at the scale your business demands.
+            Indoor potted flowering plants and tropical foliage are our core strength — grown to a consistent standard, at the scale your business demands.
           </p>
           <div className="reveal delay-300 flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link href="/contact" className="w-full sm:w-auto">
@@ -160,13 +160,13 @@ export default function Homepage() {
               </h2>
               <div className="reveal delay-200 space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
                 <p>
-                  What started over six decades ago as a modest family farm in Surrey, BC, has grown into one of the largest and most respected greenhouse operations in North America — known as much for the consistency of every plant as for the scale at which we produce them.
+                  What started over six decades ago as a modest family farm in Surrey, BC, has grown into one of the largest and most respected greenhouse operations in North America — built on two core product lines: indoor potted flowering plants and tropical foliage, produced with a consistency and scale few growers can match.
                 </p>
                 <p>
-                  Yet, the core of our business remains exactly as it was on day one: the van der Ende family still walks the rows, inspects the crops, and ensures every plant meets a standard our retail partners stake their own reputations on.
+                  Yet, the core of our business remains exactly as it was on day one: the van der Ende family still walks the rows, inspects the crops, and ensures every flowering plant and foliage variety meets a standard our retail partners stake their own reputations on.
                 </p>
                 <p>
-                  We are growers first. Scale is what lets us meet your volume — but quality is what earns your loyalty. Over 65 years of growing expertise, held to the Western Canada quality standard, available exclusively to the trade.
+                  We are growers first. Scale is what lets us meet your volume — but quality is what earns your loyalty. Over 65 years of specialized flowering and foliage growing expertise, held to the Western Canada quality standard, available exclusively to the trade.
                 </p>
               </div>
               <div className="reveal delay-300 mt-12 pt-8 border-t border-secondary/10">
@@ -192,7 +192,7 @@ export default function Homepage() {
               </h2>
             </div>
             <div className="reveal delay-200 max-w-md text-white/60 font-light leading-relaxed">
-              Backed by four generations of growing expertise, every variety in our inventory is something you'll be proud to put in front of your customers — in the volumes you need to run a serious operation.
+              Indoor potted flowering plants and tropical foliage are where we've built our reputation — backed by four generations of specialized growing expertise, every variety is something you'll be proud to put in front of your customers, in the volumes you need to run a serious operation.
             </div>
           </div>
 
@@ -210,10 +210,10 @@ export default function Homepage() {
                 <Leaf size={18} />
               </div>
               <h3 className="font-serif text-3xl md:text-5xl text-white mb-4 max-w-xl leading-tight">
-                Tropical foliage. Flowering plants. Planters & upgrades.
+                Flowering plants & tropical foliage — our core strength.
               </h3>
               <p className="text-white/70 font-light text-base md:text-lg max-w-xl mb-8 leading-relaxed">
-                Explore the full wholesale range in one place — plus Seasonal Collections and fresh Cut Flowers.
+                Plus planters & upgrades, Seasonal Collections, and fresh Cut Flowers — all in one wholesale range.
               </p>
               <Button variant="outline-light" className="pointer-events-none">
                 Explore Full Catalog <ArrowRight className="ml-2 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -242,7 +242,7 @@ export default function Homepage() {
             <span className="italic font-light text-primary">The Western Canada Quality Standard.</span>
           </h2>
           <p className="reveal delay-100 text-lg md:text-xl text-white/80 font-light leading-relaxed mb-10">
-            Our entire 1.3 million square foot operation exists for one purpose: producing the highest-quality plants in Western Canada and delivering them reliably to your floor. From meticulous crop programming to our climate-controlled delivery fleet, we are the quality benchmark your retail reputation is built on.
+            Our entire 1.3 million square foot operation is purpose-built around two core product lines — indoor potted flowering plants and tropical foliage — producing the highest-quality plants in Western Canada and delivering them reliably to your floor. From meticulous crop programming to our climate-controlled delivery fleet, we are the quality benchmark your retail reputation is built on.
           </p>
           <div className="reveal delay-200">
             <Link href="/contact">
