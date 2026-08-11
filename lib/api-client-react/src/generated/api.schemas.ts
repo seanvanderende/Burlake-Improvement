@@ -238,6 +238,20 @@ export interface ApplicationUpdate {
   notes?: string | null;
 }
 
+export interface UnsubscribeRequest {
+  id: number;
+  businessNameOrAccountNumber: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface UnsubscribeRequestInput {
+  /** @minLength 1 */
+  businessNameOrAccountNumber: string;
+  /** @minLength 1 */
+  email: string;
+}
+
 export interface UploadRequestInput {
   name: string;
   size: number;

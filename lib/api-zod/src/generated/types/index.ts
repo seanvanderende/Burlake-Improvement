@@ -48,4 +48,6 @@ export * from './productInput';
 export * from './productUpdate';
 export * from './recoveryCode';
 export * from './recoveryCodeStatus';
+export * from './unsubscribeRequest';
+export * from './unsubscribeRequestInput';
 export * from './uploadRequestInput';

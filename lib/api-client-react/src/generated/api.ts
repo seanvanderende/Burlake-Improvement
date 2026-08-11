@@ -54,6 +54,8 @@ import type {
   ProductUpdate,
   RecoveryCode,
   RecoveryCodeStatus,
+  UnsubscribeRequest,
+  UnsubscribeRequestInput,
   UploadRequestInput
 } from './api.schemas';
 
@@ -2607,6 +2609,156 @@ export function useListApplications<TData = Awaited<ReturnType<typeof listApplic
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListApplicationsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSubmitUnsubscribeRequestUrl = () => {
+
+
+
+
+  return `/api/unsubscribe`
+}
+
+/**
+ * Public endpoint for customers to request removal from marketing lists
+ * @summary Submit an unsubscribe request
+ */
+export const submitUnsubscribeRequest = async (unsubscribeRequestInput: UnsubscribeRequestInput, options?: RequestInit): Promise<UnsubscribeRequest> => {
+
+  return customFetch<UnsubscribeRequest>(getSubmitUnsubscribeRequestUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(unsubscribeRequestInput)
+  }
+);}
+
+
+
+
+
+export const getSubmitUnsubscribeRequestMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitUnsubscribeRequest>>, TError,{data: BodyType<UnsubscribeRequestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitUnsubscribeRequest>>, TError,{data: BodyType<UnsubscribeRequestInput>}, TContext> => {
+
+const mutationKey = ['submitUnsubscribeRequest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitUnsubscribeRequest>>, {data: BodyType<UnsubscribeRequestInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  submitUnsubscribeRequest(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitUnsubscribeRequestMutationResult = NonNullable<Awaited<ReturnType<typeof submitUnsubscribeRequest>>>
+    export type SubmitUnsubscribeRequestMutationBody = BodyType<UnsubscribeRequestInput>
+    export type SubmitUnsubscribeRequestMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Submit an unsubscribe request
+ */
+export const useSubmitUnsubscribeRequest = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitUnsubscribeRequest>>, TError,{data: BodyType<UnsubscribeRequestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitUnsubscribeRequest>>,
+        TError,
+        {data: BodyType<UnsubscribeRequestInput>},
+        TContext
+      > => {
+      return useMutation(getSubmitUnsubscribeRequestMutationOptions(options));
+    }
+
+export const getListUnsubscribeRequestsUrl = () => {
+
+
+
+
+  return `/api/admin/unsubscribe-requests`
+}
+
+/**
+ * Returns all unsubscribe requests sorted by newest first (admin only)
+ * @summary List all unsubscribe requests
+ */
+export const listUnsubscribeRequests = async ( options?: RequestInit): Promise<UnsubscribeRequest[]> => {
+
+  return customFetch<UnsubscribeRequest[]>(getListUnsubscribeRequestsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListUnsubscribeRequestsQueryKey = () => {
+    return [
+    `/api/admin/unsubscribe-requests`
+    ] as const;
+    }
+
+
+export const getListUnsubscribeRequestsQueryOptions = <TData = Awaited<ReturnType<typeof listUnsubscribeRequests>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUnsubscribeRequests>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListUnsubscribeRequestsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUnsubscribeRequests>>> = ({ signal }) => listUnsubscribeRequests({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUnsubscribeRequests>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListUnsubscribeRequestsQueryResult = NonNullable<Awaited<ReturnType<typeof listUnsubscribeRequests>>>
+export type ListUnsubscribeRequestsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary List all unsubscribe requests
+ */
+
+export function useListUnsubscribeRequests<TData = Awaited<ReturnType<typeof listUnsubscribeRequests>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUnsubscribeRequests>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListUnsubscribeRequestsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

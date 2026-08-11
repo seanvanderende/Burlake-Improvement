@@ -642,6 +642,40 @@ export const ListApplicationsResponse = zod.array(ListApplicationsResponseItem)
 
 
 /**
+ * Public endpoint for customers to request removal from marketing lists
+ * @summary Submit an unsubscribe request
+ */
+
+
+
+
+export const SubmitUnsubscribeRequestBody = zod.object({
+  "businessNameOrAccountNumber": zod.string().min(1),
+  "email": zod.string().min(1)
+})
+
+export const SubmitUnsubscribeRequestResponse = zod.object({
+  "id": zod.number(),
+  "businessNameOrAccountNumber": zod.string(),
+  "email": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * Returns all unsubscribe requests sorted by newest first (admin only)
+ * @summary List all unsubscribe requests
+ */
+export const ListUnsubscribeRequestsResponseItem = zod.object({
+  "id": zod.number(),
+  "businessNameOrAccountNumber": zod.string(),
+  "email": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListUnsubscribeRequestsResponse = zod.array(ListUnsubscribeRequestsResponseItem)
+
+
+/**
  * Updates application status (admin only)
  * @summary Update an application status
  */

@@ -10,6 +10,7 @@ import applicationsRouter from "./applications";
 import orderFormsRouter from "./orderForms";
 import portalSettingsRouter from "./portalSettings";
 import analyticsRouter from "./analytics";
+import unsubscribeRouter from "./unsubscribe";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(applicationsRouter);
 router.use(orderFormsRouter);
 router.use(portalSettingsRouter);
 router.use(analyticsRouter);
+router.use(unsubscribeRouter);
 
 export default router;

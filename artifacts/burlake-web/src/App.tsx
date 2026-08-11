@@ -13,6 +13,7 @@ import Sustainability from '@/pages/Sustainability';
 import Catalog from '@/pages/Catalog';
 import ProductDetail from '@/pages/ProductDetail';
 import Contact from '@/pages/Contact';
+import Unsubscribe from '@/pages/Unsubscribe';
 import AdminLogin from '@/pages/admin/Login';
 import AdminDashboard from '@/pages/admin/Dashboard';
 import AdminCollections from '@/pages/admin/Collections';
@@ -28,6 +29,7 @@ import OrderForms from '@/pages/OrderForms';
 import OrderFormView from '@/pages/OrderFormView';
 import NotFound from '@/pages/not-found';
 import AdminApplications from '@/pages/admin/Applications';
+import AdminUnsubscribeRequests from '@/pages/admin/UnsubscribeRequests';
 import AdminPortalSettings from '@/pages/admin/PortalSettings';
 import AdminAnalytics from '@/pages/admin/Analytics';
 import AdminSecurity from '@/pages/admin/Security';
@@ -98,6 +100,13 @@ function Router() {
           </AdminLayout>
         )}
       </Route>
+      <Route path="/admin/unsubscribe-requests">
+        {() => (
+          <AdminLayout>
+            <AdminUnsubscribeRequests />
+          </AdminLayout>
+        )}
+      </Route>
       <Route path="/admin/portal-settings">
         {() => (
           <AdminLayout>
@@ -163,6 +172,7 @@ function Router() {
               <Route path="/portal/order-forms/:id" component={OrderFormView} />
               <Route path="/portal/order-forms" component={OrderForms} />
               <Route path="/contact" component={Contact} />
+              <Route path="/unsubscribe" component={Unsubscribe} />
               <Route component={NotFound} />
             </Switch>
           </Shell>
