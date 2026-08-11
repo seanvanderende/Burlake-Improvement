@@ -161,6 +161,29 @@ export interface AdminSession {
   authenticated: boolean;
 }
 
+export interface ChangeAdminPasswordInput {
+  /** @minLength 1 */
+  currentPassword: string;
+  /** @minLength 4 */
+  newPassword: string;
+}
+
+export interface ForgotAdminPasswordInput {
+  /** @minLength 1 */
+  recoveryCode: string;
+  /** @minLength 4 */
+  newPassword: string;
+}
+
+export interface RecoveryCodeStatus {
+  hasRecoveryCode: boolean;
+}
+
+export interface RecoveryCode {
+  /** Plaintext recovery code, shown only once */
+  code: string;
+}
+
 export type ApplicationStatus = typeof ApplicationStatus[keyof typeof ApplicationStatus];
 
 

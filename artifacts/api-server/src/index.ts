@@ -3,6 +3,7 @@ import { logger } from "./lib/logger";
 import { runPortalAclBackfill } from "./lib/portalAclBackfill";
 import { runMigrations } from "./lib/runMigrations";
 import { ensurePortalSettingsSeed } from "./lib/portalSettings";
+import { ensureAdminPasswordSeed } from "./lib/adminPassword";
 
 const rawPort = process.env["PORT"];
 
@@ -21,6 +22,7 @@ if (Number.isNaN(port) || port <= 0) {
 // Run DB migrations synchronously before accepting traffic
 runMigrations()
   .then(() => ensurePortalSettingsSeed())
+  .then(() => ensureAdminPasswordSeed())
   .then(() => {
     app.listen(port, (err) => {
       if (err) {

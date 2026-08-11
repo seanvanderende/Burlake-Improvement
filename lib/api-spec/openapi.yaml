@@ -452,6 +452,120 @@ paths:
               schema:
                 $ref: "#/components/schemas/AdminSession"
 
+  /admin/change-password:
+    post:
+      operationId: changeAdminPassword
+      tags: [admin]
+      summary: Change the admin password
+      description: Requires an active admin session and the current password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeAdminPasswordInput"
+      responses:
+        "200":
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Not authenticated, or current password incorrect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "400":
+          description: Invalid new password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/recovery-code/status:
+    get:
+      operationId: getAdminRecoveryCodeStatus
+      tags: [admin]
+      summary: Check whether an admin recovery code is currently set
+      responses:
+        "200":
+          description: Recovery code status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecoveryCodeStatus"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/recovery-code/generate:
+    post:
+      operationId: generateAdminRecoveryCode
+      tags: [admin]
+      summary: Generate a new admin recovery code
+      description: >
+        Replaces any existing recovery code. The plaintext code is returned
+        exactly once and must be stored safely by staff -- it cannot be
+        retrieved again later.
+      responses:
+        "200":
+          description: New recovery code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecoveryCode"
+        "401":
+          description: Not authenticated as admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/forgot-password:
+    post:
+      operationId: forgotAdminPassword
+      tags: [admin]
+      summary: Reset the admin password using a recovery code
+      description: >
+        Public endpoint (no session required) for staff who are locked out.
+        Consumes the recovery code -- a new one must be generated afterward.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotAdminPasswordInput"
+      responses:
+        "200":
+          description: Password reset and session started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Invalid or already-used recovery code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "400":
+          description: Invalid new password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many attempts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /brochures/auth:
     post:
       operationId: brochureAuth
@@ -1165,6 +1279,49 @@ components:
       properties:
         authenticated:
           type: boolean
+
+    ChangeAdminPasswordInput:
+      type: object
+      required:
+        - currentPassword
+        - newPassword
+      properties:
+        currentPassword:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          minLength: 4
+
+    ForgotAdminPasswordInput:
+      type: object
+      required:
+        - recoveryCode
+        - newPassword
+      properties:
+        recoveryCode:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          minLength: 4
+
+    RecoveryCodeStatus:
+      type: object
+      required:
+        - hasRecoveryCode
+      properties:
+        hasRecoveryCode:
+          type: boolean
+
+    RecoveryCode:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: Plaintext recovery code, shown only once
 
     Application:
       type: object

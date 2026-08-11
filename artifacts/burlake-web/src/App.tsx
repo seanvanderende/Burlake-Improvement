@@ -30,6 +30,8 @@ import NotFound from '@/pages/not-found';
 import AdminApplications from '@/pages/admin/Applications';
 import AdminPortalSettings from '@/pages/admin/PortalSettings';
 import AdminAnalytics from '@/pages/admin/Analytics';
+import AdminSecurity from '@/pages/admin/Security';
+import AdminForgotPassword from '@/pages/admin/ForgotPassword';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +62,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/forgot-password" component={AdminForgotPassword} />
       <Route path="/admin/brochures">
         {() => (
           <AdminLayout>
@@ -106,6 +109,13 @@ function Router() {
         {() => (
           <AdminLayout>
             <AdminAnalytics />
+          </AdminLayout>
+        )}
+      </Route>
+      <Route path="/admin/security">
+        {() => (
+          <AdminLayout>
+            <AdminSecurity />
           </AdminLayout>
         )}
       </Route>

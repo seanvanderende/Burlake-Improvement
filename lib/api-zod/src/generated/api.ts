@@ -388,6 +388,61 @@ export const GetAdminSessionResponse = zod.object({
 
 
 /**
+ * Requires an active admin session and the current password
+ * @summary Change the admin password
+ */
+
+export const changeAdminPasswordBodyNewPasswordMin = 4;
+
+
+
+export const ChangeAdminPasswordBody = zod.object({
+  "currentPassword": zod.string().min(1),
+  "newPassword": zod.string().min(changeAdminPasswordBodyNewPasswordMin)
+})
+
+export const ChangeAdminPasswordResponse = zod.object({
+  "authenticated": zod.boolean()
+})
+
+
+/**
+ * @summary Check whether an admin recovery code is currently set
+ */
+export const GetAdminRecoveryCodeStatusResponse = zod.object({
+  "hasRecoveryCode": zod.boolean()
+})
+
+
+/**
+ * Replaces any existing recovery code. The plaintext code is returned exactly once and must be stored safely by staff -- it cannot be retrieved again later.
+ * @summary Generate a new admin recovery code
+ */
+export const GenerateAdminRecoveryCodeResponse = zod.object({
+  "code": zod.string().describe('Plaintext recovery code, shown only once')
+})
+
+
+/**
+ * Public endpoint (no session required) for staff who are locked out. Consumes the recovery code -- a new one must be generated afterward.
+ * @summary Reset the admin password using a recovery code
+ */
+
+export const forgotAdminPasswordBodyNewPasswordMin = 4;
+
+
+
+export const ForgotAdminPasswordBody = zod.object({
+  "recoveryCode": zod.string().min(1),
+  "newPassword": zod.string().min(forgotAdminPasswordBodyNewPasswordMin)
+})
+
+export const ForgotAdminPasswordResponse = zod.object({
+  "authenticated": zod.boolean()
+})
+
+
+/**
  * @summary Authenticate as a wholesale buyer to access brochures
  */
 

@@ -34,10 +34,12 @@ import type {
   BulkCreateProductsResult,
   BulkDeleteProductsInput,
   BulkDeleteProductsResult,
+  ChangeAdminPasswordInput,
   Collection,
   CollectionInput,
   CollectionUpdate,
   ErrorResponse,
+  ForgotAdminPasswordInput,
   HealthStatus,
   ListCollectionsParams,
   ListProductsParams,
@@ -50,6 +52,8 @@ import type {
   Product,
   ProductInput,
   ProductUpdate,
+  RecoveryCode,
+  RecoveryCodeStatus,
   UploadRequestInput
 } from './api.schemas';
 
@@ -1431,6 +1435,299 @@ export function useGetAdminSession<TData = Awaited<ReturnType<typeof getAdminSes
 
 
 
+
+export const getChangeAdminPasswordUrl = () => {
+
+
+
+
+  return `/api/admin/change-password`
+}
+
+/**
+ * Requires an active admin session and the current password
+ * @summary Change the admin password
+ */
+export const changeAdminPassword = async (changeAdminPasswordInput: ChangeAdminPasswordInput, options?: RequestInit): Promise<AdminSession> => {
+
+  return customFetch<AdminSession>(getChangeAdminPasswordUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(changeAdminPasswordInput)
+  }
+);}
+
+
+
+
+
+export const getChangeAdminPasswordMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof changeAdminPassword>>, TError,{data: BodyType<ChangeAdminPasswordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof changeAdminPassword>>, TError,{data: BodyType<ChangeAdminPasswordInput>}, TContext> => {
+
+const mutationKey = ['changeAdminPassword'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof changeAdminPassword>>, {data: BodyType<ChangeAdminPasswordInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  changeAdminPassword(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ChangeAdminPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof changeAdminPassword>>>
+    export type ChangeAdminPasswordMutationBody = BodyType<ChangeAdminPasswordInput>
+    export type ChangeAdminPasswordMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Change the admin password
+ */
+export const useChangeAdminPassword = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof changeAdminPassword>>, TError,{data: BodyType<ChangeAdminPasswordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof changeAdminPassword>>,
+        TError,
+        {data: BodyType<ChangeAdminPasswordInput>},
+        TContext
+      > => {
+      return useMutation(getChangeAdminPasswordMutationOptions(options));
+    }
+
+export const getGetAdminRecoveryCodeStatusUrl = () => {
+
+
+
+
+  return `/api/admin/recovery-code/status`
+}
+
+/**
+ * @summary Check whether an admin recovery code is currently set
+ */
+export const getAdminRecoveryCodeStatus = async ( options?: RequestInit): Promise<RecoveryCodeStatus> => {
+
+  return customFetch<RecoveryCodeStatus>(getGetAdminRecoveryCodeStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminRecoveryCodeStatusQueryKey = () => {
+    return [
+    `/api/admin/recovery-code/status`
+    ] as const;
+    }
+
+
+export const getGetAdminRecoveryCodeStatusQueryOptions = <TData = Awaited<ReturnType<typeof getAdminRecoveryCodeStatus>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminRecoveryCodeStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminRecoveryCodeStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminRecoveryCodeStatus>>> = ({ signal }) => getAdminRecoveryCodeStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminRecoveryCodeStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminRecoveryCodeStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminRecoveryCodeStatus>>>
+export type GetAdminRecoveryCodeStatusQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Check whether an admin recovery code is currently set
+ */
+
+export function useGetAdminRecoveryCodeStatus<TData = Awaited<ReturnType<typeof getAdminRecoveryCodeStatus>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminRecoveryCodeStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminRecoveryCodeStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGenerateAdminRecoveryCodeUrl = () => {
+
+
+
+
+  return `/api/admin/recovery-code/generate`
+}
+
+/**
+ * Replaces any existing recovery code. The plaintext code is returned exactly once and must be stored safely by staff -- it cannot be retrieved again later.
+ * @summary Generate a new admin recovery code
+ */
+export const generateAdminRecoveryCode = async ( options?: RequestInit): Promise<RecoveryCode> => {
+
+  return customFetch<RecoveryCode>(getGenerateAdminRecoveryCodeUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getGenerateAdminRecoveryCodeMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateAdminRecoveryCode>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateAdminRecoveryCode>>, TError,void, TContext> => {
+
+const mutationKey = ['generateAdminRecoveryCode'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateAdminRecoveryCode>>, void> = () => {
+
+
+          return  generateAdminRecoveryCode(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateAdminRecoveryCodeMutationResult = NonNullable<Awaited<ReturnType<typeof generateAdminRecoveryCode>>>
+
+    export type GenerateAdminRecoveryCodeMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Generate a new admin recovery code
+ */
+export const useGenerateAdminRecoveryCode = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateAdminRecoveryCode>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateAdminRecoveryCode>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getGenerateAdminRecoveryCodeMutationOptions(options));
+    }
+
+export const getForgotAdminPasswordUrl = () => {
+
+
+
+
+  return `/api/admin/forgot-password`
+}
+
+/**
+ * Public endpoint (no session required) for staff who are locked out. Consumes the recovery code -- a new one must be generated afterward.
+ * @summary Reset the admin password using a recovery code
+ */
+export const forgotAdminPassword = async (forgotAdminPasswordInput: ForgotAdminPasswordInput, options?: RequestInit): Promise<AdminSession> => {
+
+  return customFetch<AdminSession>(getForgotAdminPasswordUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(forgotAdminPasswordInput)
+  }
+);}
+
+
+
+
+
+export const getForgotAdminPasswordMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof forgotAdminPassword>>, TError,{data: BodyType<ForgotAdminPasswordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof forgotAdminPassword>>, TError,{data: BodyType<ForgotAdminPasswordInput>}, TContext> => {
+
+const mutationKey = ['forgotAdminPassword'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof forgotAdminPassword>>, {data: BodyType<ForgotAdminPasswordInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  forgotAdminPassword(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ForgotAdminPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof forgotAdminPassword>>>
+    export type ForgotAdminPasswordMutationBody = BodyType<ForgotAdminPasswordInput>
+    export type ForgotAdminPasswordMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Reset the admin password using a recovery code
+ */
+export const useForgotAdminPassword = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof forgotAdminPassword>>, TError,{data: BodyType<ForgotAdminPasswordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof forgotAdminPassword>>,
+        TError,
+        {data: BodyType<ForgotAdminPasswordInput>},
+        TContext
+      > => {
+      return useMutation(getForgotAdminPasswordMutationOptions(options));
+    }
 
 export const getBrochureAuthUrl = () => {
 
