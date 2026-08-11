@@ -11,6 +11,7 @@ import orderFormsRouter from "./orderForms";
 import portalSettingsRouter from "./portalSettings";
 import analyticsRouter from "./analytics";
 import unsubscribeRouter from "./unsubscribe";
+import adminMigrateImagesRouter from "./adminMigrateImages";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(orderFormsRouter);
 router.use(portalSettingsRouter);
 router.use(analyticsRouter);
 router.use(unsubscribeRouter);
+router.use(adminMigrateImagesRouter);
 
 export default router;
