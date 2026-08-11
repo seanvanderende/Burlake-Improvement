@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'wouter';
+import { Seo, JsonLd } from '@/components/Seo';
+import { absoluteUrl } from '@/lib/seo';
 
 interface Milestone {
   years: string;
@@ -94,6 +96,21 @@ const MILESTONES: Milestone[] = [
 export default function History() {
   return (
     <div className="bg-background pt-32 pb-24 min-h-screen">
+      <Seo
+        title="Our History — Four Generations of Growing"
+        description="From a single hobby farm in Burnaby in 1951 to 1.3 million square feet under glass in Cloverdale — the van der Ende family's 70+ year history growing Western Canada's wholesale plant supply."
+        path="/history"
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: absoluteUrl('/') },
+            { '@type': 'ListItem', position: 2, name: 'Our History', item: absoluteUrl('/history') },
+          ],
+        }}
+      />
       <div className="max-w-5xl mx-auto px-6 md:px-12">
         {/* Header */}
         <div className="mb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 text-center">

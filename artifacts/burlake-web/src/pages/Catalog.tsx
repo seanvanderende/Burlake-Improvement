@@ -3,6 +3,8 @@ import { useListProducts, useListCollections, useListProductSizes } from '@works
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 import { ChevronDown, ChevronUp, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Seo, JsonLd } from '@/components/Seo';
+import { absoluteUrl } from '@/lib/seo';
 
 // ── Filter section ────────────────────────────────────────────────────────────
 
@@ -317,6 +319,25 @@ export default function Catalog() {
 
   return (
     <div className="bg-background pt-28 pb-24 min-h-screen">
+      <Seo
+        title="Wholesale Plant Catalog"
+        description="Browse Burnaby Lake Greenhouses' full wholesale range — tropical foliage, flowering plants, planters & upgrades, and cut flowers. Trade pricing available exclusively to retail partners."
+        path="/catalog"
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: 'Burnaby Lake Greenhouses Wholesale Catalog',
+          numberOfItems: filtered.length,
+          itemListElement: filtered.slice(0, 100).map((p, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            url: absoluteUrl(`/product/${p.id}`),
+            name: p.name,
+          })),
+        }}
+      />
       <div className="max-w-[1440px] mx-auto px-6 md:px-10">
 
         {/* Header */}

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSubmitApplication } from '@workspace/api-client-react';
 import { useToast } from '@/hooks/use-toast';
+import { Seo } from '@/components/Seo';
 
 export default function Contact() {
   const [formState, setFormState] = React.useState<'idle' | 'submitting' | 'success'>('idle');
@@ -44,6 +45,11 @@ export default function Contact() {
 
   return (
     <div className="bg-background pt-32 pb-24 min-h-screen">
+      <Seo
+        title="Apply for a Wholesale Account"
+        description="Apply for a wholesale trade account with Burnaby Lake Greenhouses. Open to established florists, grocers, and garden centers in Western Canada — 65+ years of growing expertise at scale."
+        path="/contact"
+      />
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
           {/* Left Info */}

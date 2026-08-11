@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { Link } from 'wouter';
 import { ArrowRight, MapPin, Phone, CheckCircle2, Leaf, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Seo, JsonLd } from '@/components/Seo';
+import { absoluteUrl } from '@/lib/seo';
 
 function useReveal() {
   useEffect(() => {
@@ -25,6 +27,46 @@ export default function Homepage() {
 
   return (
     <div className="overflow-x-hidden">
+      <Seo
+        title="Burnaby Lake Greenhouses"
+        description="Western Canada's leading wholesale greenhouse since 1955. Four generations of growing expertise, 1.3M+ sq ft under glass — supplying florists, grocers, and garden centers at scale."
+        path="/"
+        image="/images/hero-greenhouse.jpg"
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'Burnaby Lake Greenhouses',
+          alternateName: 'Burnaby Lake Greenhouses Ltd.',
+          url: absoluteUrl('/'),
+          logo: absoluteUrl('/images/logo-horizontal.jpg'),
+          foundingDate: '1955',
+          description:
+            "Western Canada's leading wholesale greenhouse grower, supplying tropical foliage, flowering plants, planters, and cut flowers to retail trade partners since 1955.",
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: 'Surrey',
+            addressRegion: 'BC',
+            addressCountry: 'CA',
+          },
+          areaServed: 'Western Canada',
+          slogan: 'Grown at Scale. Rooted in Tradition.',
+        }}
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'Burnaby Lake Greenhouses',
+          url: absoluteUrl('/'),
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: `${absoluteUrl('/catalog')}?q={search_term_string}`,
+            'query-input': 'required name=search_term_string',
+          },
+        }}
+      />
       {/* Hero Section */}
       <section className="relative h-[100dvh] min-h-[700px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-secondary">

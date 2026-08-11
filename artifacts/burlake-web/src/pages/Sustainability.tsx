@@ -1,6 +1,8 @@
 import React from 'react';
 import { Droplets, Recycle, Leaf, Cpu } from 'lucide-react';
 import { Link } from 'wouter';
+import { Seo, JsonLd } from '@/components/Seo';
+import { absoluteUrl } from '@/lib/seo';
 
 interface Practice {
   icon: React.ReactNode;
@@ -43,6 +45,21 @@ const PRACTICES: Practice[] = [
 export default function Sustainability() {
   return (
     <div className="bg-background pt-32 pb-24 min-h-screen">
+      <Seo
+        title="Growing Green — Sustainability Practices"
+        description="Water recycling, pot sterilizing, biodegradable materials, and efficient greenhouse technology — how Burnaby Lake Greenhouses reduces its environmental footprint while growing at scale."
+        path="/sustainability"
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: absoluteUrl('/') },
+            { '@type': 'ListItem', position: 2, name: 'Growing Green', item: absoluteUrl('/sustainability') },
+          ],
+        }}
+      />
       <div className="max-w-5xl mx-auto px-6 md:px-12">
         {/* Header */}
         <div className="mb-16 animate-in fade-in slide-in-from-bottom-4 duration-500 text-center">

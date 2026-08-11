@@ -3,6 +3,8 @@ import { useParams, Link } from 'wouter';
 import { useGetProduct } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, XCircle } from 'lucide-react';
+import { Seo, JsonLd } from '@/components/Seo';
+import { absoluteUrl } from '@/lib/seo';
 
 export default function ProductDetail() {
   const params = useParams();
@@ -26,6 +28,12 @@ export default function ProductDetail() {
   if (isLoading) {
     return (
       <div className="bg-background pt-32 pb-24 min-h-[70vh] flex justify-center">
+        <Seo
+          title="Loading Variety…"
+          description="Browse Burnaby Lake Greenhouses' wholesale plant catalog."
+          path={`/product/${id}`}
+          noindex
+        />
         <div className="animate-pulse w-full max-w-7xl px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="aspect-square bg-muted"></div>
           <div className="space-y-6 pt-8">
@@ -41,6 +49,12 @@ export default function ProductDetail() {
   if (error || !product) {
     return (
       <div className="bg-background pt-32 pb-24 min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
+        <Seo
+          title="Variety Not Available"
+          description="This variety may be seasonal or no longer in our current range. Browse our full wholesale catalog."
+          path={`/product/${id}`}
+          noindex
+        />
         <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
           <div className="w-8 h-px bg-primary" />
           Wholesale Catalog
@@ -58,8 +72,52 @@ export default function ProductDetail() {
     );
   }
 
+  const productDescription =
+    product.description ||
+    `${product.name}${product.size ? ` — ${product.size}` : ''}. Wholesale pricing available exclusively to Burnaby Lake Greenhouses' retail trade partners.`;
+
   return (
     <div className="bg-background pt-24 pb-24 min-h-screen">
+      <Seo
+        title={product.name}
+        description={productDescription.slice(0, 300)}
+        path={`/product/${product.id}`}
+        image={product.imageUrl ?? undefined}
+        type="article"
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.name,
+          description: productDescription,
+          sku: product.sku ?? undefined,
+          image: gallery.length > 0 ? gallery.map((u) => absoluteUrl(u)) : undefined,
+          category: product.collections.length > 0 ? product.collections.map((c) => c.name).join(', ') : undefined,
+          brand: { '@type': 'Brand', name: 'Burnaby Lake Greenhouses' },
+          offers: {
+            '@type': 'Offer',
+            availability: product.available
+              ? 'https://schema.org/InStock'
+              : 'https://schema.org/OutOfStock',
+            url: absoluteUrl(`/product/${product.id}`),
+            priceCurrency: 'CAD',
+            businessFunction: 'https://schema.org/Sell',
+            eligibleCustomerType: 'https://schema.org/Reseller',
+          },
+        }}
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: absoluteUrl('/') },
+            { '@type': 'ListItem', position: 2, name: 'Catalog', item: absoluteUrl('/catalog') },
+            { '@type': 'ListItem', position: 3, name: product.name, item: absoluteUrl(`/product/${product.id}`) },
+          ],
+        }}
+      />
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <Link
           href="/catalog"
