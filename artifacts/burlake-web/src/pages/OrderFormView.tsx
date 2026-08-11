@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams } from 'wouter';
+import { Link, useParams, useLocation } from 'wouter';
 import { Download, Printer, Mail } from 'lucide-react';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -31,6 +31,16 @@ interface OrderFormData {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+interface AuthStatus {
+  authenticated: boolean;
+}
+
+async function fetchAuthStatus(): Promise<AuthStatus> {
+  const res = await fetch(`${BASE}/api/brochures/auth`);
+  if (!res.ok) throw new Error('Failed to check auth');
+  return res.json();
+}
 
 const money = (n: number) => '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const num = (n: number) => n.toLocaleString();
@@ -146,6 +156,13 @@ function useToast() {
 export default function OrderFormView() {
   const params = useParams<{ id: string }>();
   const formId = params.id;
+  const [, setLocation] = useLocation();
+
+  const { data: auth, isLoading: authLoading } = useQuery({
+    queryKey: ['brochures-auth'],
+    queryFn: fetchAuthStatus,
+    retry: false,
+  });
 
   const { data: form, isLoading, error } = useQuery<OrderFormData>({
     queryKey: ['portal-order-form', formId],
@@ -154,8 +171,16 @@ export default function OrderFormView() {
       if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Failed to load'); }
       return res.json();
     },
-    enabled: !!formId,
+    enabled: !!formId && !!auth?.authenticated,
+    retry: false,
   });
+
+  // Redirect to portal if not authenticated
+  useEffect(() => {
+    if (!authLoading && !auth?.authenticated) {
+      setLocation('/portal');
+    }
+  }, [auth, authLoading, setLocation]);
 
   const [qty, setQty] = useState<Record<number, number>>({});
   const [search, setSearch] = useState('');
@@ -379,7 +404,7 @@ export default function OrderFormView() {
     toast('CSV downloaded');
   };
 
-  if (isLoading) {
+  if (authLoading || !auth?.authenticated || isLoading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#faf8f4' }}>
         <p style={{ color: '#aaa' }}>Loading…</p>

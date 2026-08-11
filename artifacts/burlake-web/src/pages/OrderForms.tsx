@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { ClipboardList, ChevronRight, CalendarDays } from 'lucide-react';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -16,7 +16,25 @@ interface OrderForm {
   createdAt: string;
 }
 
+interface AuthStatus {
+  authenticated: boolean;
+}
+
+async function fetchAuthStatus(): Promise<AuthStatus> {
+  const res = await fetch(`${BASE}/api/brochures/auth`);
+  if (!res.ok) throw new Error('Failed to check auth');
+  return res.json();
+}
+
 export default function OrderForms() {
+  const [, setLocation] = useLocation();
+
+  const { data: auth, isLoading: authLoading } = useQuery({
+    queryKey: ['brochures-auth'],
+    queryFn: fetchAuthStatus,
+    retry: false,
+  });
+
   const { data: forms, isLoading, error } = useQuery<OrderForm[]>({
     queryKey: ['portal-order-forms'],
     queryFn: async () => {
@@ -24,7 +42,24 @@ export default function OrderForms() {
       if (!res.ok) throw new Error('Failed to load order forms');
       return res.json();
     },
+    enabled: !!auth?.authenticated,
+    retry: false,
   });
+
+  // Redirect to portal if not authenticated
+  useEffect(() => {
+    if (!authLoading && !auth?.authenticated) {
+      setLocation('/portal');
+    }
+  }, [auth, authLoading, setLocation]);
+
+  if (authLoading || !auth?.authenticated) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#faf8f4' }}>
+        <p style={{ color: '#888' }}>Loading…</p>
+      </div>
+    );
+  }
 
   const container: React.CSSProperties = {
     minHeight: '100vh',

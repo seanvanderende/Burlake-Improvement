@@ -37,8 +37,11 @@ app.use(
   }),
 );
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Default body-parser limit is 100kb, which is too small for bulk CSV product
+// imports (each chunk of parsed rows is sent as a JSON array) and multi-item
+// admin bulk edits. Raise it well above any realistic catalog import size.
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
