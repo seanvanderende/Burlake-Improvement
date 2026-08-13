@@ -10,7 +10,7 @@ export default function Distribution() {
     <div className="bg-background min-h-screen">
       <Seo
         title="Distribution & Fleet — Our Own Climate-Controlled Trucks"
-        description="Burnaby Lake Greenhouses operates its own dedicated fleet of climate-controlled semi trucks, delivering across Western Canada, the U.S. Pacific Northwest (including Portland and Salem, OR), and California."
+        description="Burnaby Lake Greenhouses operates its own dedicated fleet of climate-controlled semi trucks, delivering across Western Canada, major U.S. Pacific Northwest markets like Seattle and Portland, and California."
         path="/distribution"
         image="/images/products-banner.jpg"
       />
@@ -133,7 +133,7 @@ export default function Distribution() {
                     <div>
                       <div className="font-semibold tracking-wide">U.S. Pacific Northwest</div>
                       <div className="text-white/60 font-light text-sm mt-1">
-                        Regular service into major and smaller markets alike, including Portland and Salem, OR.
+                        Regular service into major markets, including Seattle and Portland.
                       </div>
                     </div>
                   </li>
