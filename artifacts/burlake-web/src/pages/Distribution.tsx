@@ -140,9 +140,9 @@ export default function Distribution() {
                   <li className="flex items-start gap-4">
                     <CheckCircle2 size={20} className="text-primary shrink-0 mt-1" />
                     <div>
-                      <div className="font-semibold tracking-wide">California</div>
+                      <div className="font-semibold tracking-wide">California &amp; Beyond</div>
                       <div className="text-white/60 font-light text-sm mt-1">
-                        Strong, established capability to run product reliably all the way down the coast.
+                        Strong, established capability to run product reliably all the way down the coast, plus reach into markets like Utah.
                       </div>
                     </div>
                   </li>
