@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { Truck, Snowflake, MapPin, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Truck, Snowflake, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Headset, TrendingUp, Palette, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Seo, JsonLd } from '@/components/Seo';
 import { absoluteUrl } from '@/lib/seo';
@@ -10,7 +10,7 @@ export default function Distribution() {
     <div className="bg-background min-h-screen">
       <Seo
         title="Distribution & Fleet — Our Own Climate-Controlled Trucks"
-        description="Burnaby Lake Greenhouses operates its own dedicated fleet of climate-controlled semi trucks, delivering across Western Canada, major U.S. Pacific Northwest markets like Seattle and Portland, and California."
+        description="Burnaby Lake Greenhouses operates its own dedicated fleet of climate-controlled semi trucks with flexible LTL and DSD delivery, backed by full-service customer support and in-house value-added packaging and design."
         path="/distribution"
         image="/images/products-banner.jpg"
       />
@@ -109,6 +109,13 @@ export default function Distribution() {
                     <div className="text-sm text-foreground/60 font-light">Reliable service well beyond Western Canada</div>
                   </div>
                 </div>
+                <div className="flex items-start gap-3">
+                  <TrendingUp size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
+                  <div>
+                    <div className="font-serif text-lg text-secondary">LTL &amp; DSD</div>
+                    <div className="text-sm text-foreground/60 font-light">Flexible less-than-truckload and direct store delivery options</div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -147,6 +154,114 @@ export default function Distribution() {
                     </div>
                   </li>
                 </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Full Service Customer Support */}
+      <section className="py-24 md:py-32 relative bg-secondary/[0.03] border-y border-border">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+            <div className="lg:col-span-6">
+              <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
+                <div className="w-8 h-px bg-primary" />
+                Full Service Customer Support
+              </span>
+              <h2 className="font-serif text-4xl md:text-5xl text-secondary leading-[1.1] mb-8">
+                A dedicated rep, not a call center.
+              </h2>
+              <div className="space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
+                <p>
+                  Every wholesale and retail partner works with a dedicated sales rep who stays
+                  in regular contact — someone who knows your account, your needs, and how to
+                  help you grow your business.
+                </p>
+                <p>
+                  Our support doesn't stop at sales. Behind every account is a team ready to help
+                  with your product, program, and ordering needs, backed by our in-house design
+                  team when it's time to build out a new look.
+                </p>
+              </div>
+            </div>
+            <div className="lg:col-span-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="flex items-start gap-4 p-6 bg-background border border-border">
+                  <Headset size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
+                  <div>
+                    <div className="font-serif text-lg text-secondary mb-1">Dedicated Rep</div>
+                    <div className="text-sm text-foreground/60 font-light">
+                      One consistent point of contact for your account
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-6 bg-background border border-border">
+                  <TrendingUp size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
+                  <div>
+                    <div className="font-serif text-lg text-secondary mb-1">Growth Support</div>
+                    <div className="text-sm text-foreground/60 font-light">
+                      Guidance to help you grow your business with us
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-6 bg-background border border-border">
+                  <Palette size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
+                  <div>
+                    <div className="font-serif text-lg text-secondary mb-1">In-House Design</div>
+                    <div className="text-sm text-foreground/60 font-light">
+                      Our own creative team behind every custom look
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-6 bg-background border border-border">
+                  <CheckCircle2 size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
+                  <div>
+                    <div className="font-serif text-lg text-secondary mb-1">Full Service</div>
+                    <div className="text-sm text-foreground/60 font-light">
+                      From order to delivery, we support the whole relationship
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Supply & Value-Added Services */}
+      <section className="py-24 md:py-32 relative bg-background">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+            <div className="lg:col-span-6 order-2 lg:order-1">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="aspect-square bg-secondary/[0.04] border border-border flex items-center justify-center">
+                  <Gift size={40} className="text-primary" strokeWidth={1.2} />
+                </div>
+                <div className="aspect-square bg-secondary/[0.04] border border-border flex items-center justify-center mt-10">
+                  <Palette size={40} className="text-primary" strokeWidth={1.2} />
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-6 order-1 lg:order-2">
+              <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
+                <div className="w-8 h-px bg-primary" />
+                Supply &amp; Value-Added Services
+              </span>
+              <h2 className="font-serif text-4xl md:text-5xl text-secondary leading-[1.1] mb-8">
+                Gift-ready, from ceramics to terra cotta.
+              </h2>
+              <div className="space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
+                <p>
+                  Beyond the plant itself, we offer container and packaging value-adds — from
+                  ceramics and gift bags to baskets, tins, and terra cotta — so your product
+                  arrives ready to sell.
+                </p>
+                <p>
+                  Our in-house creative and design team builds fresh, custom looks for every
+                  season and occasion, giving you volume-based options that stand out on the
+                  shelf without extra work on your end.
+                </p>
               </div>
             </div>
           </div>
