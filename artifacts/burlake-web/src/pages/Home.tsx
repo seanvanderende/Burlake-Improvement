@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'wouter';
-import { ArrowRight, Leaf, ShieldCheck, Truck } from 'lucide-react';
+import { ArrowRight, Leaf, ShieldCheck, Truck, Gift, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Seo, JsonLd } from '@/components/Seo';
 import { absoluteUrl } from '@/lib/seo';
@@ -220,6 +220,43 @@ export default function Homepage() {
               </p>
               <Button variant="outline-light" className="pointer-events-none">
                 Explore Full Catalog <ArrowRight className="ml-2 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Button>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* Supply & Value-Added Services Teaser */}
+      <section className="py-24 md:py-32 relative bg-background overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <Link
+            href="/catalog?category=Planters%20%26%20Upgrades"
+            className="reveal group relative block overflow-hidden border border-secondary/10"
+          >
+            <div className="absolute inset-0">
+              <img
+                src="/images/products-banner.jpg"
+                alt="Burnaby Lake planters and value-added packaging"
+                className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-105 opacity-40 group-hover:opacity-55"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/85 to-secondary/40" />
+            </div>
+            <div className="relative py-20 md:py-28 px-8 md:px-16 flex flex-col items-start">
+              <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center mb-6 text-primary transform transition-transform duration-500 group-hover:-translate-y-1">
+                <Gift size={18} />
+              </div>
+              <span className="text-primary tracking-[0.2em] text-sm uppercase mb-4 font-semibold">
+                Supply &amp; Value-Added Services
+              </span>
+              <h3 className="font-serif text-3xl md:text-5xl text-white mb-4 max-w-xl leading-tight">
+                Gift-ready, from ceramics to terra cotta.
+              </h3>
+              <p className="text-white/70 font-light text-base md:text-lg max-w-xl mb-8 leading-relaxed">
+                Container and packaging value-adds — plus custom looks from our in-house creative
+                and design team — so your order arrives ready to sell.
+              </p>
+              <Button variant="outline-light" className="pointer-events-none">
+                <Palette size={16} className="mr-2" /> Explore Planters &amp; Upgrades <ArrowRight className="ml-2 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </div>
           </Link>

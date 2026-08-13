@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useListProducts, useListCollections, useListProductSizes } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'wouter';
-import { ChevronDown, ChevronUp, Search, SlidersHorizontal, X, Gift, Palette } from 'lucide-react';
+import { Link, useSearch } from 'wouter';
+import { ChevronDown, ChevronUp, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Seo, JsonLd } from '@/components/Seo';
 import { absoluteUrl } from '@/lib/seo';
 
@@ -109,11 +109,30 @@ export default function Catalog() {
   const { data: allProducts = [], isLoading } = useListProducts();
   const { data: collections = [] } = useListCollections();
   const { data: sizes = [] } = useListProductSizes();
+  const search = useSearch();
 
   const [selectedCollectionIds, setSelectedCollectionIds] = useState<Set<number>>(new Set());
   const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // Support deep-linking into a category via ?category=<name>, e.g. from the
+  // homepage's "Planters & Upgrades" teaser. Applied once the matching
+  // collection is available; a category param that doesn't match anything
+  // (or arrives before collections load) is simply ignored.
+  const categoryParam = new URLSearchParams(search).get('category');
+  useEffect(() => {
+    if (!categoryParam || collections.length === 0) return;
+    const match = collections.find(
+      (c) => c.name.toLowerCase() === categoryParam.toLowerCase(),
+    );
+    if (match) {
+      setSelectedCollectionIds((prev) => (prev.has(match.id) ? prev : new Set(prev).add(match.id)));
+    }
+    // Only react to the param/collections becoming available, not to later
+    // manual filter changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryParam, collections]);
 
   // Out-of-stock items aren't shown in the public catalog at all.
   const inStockProducts = useMemo(() => allProducts.filter((p) => p.available), [allProducts]);
@@ -485,43 +504,6 @@ export default function Catalog() {
                 ))}
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Supply & Value-Added Services */}
-        <div className="mt-20 pt-16 border-t border-border">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-            <div className="lg:col-span-6 order-2 lg:order-1">
-              <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
-                <div className="w-8 h-px bg-primary" />
-                Supply &amp; Value-Added Services
-              </span>
-              <h2 className="font-serif text-3xl md:text-4xl text-secondary leading-[1.1] mb-6">
-                Gift-ready, from ceramics to terra cotta.
-              </h2>
-              <div className="space-y-5 text-foreground/70 text-base font-light leading-relaxed">
-                <p>
-                  Beyond the plant itself, we offer container and packaging value-adds — from
-                  ceramics and gift bags to baskets, tins, and terra cotta — so your order arrives
-                  ready to sell.
-                </p>
-                <p>
-                  Our in-house creative and design team builds fresh, custom looks for every
-                  season and occasion, giving you volume-based options that stand out on the
-                  shelf without extra work on your end.
-                </p>
-              </div>
-            </div>
-            <div className="lg:col-span-6 order-1 lg:order-2">
-              <div className="grid grid-cols-2 gap-6 max-w-sm mx-auto lg:mx-0">
-                <div className="aspect-square bg-secondary/[0.04] border border-border flex items-center justify-center">
-                  <Gift size={40} className="text-primary" strokeWidth={1.2} />
-                </div>
-                <div className="aspect-square bg-secondary/[0.04] border border-border flex items-center justify-center mt-10">
-                  <Palette size={40} className="text-primary" strokeWidth={1.2} />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
