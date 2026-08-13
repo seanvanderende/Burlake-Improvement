@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'wouter';
-import { ArrowRight, MapPin, Phone, CheckCircle2, Leaf, ShieldCheck } from 'lucide-react';
+import { ArrowRight, MapPin, Phone, CheckCircle2, Leaf, ShieldCheck, Truck, Snowflake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Seo, JsonLd } from '@/components/Seo';
 import { absoluteUrl } from '@/lib/seo';
@@ -50,7 +50,7 @@ export default function Homepage() {
             addressRegion: 'BC',
             addressCountry: 'CA',
           },
-          areaServed: 'Western Canada',
+          areaServed: ['Western Canada', 'US Pacific Northwest', 'California'],
           slogan: 'Grown at Scale. Quality Guaranteed.',
         }}
       />
@@ -223,6 +223,87 @@ export default function Homepage() {
         </div>
       </section>
 
+      {/* Distribution / Fleet Section */}
+      <section className="py-24 md:py-32 relative bg-background overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+            <div className="lg:col-span-6 order-2 lg:order-1">
+              <span className="reveal inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
+                <div className="w-8 h-px bg-primary" />
+                Our Own Fleet
+              </span>
+              <h2 className="reveal delay-100 font-serif text-4xl md:text-5xl lg:text-6xl text-secondary leading-[1.1] mb-8">
+                No third parties. <br/>
+                <span className="italic font-light">Just our trucks, our standard.</span>
+              </h2>
+              <div className="reveal delay-200 space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
+                <p>
+                  Quality doesn't stop at the greenhouse door. We operate our own dedicated fleet of climate-controlled semi trucks — no third-party carriers, no handoffs, no surprises. Every load is temperature-managed from our headhouse to your receiving dock.
+                </p>
+                <p>
+                  That means we control the one variable most growers can't: what happens to the plants after they leave the greenhouse. The result is product that arrives in the same condition it left us in, whether you're two hours away or two provinces away.
+                </p>
+              </div>
+
+              <div className="reveal delay-300 grid grid-cols-2 gap-6 mt-10 pt-10 border-t border-secondary/10">
+                <div className="flex items-start gap-3">
+                  <Truck size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
+                  <div>
+                    <div className="font-serif text-lg text-secondary">Dedicated Fleet</div>
+                    <div className="text-sm text-foreground/60 font-light">Our own trucks &amp; drivers, start to finish</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Snowflake size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
+                  <div>
+                    <div className="font-serif text-lg text-secondary">Climate-Controlled</div>
+                    <div className="text-sm text-foreground/60 font-light">Consistent conditions for every mile</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 order-1 lg:order-2 reveal">
+              <div className="relative bg-secondary text-background p-10 md:p-14 border border-secondary/10">
+                <MapPin size={32} className="text-primary mb-8 opacity-80" strokeWidth={1.5} />
+                <div className="font-serif italic text-2xl md:text-3xl mb-10 text-background/90">
+                  Where we deliver
+                </div>
+                <ul className="space-y-6">
+                  <li className="flex items-start gap-4 pb-6 border-b border-white/10">
+                    <CheckCircle2 size={20} className="text-primary shrink-0 mt-1" />
+                    <div>
+                      <div className="font-semibold tracking-wide">Western Canada</div>
+                      <div className="text-white/60 font-light text-sm mt-1">
+                        Full coverage across BC, Alberta, and beyond — our core, highest-frequency routes.
+                      </div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4 pb-6 border-b border-white/10">
+                    <CheckCircle2 size={20} className="text-primary shrink-0 mt-1" />
+                    <div>
+                      <div className="font-semibold tracking-wide">U.S. Pacific Northwest</div>
+                      <div className="text-white/60 font-light text-sm mt-1">
+                        Regular service into major and smaller markets alike, including Portland and Salem, OR.
+                      </div>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <CheckCircle2 size={20} className="text-primary shrink-0 mt-1" />
+                    <div>
+                      <div className="font-semibold tracking-wide">California</div>
+                      <div className="text-white/60 font-light text-sm mt-1">
+                        Strong, established capability to run product reliably all the way down the coast.
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Wholesale / Operations Banner */}
       <section className="relative py-32 md:py-48 overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0">
@@ -242,7 +323,7 @@ export default function Homepage() {
             <span className="italic font-light text-primary">The Western Canada Quality Standard.</span>
           </h2>
           <p className="reveal delay-100 text-lg md:text-xl text-white/80 font-light leading-relaxed mb-10">
-            Our entire 1.3 million square foot operation exists for one purpose: producing the highest-quality plants in Western Canada and delivering them reliably to your floor. From meticulous crop programming to our climate-controlled delivery fleet, we are the quality benchmark your retail reputation is built on.
+            Our entire 1.3 million square foot operation exists for one purpose: producing the highest-quality plants in Western Canada and delivering them reliably to your floor — on our own climate-controlled fleet, never a third-party carrier.
           </p>
           <div className="reveal delay-200">
             <Link href="/contact">
