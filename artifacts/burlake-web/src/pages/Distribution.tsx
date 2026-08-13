@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { Truck, Snowflake, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Headset, TrendingUp, Palette, Gift } from 'lucide-react';
+import { Truck, Snowflake, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Headset, TrendingUp, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Seo, JsonLd } from '@/components/Seo';
 import { absoluteUrl } from '@/lib/seo';
@@ -223,45 +223,6 @@ export default function Distribution() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Supply & Value-Added Services */}
-      <section className="py-24 md:py-32 relative bg-background">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-            <div className="lg:col-span-6 order-2 lg:order-1">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="aspect-square bg-secondary/[0.04] border border-border flex items-center justify-center">
-                  <Gift size={40} className="text-primary" strokeWidth={1.2} />
-                </div>
-                <div className="aspect-square bg-secondary/[0.04] border border-border flex items-center justify-center mt-10">
-                  <Palette size={40} className="text-primary" strokeWidth={1.2} />
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-6 order-1 lg:order-2">
-              <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
-                <div className="w-8 h-px bg-primary" />
-                Supply &amp; Value-Added Services
-              </span>
-              <h2 className="font-serif text-4xl md:text-5xl text-secondary leading-[1.1] mb-8">
-                Gift-ready, from ceramics to terra cotta.
-              </h2>
-              <div className="space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
-                <p>
-                  Beyond the plant itself, we offer container and packaging value-adds — from
-                  ceramics and gift bags to baskets, tins, and terra cotta — so your product
-                  arrives ready to sell.
-                </p>
-                <p>
-                  Our in-house creative and design team builds fresh, custom looks for every
-                  season and occasion, giving you volume-based options that stand out on the
-                  shelf without extra work on your end.
-                </p>
               </div>
             </div>
           </div>
