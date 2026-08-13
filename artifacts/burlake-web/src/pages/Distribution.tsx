@@ -69,9 +69,8 @@ export default function Distribution() {
               </h2>
               <div className="space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
                 <p>
-                  Most wholesale growers hand their product off to a third-party carrier the moment
-                  it leaves the greenhouse — and lose control over how it's handled from there.
-                  We don't. Our own drivers, our own trucks, our own climate-controlled trailers,
+                  We don't hand our product off to a third-party carrier the moment it leaves the
+                  greenhouse. Our own drivers, our own trucks, our own climate-controlled trailers,
                   from our headhouse all the way to your receiving dock.
                 </p>
                 <p>
