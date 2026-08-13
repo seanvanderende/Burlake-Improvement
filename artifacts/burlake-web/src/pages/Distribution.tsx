@@ -98,8 +98,8 @@ export default function Distribution() {
                 <div className="flex items-start gap-3">
                   <ShieldCheck size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
                   <div>
-                    <div className="font-serif text-lg text-secondary">Mostly In-House</div>
-                    <div className="text-sm text-foreground/60 font-light">Our own fleet handles the vast majority of deliveries</div>
+                    <div className="font-serif text-lg text-secondary">Fleet-First Delivery</div>
+                    <div className="text-sm text-foreground/60 font-light">Our own trucks handle the vast majority of every route</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
