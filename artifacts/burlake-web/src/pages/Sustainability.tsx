@@ -86,25 +86,41 @@ export default function Sustainability() {
           </p>
         </div>
 
+        {/* Innovation & Sustainability intro */}
+        <div className="mb-16 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-4 font-semibold justify-center">
+            <div className="w-8 h-px bg-primary" />
+            Innovation &amp; Sustainability
+            <div className="w-8 h-px bg-primary" />
+          </span>
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground leading-[1.1] mb-6">
+            Efficiency and environmental care, built into how we grow.
+          </h2>
+          <p className="text-muted-foreground text-lg font-light leading-relaxed max-w-2xl mx-auto">
+            Innovation and sustainability go hand in hand at Burnaby Lake. From recaptured
+            irrigation water to reused pots and heat-retaining greenhouse technology, every
+            system is fine-tuned to reduce waste and make the most of every resource — without
+            compromising the quality standard our retail partners depend on.
+          </p>
+        </div>
+
         {/* Practices */}
-        <div className="space-y-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
           {PRACTICES.map((practice, i) => (
             <div
               key={practice.title}
-              className="animate-in fade-in slide-in-from-bottom-4 duration-700"
+              className="animate-in fade-in slide-in-from-bottom-4 duration-700 bg-secondary/[0.03] border border-border p-8 md:p-10"
               style={{ animationDelay: `${i * 75}ms` }}
             >
-              <div className="flex items-center gap-4 mb-5">
-                <div className="w-10 h-10 rounded-full bg-secondary/5 flex items-center justify-center text-primary shrink-0">
-                  {practice.icon}
-                </div>
-                <h2 className="font-serif text-2xl md:text-3xl text-foreground">
-                  {practice.title}
-                </h2>
+              <div className="w-12 h-12 rounded-full bg-secondary/5 flex items-center justify-center text-primary shrink-0 mb-5">
+                {practice.icon}
               </div>
-              <div className="space-y-4 md:pl-14">
+              <h3 className="font-serif text-2xl text-foreground mb-4">
+                {practice.title}
+              </h3>
+              <div className="space-y-4">
                 {practice.paragraphs.map((p, j) => (
-                  <p key={j} className="text-muted-foreground font-light leading-relaxed">
+                  <p key={j} className="text-muted-foreground font-light leading-relaxed text-sm">
                     {p}
                   </p>
                 ))}
