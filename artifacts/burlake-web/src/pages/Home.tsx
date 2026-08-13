@@ -246,7 +246,7 @@ export default function Homepage() {
                 Our Own Fleet
               </span>
               <h3 className="font-serif text-3xl md:text-5xl text-white mb-4 max-w-xl leading-tight">
-                Our own trucks, our own standard.
+                Our trucks, our standard.
               </h3>
               <p className="text-white/70 font-light text-base md:text-lg max-w-xl mb-8 leading-relaxed">
                 Our own climate-controlled fleet delivers across Western Canada, the U.S. Pacific Northwest, and California — no handoffs, no surprises.
