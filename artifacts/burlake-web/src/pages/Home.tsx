@@ -168,6 +168,9 @@ export default function Homepage() {
                 <p>
                   We are growers first. Scale is what lets us meet your volume — but quality is what earns your loyalty. Over 65 years of growing expertise, held to the Western Canada quality standard, available exclusively to the trade.
                 </p>
+                <p>
+                  And you don't have to pay a premium for it. Growing at scale keeps our pricing competitive across the market — the highest-quality product your customers expect, at a cost that works for your business.
+                </p>
               </div>
               <div className="reveal delay-300 mt-12 pt-8 border-t border-secondary/10">
                 <div className="font-serif italic text-2xl text-secondary">The van der Ende Family</div>
