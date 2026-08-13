@@ -243,7 +243,7 @@ export default function Homepage() {
                 Our Own Fleet
               </span>
               <h3 className="font-serif text-3xl md:text-5xl text-white mb-4 max-w-xl leading-tight">
-                No third parties. Just our trucks, our standard.
+                Our own trucks, our own standard.
               </h3>
               <p className="text-white/70 font-light text-base md:text-lg max-w-xl mb-8 leading-relaxed">
                 Our own climate-controlled fleet delivers across Western Canada, the U.S. Pacific Northwest, and California — no handoffs, no surprises.
@@ -275,7 +275,7 @@ export default function Homepage() {
             <span className="italic font-light text-primary">The Western Canada Quality Standard.</span>
           </h2>
           <p className="reveal delay-100 text-lg md:text-xl text-white/80 font-light leading-relaxed mb-10">
-            Our entire 1.3 million square foot operation exists for one purpose: producing the highest-quality plants in Western Canada and delivering them reliably to your floor — on our own climate-controlled fleet, never a third-party carrier.
+            Our entire 1.3 million square foot operation exists for one purpose: producing the highest-quality plants in Western Canada and delivering them reliably to your floor — backed by our own climate-controlled delivery fleet.
           </p>
           <div className="reveal delay-200">
             <Link href="/contact">

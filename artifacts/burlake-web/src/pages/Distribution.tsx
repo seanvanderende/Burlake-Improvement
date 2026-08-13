@@ -10,7 +10,7 @@ export default function Distribution() {
     <div className="bg-background min-h-screen">
       <Seo
         title="Distribution & Fleet — Our Own Climate-Controlled Trucks"
-        description="Burnaby Lake Greenhouses operates its own dedicated fleet of climate-controlled semi trucks — no third-party carriers — delivering across Western Canada, the U.S. Pacific Northwest (including Portland and Salem, OR), and California."
+        description="Burnaby Lake Greenhouses operates its own dedicated fleet of climate-controlled semi trucks, delivering across Western Canada, the U.S. Pacific Northwest (including Portland and Salem, OR), and California."
         path="/distribution"
         image="/images/products-banner.jpg"
       />
@@ -44,7 +44,7 @@ export default function Distribution() {
             <div className="w-8 h-px bg-primary" />
           </span>
           <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.1] mb-8">
-            No third parties. <br/>
+            Our own fleet. <br/>
             <span className="italic font-light text-primary">Just our trucks, our standard.</span>
           </h1>
           <p className="text-lg md:text-xl text-white/80 font-light leading-relaxed max-w-2xl mx-auto">
@@ -69,9 +69,9 @@ export default function Distribution() {
               </h2>
               <div className="space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
                 <p>
-                  We don't hand our product off to a third-party carrier the moment it leaves the
-                  greenhouse. Our own drivers, our own trucks, our own climate-controlled trailers,
-                  from our headhouse all the way to your receiving dock.
+                  For the vast majority of our deliveries, our own drivers, our own trucks, and our
+                  own climate-controlled trailers carry your order from our headhouse all the way to
+                  your receiving dock.
                 </p>
                 <p>
                   That means consistent temperature, careful handling, and reliable scheduling —
@@ -98,8 +98,8 @@ export default function Distribution() {
                 <div className="flex items-start gap-3">
                   <ShieldCheck size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
                   <div>
-                    <div className="font-serif text-lg text-secondary">No Third Parties</div>
-                    <div className="text-sm text-foreground/60 font-light">Full accountability, door to door</div>
+                    <div className="font-serif text-lg text-secondary">Mostly In-House</div>
+                    <div className="text-sm text-foreground/60 font-light">Our own fleet handles the vast majority of deliveries</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
