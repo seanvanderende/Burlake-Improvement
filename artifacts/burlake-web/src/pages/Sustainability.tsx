@@ -1,5 +1,5 @@
 import React from 'react';
-import { Droplets, Recycle, Leaf, Cpu } from 'lucide-react';
+import { Droplets, Recycle, Leaf, Cpu, Bug, Lightbulb } from 'lucide-react';
 import { Link } from 'wouter';
 import { Seo, JsonLd } from '@/components/Seo';
 import { absoluteUrl } from '@/lib/seo';
@@ -40,6 +40,20 @@ const PRACTICES: Practice[] = [
       'We\u2019ve long led on growing technology: high-intensity lighting in the late 1970s, computerized environmental controls in the early 1980s, and one of North America\u2019s first Dutch rolling palletized benching systems — which also enabled sub-irrigation, watering crops from below to cut water, fertilizer, and chemical use.',
     ],
   },
+  {
+    icon: <Bug size={20} />,
+    title: 'Integrated Pest Management',
+    paragraphs: [
+      'We rely on beneficial insects — natural predators of common pests — to help keep crops healthy. This biological control approach significantly reduces our need for chemical pesticides.',
+    ],
+  },
+  {
+    icon: <Lightbulb size={20} />,
+    title: 'LED Grow Lighting',
+    paragraphs: [
+      'We\u2019ve moved much of our supplemental lighting to high-efficiency LEDs in place of older high-pressure sodium systems, cutting energy use while giving us more precise control over crop lighting.',
+    ],
+  },
 ];
 
 export default function Sustainability() {
@@ -47,7 +61,7 @@ export default function Sustainability() {
     <div className="bg-background pt-32 pb-24 min-h-screen">
       <Seo
         title="Growing Green — Sustainability Practices"
-        description="Water recycling, pot sterilizing, biodegradable materials, and efficient greenhouse technology — how Burnaby Lake Greenhouses reduces its environmental footprint while growing at scale."
+        description="Water recycling, pot sterilizing, biodegradable materials, integrated pest management, LED grow lighting, and efficient greenhouse technology — how Burnaby Lake Greenhouses reduces its environmental footprint while growing at scale."
         path="/sustainability"
       />
       <JsonLd
@@ -98,9 +112,10 @@ export default function Sustainability() {
           </h2>
           <p className="text-muted-foreground text-lg font-light leading-relaxed max-w-2xl mx-auto">
             Innovation and sustainability go hand in hand at Burnaby Lake. From recaptured
-            irrigation water to reused pots and heat-retaining greenhouse technology, every
-            system is fine-tuned to reduce waste and make the most of every resource — without
-            compromising the quality standard our retail partners depend on.
+            irrigation water and reused pots to integrated pest management, LED grow lighting,
+            and heat-retaining greenhouse technology, every system is fine-tuned to reduce waste
+            and make the most of every resource — without compromising the quality standard our
+            retail partners depend on.
           </p>
         </div>
 
