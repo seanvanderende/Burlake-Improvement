@@ -45,7 +45,7 @@ export default function Distribution() {
           </span>
           <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.1] mb-8">
             Our own fleet. <br/>
-            <span className="italic font-light text-primary">Just our trucks, our standard.</span>
+            <span className="italic font-light text-primary">Our trucks, our standard.</span>
           </h1>
           <p className="text-lg md:text-xl text-white/80 font-light leading-relaxed max-w-2xl mx-auto">
             Quality doesn't stop at the greenhouse door. We operate our own dedicated fleet of
