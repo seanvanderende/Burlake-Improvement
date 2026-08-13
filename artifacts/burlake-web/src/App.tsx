@@ -9,6 +9,7 @@ import { Shell } from '@/components/layout/Shell';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import Home from '@/pages/Home';
 import History from '@/pages/History';
+import Distribution from '@/pages/Distribution';
 import Sustainability from '@/pages/Sustainability';
 import Catalog from '@/pages/Catalog';
 import ProductDetail from '@/pages/ProductDetail';
@@ -163,6 +164,7 @@ function Router() {
             <Switch>
               <Route path="/" component={Home} />
               <Route path="/history" component={History} />
+              <Route path="/distribution" component={Distribution} />
               <Route path="/sustainability" component={Sustainability} />
               <Route path="/catalog" component={Catalog} />
               <Route path="/product/:id" component={ProductDetail} />
