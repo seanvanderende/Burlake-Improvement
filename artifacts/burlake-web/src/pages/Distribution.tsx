@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { Truck, Snowflake, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Headset, TrendingUp, Palette } from 'lucide-react';
+import { Truck, Snowflake, MapPin, CheckCircle2, ArrowRight, ShieldCheck, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Seo, JsonLd } from '@/components/Seo';
 import { absoluteUrl } from '@/lib/seo';
@@ -154,75 +154,6 @@ export default function Distribution() {
                     </div>
                   </li>
                 </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Full Service Customer Support */}
-      <section className="py-24 md:py-32 relative bg-secondary/[0.03] border-y border-border">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-            <div className="lg:col-span-6">
-              <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
-                <div className="w-8 h-px bg-primary" />
-                Full Service Customer Support
-              </span>
-              <h2 className="font-serif text-4xl md:text-5xl text-secondary leading-[1.1] mb-8">
-                A dedicated rep, not a call center.
-              </h2>
-              <div className="space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
-                <p>
-                  Every wholesale and retail partner works with a dedicated sales rep who stays
-                  in regular contact — someone who knows your account, your needs, and how to
-                  help you grow your business.
-                </p>
-                <p>
-                  Our support doesn't stop at sales. Behind every account is a team ready to help
-                  with your product, program, and ordering needs, backed by our in-house design
-                  team when it's time to build out a new look.
-                </p>
-              </div>
-            </div>
-            <div className="lg:col-span-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="flex items-start gap-4 p-6 bg-background border border-border">
-                  <Headset size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
-                  <div>
-                    <div className="font-serif text-lg text-secondary mb-1">Dedicated Rep</div>
-                    <div className="text-sm text-foreground/60 font-light">
-                      One consistent point of contact for your account
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 p-6 bg-background border border-border">
-                  <TrendingUp size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
-                  <div>
-                    <div className="font-serif text-lg text-secondary mb-1">Growth Support</div>
-                    <div className="text-sm text-foreground/60 font-light">
-                      Guidance to help you grow your business with us
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 p-6 bg-background border border-border">
-                  <Palette size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
-                  <div>
-                    <div className="font-serif text-lg text-secondary mb-1">In-House Design</div>
-                    <div className="text-sm text-foreground/60 font-light">
-                      Our own creative team behind every custom look
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 p-6 bg-background border border-border">
-                  <CheckCircle2 size={22} className="text-primary shrink-0 mt-1" strokeWidth={1.5} />
-                  <div>
-                    <div className="font-serif text-lg text-secondary mb-1">Full Service</div>
-                    <div className="text-sm text-foreground/60 font-light">
-                      From order to delivery, we support the whole relationship
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
