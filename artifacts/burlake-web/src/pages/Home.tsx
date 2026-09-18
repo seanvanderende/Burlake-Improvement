@@ -131,7 +131,7 @@ export default function Homepage() {
       </section>
 
       {/* Story Section */}
-      <section className="py-24 md:py-32 relative bg-background">
+      <section id="our-story" className="py-24 md:py-32 relative bg-background overflow-hidden">
         <div className="absolute inset-0 pointer-events-none flex justify-center opacity-[0.03]">
           <div className="w-px h-full bg-secondary" />
           <div className="w-1/3 h-full border-x border-secondary" />
@@ -139,42 +139,65 @@ export default function Homepage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-            <div className="lg:col-span-5 reveal">
-              <div className="relative">
-                <div className="absolute -inset-4 border border-secondary/20 translate-x-4 translate-y-4" />
-                <img 
-                  src="/images/about-generations.jpg" 
-                  alt="Generations of Burnaby Lake Growers" 
-                  className="relative z-10 w-full h-[600px] object-cover grayscale-[0.2] contrast-125"
-                />
+          <div className="reveal mb-12 md:mb-16">
+            <span className="inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
+              <div className="w-8 h-px bg-primary" />
+              Our Story
+            </span>
+            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-secondary leading-[1.1] max-w-4xl">
+              Four generations of soil <span className="italic font-light">under our fingernails.</span>
+            </h2>
+          </div>
+
+          <div className="reveal delay-100 relative mb-12 md:mb-16">
+            <div className="absolute -inset-3 md:-inset-4 border border-secondary/20 translate-x-3 translate-y-3 md:translate-x-4 md:translate-y-4" />
+            <div className="relative z-10 overflow-hidden bg-secondary aspect-[4/3] sm:aspect-video">
+              <video
+                className="w-full h-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                preload="metadata"
+                poster="/images/burnaby-lake-aerial-poster.jpg"
+                aria-label="Aerial view of the Burnaby Lake Greenhouses growing operation in Surrey, British Columbia"
+              >
+                <source src="/videos/burnaby-lake-aerial.mp4" type="video/mp4" />
+                Your browser does not support embedded video.
+              </video>
+              <div className="absolute left-0 bottom-12 sm:bottom-14 bg-secondary/90 backdrop-blur-sm px-5 py-3 md:px-7 md:py-4 pointer-events-none">
+                <div className="text-primary text-[10px] md:text-xs tracking-[0.2em] uppercase font-semibold">
+                  Surrey, British Columbia
+                </div>
+                <div className="font-serif text-white text-lg md:text-2xl mt-1">
+                  1.3 million+ sq. ft. under glass
+                </div>
               </div>
             </div>
-            <div className="lg:col-span-7 lg:pl-10">
-              <span className="reveal inline-flex items-center gap-3 text-primary tracking-[0.2em] text-sm uppercase mb-6 font-semibold">
-                <div className="w-8 h-px bg-primary" />
-                Our Story
-              </span>
-              <h2 className="reveal delay-100 font-serif text-4xl md:text-5xl lg:text-6xl text-secondary leading-[1.1] mb-8">
-                Four generations of soil under our fingernails.
-              </h2>
-              <div className="reveal delay-200 space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20">
+            <div className="reveal delay-200 lg:col-span-7 space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
+              <p>
+                What started over six decades ago as a modest family farm in Surrey, BC, has grown into one of the largest and most respected greenhouse operations in North America — known as much for the consistency of every plant as for the scale at which we produce them.
+              </p>
+              <p>
+                Yet, the core of our business remains exactly as it was on day one: the van der Ende family still walks the rows, inspects the crops, and ensures every plant meets a standard our retail partners stake their own reputations on.
+              </p>
+            </div>
+            <div className="reveal delay-300 lg:col-span-5 lg:border-l lg:border-secondary/10 lg:pl-12">
+              <div className="space-y-6 text-foreground/70 text-lg font-light leading-relaxed">
                 <p>
-                  What started over six decades ago as a modest family farm in Surrey, BC, has grown into one of the largest and most respected greenhouse operations in North America — known as much for the consistency of every plant as for the scale at which we produce them.
+                  We are growers first. Scale is what lets us meet your volume — but quality is what earns your loyalty.
                 </p>
                 <p>
-                  Yet, the core of our business remains exactly as it was on day one: the van der Ende family still walks the rows, inspects the crops, and ensures every plant meets a standard our retail partners stake their own reputations on.
-                </p>
-                <p>
-                  We are growers first. Scale is what lets us meet your volume — but quality is what earns your loyalty. Over 65 years of growing expertise, held to the Western Canada quality standard, available exclusively to the trade.
-                </p>
-                <p>
-                  And you don't have to pay a premium for it. Growing at scale keeps our pricing competitive across the market — the highest-quality product your customers expect, at a cost that works for your business.
+                  Growing at scale keeps our pricing competitive — the highest-quality product your customers expect, at a cost that works for your business.
                 </p>
               </div>
-              <div className="reveal delay-300 mt-12 pt-8 border-t border-secondary/10">
+              <div className="mt-10 pt-8 border-t border-secondary/10">
                 <div className="font-serif italic text-2xl text-secondary">The van der Ende Family</div>
-                <div className="text-sm tracking-widest text-foreground/50 uppercase mt-2">Founders & Operators</div>
+                <div className="text-sm tracking-widest text-foreground/50 uppercase mt-2">Founders &amp; Operators</div>
               </div>
             </div>
           </div>
