@@ -153,15 +153,18 @@ export default function Homepage() {
             <div className="absolute -inset-3 md:-inset-4 border border-secondary/20 translate-x-3 translate-y-3 md:translate-x-4 md:translate-y-4" />
             <div className="relative z-10 overflow-hidden bg-secondary aspect-[4/3] sm:aspect-video">
               <video
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover pointer-events-none"
                 autoPlay
                 muted
                 loop
                 playsInline
-                controls
+                disablePictureInPicture
+                disableRemotePlayback
                 preload="metadata"
                 poster="/images/burnaby-lake-aerial-poster.jpg"
                 aria-label="Aerial view of the Burnaby Lake Greenhouses growing operation in Surrey, British Columbia"
+                controlsList="nodownload noplaybackrate nofullscreen"
+                onContextMenu={(e) => e.preventDefault()}
               >
                 <source src="/videos/burnaby-lake-aerial.mp4" type="video/mp4" />
                 Your browser does not support embedded video.
