@@ -1,25 +1,24 @@
 import { Router } from "express";
 import { requireAdmin } from "../lib/adminAuth";
-import { getPortalCode, getPortalCodeVersion, setPortalCode } from "../lib/portalSettings";
+import { hasPortalCode, getPortalCodeVersion, setPortalCode } from "../lib/portalSettings";
 
 const router = Router();
 
 /**
  * GET /admin/portal-settings
- * Returns the current portal code (masked) and version token.
+ * Returns whether a portal code is currently set and its version token.
  * Requires an active admin session.
+ *
+ * The code is hashed at rest (see lib/portalSettings.ts), so it can no
+ * longer be partially revealed here the way it used to be -- staff can
+ * confirm one is set and rotate it, but not read back what it is.
  */
 router.get("/admin/portal-settings", requireAdmin, async (_req, res) => {
   try {
-    const code = await getPortalCode();
+    const hasCode = await hasPortalCode();
     const version = await getPortalCodeVersion();
 
-    res.json({
-      hasCode: !!code,
-      // Mask all but the last 2 chars so staff can confirm which code is active
-      maskedCode: code ? "*".repeat(Math.max(0, code.length - 2)) + code.slice(-2) : null,
-      version,
-    });
+    res.json({ hasCode, maskedCode: null, version });
   } catch {
     res.status(500).json({ error: "Failed to load portal settings" });
   }

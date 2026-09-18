@@ -4,26 +4,40 @@ import { db, brochuresTable, priceListsTable } from "@workspace/db";
 import { requireAdmin, requirePortalAccess } from "../lib/adminAuth";
 import { desc, eq } from "drizzle-orm";
 import { objectStorageService } from "./storage";
-import { getPortalCode, getPortalCodeVersion } from "../lib/portalSettings";
+import { hasPortalCode, verifyPortalCode, getPortalCodeVersion } from "../lib/portalSettings";
+import { createLoginThrottle } from "../lib/rateLimit";
 
 const router = Router();
+
+// Same shared-secret brute-force concern as the admin login (see admin.ts) —
+// this is a single portal code with no per-customer accounts.
+const { isRateLimited, recordFailedAttempt, reset: resetAttempts } =
+  createLoginThrottle(5, 15 * 60 * 1000);
 
 // ── Customer auth ─────────────────────────────────────────────────────────────
 
 /** POST /brochures/auth — customer enters password to unlock portal access */
 router.post("/brochures/auth", async (req, res) => {
-  const { password } = req.body ?? {};
-  const expected = await getPortalCode();
+  const key = req.ip ?? "unknown";
+  if (isRateLimited(key)) {
+    res.status(429).json({ error: "Too many attempts. Try again later." });
+    return;
+  }
 
-  if (!expected) {
+  const { password } = req.body ?? {};
+
+  if (!(await hasPortalCode())) {
     res.status(503).json({ error: "Portal access not configured" });
     return;
   }
 
-  if (!password || password !== expected) {
+  if (!password || typeof password !== "string" || !(await verifyPortalCode(password))) {
+    recordFailedAttempt(key);
     res.status(401).json({ error: "Incorrect password" });
     return;
   }
+
+  resetAttempts(key);
 
   // Store the current version token so we can detect code rotations
   const version = await getPortalCodeVersion();

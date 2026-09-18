@@ -18,35 +18,16 @@ import {
   generateRecoveryCode,
   verifyAndConsumeRecoveryCode,
 } from "../lib/adminPassword";
+import { createLoginThrottle } from "../lib/rateLimit";
 
 const router: IRouter = Router();
 
-// Simple in-memory throttle against online password guessing. This is a
-// single shared-password login (no per-user accounts) so brute-force risk
-// is otherwise unbounded. Keyed by IP; resets on server restart, which is
-// an acceptable tradeoff for a low-traffic internal staff tool.
-const MAX_ATTEMPTS = 5;
-const WINDOW_MS = 15 * 60 * 1000;
-const loginAttempts = new Map<string, { count: number; windowStart: number }>();
-
-function isRateLimited(key: string): boolean {
-  const now = Date.now();
-  const entry = loginAttempts.get(key);
-  if (!entry || now - entry.windowStart > WINDOW_MS) {
-    loginAttempts.set(key, { count: 0, windowStart: now });
-    return false;
-  }
-  return entry.count >= MAX_ATTEMPTS;
-}
-
-function recordFailedAttempt(key: string): void {
-  const entry = loginAttempts.get(key);
-  if (!entry) {
-    loginAttempts.set(key, { count: 1, windowStart: Date.now() });
-    return;
-  }
-  entry.count += 1;
-}
+// Shared throttle against online password guessing. This is a single
+// shared-password login (no per-user accounts) so brute-force risk is
+// otherwise unbounded. Keyed by IP; resets on server restart, which is an
+// acceptable tradeoff for a low-traffic internal staff tool.
+const { isRateLimited, recordFailedAttempt, reset: resetAttempts } =
+  createLoginThrottle(5, 15 * 60 * 1000);
 
 router.post("/admin/login", async (req: Request, res: Response): Promise<void> => {
   if (!process.env.ADMIN_PASSWORD) {
@@ -73,7 +54,7 @@ router.post("/admin/login", async (req: Request, res: Response): Promise<void> =
     return;
   }
 
-  loginAttempts.delete(key);
+  resetAttempts(key);
   req.session.isAdmin = true;
   res.json(AdminLoginResponse.parse({ authenticated: true }));
 });
@@ -155,7 +136,7 @@ router.post(
     }
 
     await setAdminPassword(parsed.data.newPassword);
-    loginAttempts.delete(key);
+    resetAttempts(key);
     req.session.isAdmin = true;
     res.json(ForgotAdminPasswordResponse.parse({ authenticated: true }));
   },

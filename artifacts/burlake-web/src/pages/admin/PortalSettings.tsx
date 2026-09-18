@@ -100,8 +100,9 @@ export default function PortalSettings() {
         ) : (
           <div className="space-y-1">
             {data?.hasCode ? (
-              <p className="font-mono text-base tracking-widest text-foreground">
-                {data.maskedCode}
+              <p className="text-sm text-foreground">
+                A portal code is currently set. For security it can't be displayed here — set a
+                new one below if buyers need to be given a fresh code.
               </p>
             ) : (
               <p className="text-muted-foreground text-sm italic">

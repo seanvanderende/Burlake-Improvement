@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { getPortalCode, getPortalCodeVersion } from "./portalSettings";
+import { verifyPortalCode, getPortalCodeVersion } from "./portalSettings";
 
 declare module "express-session" {
   interface SessionData {
@@ -66,8 +66,7 @@ export async function requirePortalAccess(
   const header = Array.isArray(authHeader) ? authHeader[0] : authHeader;
   if (header?.startsWith("Bearer ")) {
     const token = header.slice(7);
-    const expected = await getPortalCode();
-    if (expected && token === expected) {
+    if (await verifyPortalCode(token)) {
       next();
       return;
     }
